@@ -3,16 +3,12 @@
   "WorkspaceRootPath": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
-      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\data\\migrations\\20251205144252_firstmigration.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -23,16 +19,24 @@
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\spritzbuddy.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\controllers\\homecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\views\\shared\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\shared\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\appsettings.json||{90A6B3A7-C1A3-4009-A288-E2FF89E96FA0}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
@@ -46,11 +50,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 1099,
-          "SelectedChildIndex": 2,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 0,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2025-12-05T14:57:30.876Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "20251205144252_FirstMigration.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Data\\Migrations\\20251205144252_FirstMigration.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Data\\Migrations\\20251205144252_FirstMigration.cs",
@@ -58,12 +75,11 @@
               "RelativeToolTip": "SpritzBuddy\\Data\\Migrations\\20251205144252_FirstMigration.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T14:42:53.242Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-05T14:42:53.242Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "SpritzBuddy.csproj",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\SpritzBuddy.csproj",
               "RelativeDocumentMoniker": "SpritzBuddy\\SpritzBuddy.csproj",
@@ -71,12 +87,11 @@
               "RelativeToolTip": "SpritzBuddy\\SpritzBuddy.csproj",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAABRAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2025-12-05T14:38:06.167Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-05T14:38:06.167Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 4,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Controllers\\HomeController.cs",
@@ -84,12 +99,11 @@
               "RelativeToolTip": "SpritzBuddy\\Controllers\\HomeController.cs",
               "ViewState": "AgIAABcAAAAAAAAAAAAgwCEAAAA6AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T14:32:20.516Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-05T14:32:20.516Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 5,
               "Title": "_LoginPartial.cshtml",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
               "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
@@ -101,7 +115,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 6,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\appsettings.json",
               "RelativeDocumentMoniker": "SpritzBuddy\\appsettings.json",
@@ -109,8 +123,7 @@
               "RelativeToolTip": "SpritzBuddy\\appsettings.json",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAIAAACUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
-              "WhenOpened": "2025-12-05T14:12:51.193Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-05T14:12:51.193Z"
             },
             {
               "$type": "Document",
@@ -126,7 +139,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 8,
               "Title": "ApplicationUser.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ApplicationUser.cs",
@@ -138,7 +151,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Home\\Index.cshtml",
@@ -156,7 +169,7 @@
               "RelativeDocumentMoniker": "SpritzBuddy\\Program.cs",
               "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeToolTip": "SpritzBuddy\\Program.cs",
-              "ViewState": "AgIAACoAAAAAAAAAAAAAABEAAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAADoAAAAAAAAAAAAuwEsAAAAFAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-05T13:49:16.338Z",
               "EditorCaption": ""

@@ -58,4 +58,23 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
+// --- BLOC NOU PENTRU DOCKER: Aplicare Migrări la Start ---
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        // Această comandă face ce făcea "Update-Database" în consolă
+        context.Database.Migrate();
+        Console.WriteLine("✅ Baza de date a fost migrată cu succes în Docker!");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "❌ Eroare la migrarea bazei de date.");
+    }
+}
+// ---------------------------------------------------------
+
 app.Run();
