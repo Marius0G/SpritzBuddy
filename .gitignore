@@ -1,0 +1,59 @@
+## Visual Studio ##
+.vs/
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.cache
+*.ilk
+*.log
+[Bb]in/
+[Oo]bj/
+*.user
+*.userosscache
+*.sln.docstates
+
+## ASP.NET Core ##
+project.lock.json
+.project
+.classpath
+/wwwroot/lib/
+/wwwroot/dist/
+
+## User-specific files ##
+*.suo
+*.user
+*.userprefs
+
+## Database files (CRITIC PENTRU VOI) ##
+*.mdf
+*.ldf
+*.ndf
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
+
+## Logs ##
+*.log
+
+## Windows OS files ##
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+## Mac OS files (in caz ca unul dintre voi e pe Mac) ##
+.DS_Store
+
+## Visual Studio Code (optional, daca folositi si VS Code) ##
+.vscode/
+
+## Secrets & Local Config ##
+# Putem ignora setarile de development locale daca contin secrete
+# Dar pentru acest proiect e ok sa lasati appsettings.json daca folositi LocalDB
+# appsettings.Development.json
+secrets.json
