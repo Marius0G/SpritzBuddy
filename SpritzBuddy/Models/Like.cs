@@ -4,8 +4,8 @@
     {
         public int PostId { get; set; }
         public int UserId { get; set; }
-        public required ApplicationUser User { get; set; }
-        public required Post Post { get; set; }
+        public virtual ApplicationUser User { get; set; } = null!;
+        public virtual Post Post { get; set; } = null!;
 
     }
 }

@@ -1,18 +1,26 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace SpritzBuddy.Models
 {
     // Moștenim IdentityUser pentru a avea deja funcționalități de login, parolă, email etc.
     public class ApplicationUser : IdentityUser<int>
     {
-        // Aici vom adăuga mai târziu: NumeComplet, Descriere, Poza, etc.
-        // Momentan o lăsăm goală, dar moștenește tot ce trebuie.
+        [MaxLength(512)]
+        [DataType(DataType.ImageUrl)]
+        public string? ProfilePictureUrl { get; set; }
 
-        public string ProfilePictureUrl { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public string FirstName { get; set; } = string.Empty;
 
-        public string Description { get; set; }
+        [Required]
+        [MaxLength(100)]
+        public string LastName { get; set; } = string.Empty;
+
+        [MaxLength(1000)]
+        public string? Description { get; set; }
+
         public bool IsPrivate { get; set; }
 
         public DateTime CreatedDate { get; set; }

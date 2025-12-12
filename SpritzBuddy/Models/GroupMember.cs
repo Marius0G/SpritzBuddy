@@ -5,8 +5,8 @@
         public int UserId { get; set; }
         public int GroupId { get; set; }
 
-        public required ApplicationUser User { get; set; }
-        public required Group Group { get; set; }
+        public virtual ApplicationUser User { get; set; } = null!;
+        public virtual Group Group { get; set; } = null!;
         public DateTime JoinedDate { get; set; }
     }
 }
