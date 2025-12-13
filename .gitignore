@@ -1,4 +1,5 @@
 ## Visual Studio ##
+/.vs/
 .vs/
 *_i.c
 *_p.c
@@ -11,10 +12,12 @@
 *.ilk
 *.log
 [Bb]in/
+/obj/
 [Oo]bj/
 *.user
 *.userosscache
 *.sln.docstates
+.vs
 
 ## ASP.NET Core ##
 project.lock.json
