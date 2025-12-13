@@ -3,6 +3,10 @@
   "WorkspaceRootPath": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{81DDED9D-158B-E303-5F62-77A2896D2A5A}|docker-compose.dcproj|solutionrelative:docker-compose.yml||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -46,11 +50,24 @@
       "DocumentGroups": [
         {
           "DockedWidth": 1099,
-          "SelectedChildIndex": 8,
+          "SelectedChildIndex": 0,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
+              "Title": "docker-compose.yml",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\docker-compose.yml",
+              "RelativeDocumentMoniker": "docker-compose.yml",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\docker-compose.yml",
+              "RelativeToolTip": "docker-compose.yml",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABAAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.003775|",
+              "WhenOpened": "2025-12-05T14:57:30.876Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "20251205144252_FirstMigration.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Data\\Migrations\\20251205144252_FirstMigration.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Data\\Migrations\\20251205144252_FirstMigration.cs",
@@ -62,7 +79,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "SpritzBuddy.csproj",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\SpritzBuddy.csproj",
               "RelativeDocumentMoniker": "SpritzBuddy\\SpritzBuddy.csproj",
@@ -74,7 +91,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 4,
               "Title": "HomeController.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\HomeController.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Controllers\\HomeController.cs",
@@ -86,7 +103,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 5,
               "Title": "_LoginPartial.cshtml",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
               "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
@@ -98,7 +115,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 6,
               "Title": "appsettings.json",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\appsettings.json",
               "RelativeDocumentMoniker": "SpritzBuddy\\appsettings.json",
@@ -110,7 +127,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 7,
               "Title": "ApplicationDbContext.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Data\\ApplicationDbContext.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Data\\ApplicationDbContext.cs",
@@ -122,7 +139,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 8,
               "Title": "ApplicationUser.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ApplicationUser.cs",
@@ -134,7 +151,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 9,
               "Title": "Index.cshtml",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
               "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Home\\Index.cshtml",
@@ -146,7 +163,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Program.cs",
