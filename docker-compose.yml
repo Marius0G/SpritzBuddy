@@ -12,8 +12,8 @@ services:
       # Aici suprascriem conexiunea ca să se lege la serviciul 'db' de mai jos
       - ConnectionStrings__DefaultConnection=Server=db;Database=SpritzBuddy;User Id=sa;Password=SpritzBuddy_2025!;TrustServerCertificate=True;
     ports:
-      - "8080:8080"
-      - "8081:8081"
+      - "5000:8080"
+      - "5001:8081"
     depends_on:
       - db # Așteaptă să pornească baza
 
