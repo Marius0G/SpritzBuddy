@@ -15,8 +15,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // 2. CONFIGURARE IDENTITY
-// Folosim ApplicationUser (pentru poză/descriere) și IdentityRole<int> (pentru Admin/User)
-builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
+// Folosim ApplicationUser (pentru poză/descriere) și IdentityRole (pentru Admin/User)
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.SignIn.RequireConfirmedAccount = false; // Nu cerem confirmare email momentan
     options.Password.RequireDigit = true;
