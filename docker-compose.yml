@@ -1,0 +1,33 @@
+﻿version: '3.4'
+
+services:
+  # Serviciul 1: Aplicația Web (Generată de VS, dar ajustată de noi)
+  spritzbuddy:
+    image: ${DOCKER_REGISTRY-}spritzbuddy
+    build:
+      context: .
+      dockerfile: SpritzBuddy/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      # Aici suprascriem conexiunea ca să se lege la serviciul 'db' de mai jos
+      - ConnectionStrings__DefaultConnection=Server=db;Database=SpritzBuddy;User Id=sa;Password=SpritzBuddy_2025!;TrustServerCertificate=True;
+    ports:
+      - "5000:8080"
+      - "5001:8081"
+    depends_on:
+      - db # Așteaptă să pornească baza
+
+  # Serviciul 2: Baza de date SQL Server
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: spritzbuddy_sql
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=SpritzBuddy_2025!
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlvolume:/var/opt/mssql
+
+volumes:
+  sqlvolume:

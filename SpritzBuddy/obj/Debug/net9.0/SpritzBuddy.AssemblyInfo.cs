@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+368b3fd0edd5566af1c41657d0d5ade9d8019a55")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0800b62c693a00407a1bd8af224f5b7cd2db9d77")]
 [assembly: System.Reflection.AssemblyProductAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

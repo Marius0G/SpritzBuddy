@@ -3,12 +3,32 @@
   "WorkspaceRootPath": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\views\\profile\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\profile\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\viewmodels\\editprofileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\viewmodels\\editprofileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +38,105 @@
       "DocumentGroups": [
         {
           "DockedWidth": 1099,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Index.cshtml",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
-              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Home\\Index.cshtml",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
-              "RelativeToolTip": "SpritzBuddy\\Views\\Home\\Index.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAMAAAANAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-05T13:49:21.185Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-14T00:22:14.343Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Program.cs",
               "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeToolTip": "SpritzBuddy\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAACEAAAAAAAAAAAAAAEEAAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-05T13:49:16.338Z",
+              "WhenOpened": "2025-12-13T23:57:17.749Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "ProfileController.cs",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Controllers\\ProfileController.cs",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
+              "RelativeToolTip": "SpritzBuddy\\Controllers\\ProfileController.cs",
+              "ViewState": "AgIAAD4AAAAAAAAAAAAEwCcAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T23:57:07.129Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "ProfileService.cs",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Services\\ProfileService.cs",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
+              "RelativeToolTip": "SpritzBuddy\\Services\\ProfileService.cs",
+              "ViewState": "AgIAAD0AAAAAAAAAAAAEwEYAAAACAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T23:56:59.22Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "IProfileService.cs",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Services\\IProfileService.cs",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
+              "RelativeToolTip": "SpritzBuddy\\Services\\IProfileService.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T23:56:49.292Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "EditProfileViewModel.cs",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "RelativeToolTip": "SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T23:56:45.946Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ApplicationUser.cs",
+              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ApplicationUser.cs",
+              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
+              "RelativeToolTip": "SpritzBuddy\\Models\\ApplicationUser.cs",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAuwAcAAAARAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-13T23:34:27.641Z",
               "EditorCaption": ""
             }
           ]
