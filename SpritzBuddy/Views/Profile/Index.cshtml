@@ -1,0 +1,95 @@
+@model SpritzBuddy.Models.ViewModels.ProfileViewModel
+
+@{
+ ViewData["Title"] = "Profil";
+}
+
+<div class="container py-4">
+ <div class="row">
+ <div class="col-md-4">
+ <div class="card">
+ <div class="card-body text-center">
+ @if (!string.IsNullOrEmpty(Model.ProfilePicturePath))
+ {
+ <img src="@Model.ProfilePicturePath" class="rounded-circle img-thumbnail mb-3" style="width:160px;height:160px;object-fit:cover;" alt="Profile" />
+ }
+ else
+ {
+ <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3" style="width:160px;height:160px;">@((Model.FirstName ?? "")[0])</div>
+ }
+
+ <h4>@Model.FirstName @Model.LastName</h4>
+ <p class="text-muted">@Model.Description</p>
+
+ @if (Model.IsCurrentUser)
+ {
+ <div class="mb-3">
+ <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-primary btn-sm">Editeaz? profil</a>
+ </div>
+ }
+
+ <div class="d-flex justify-content-around mt-3">
+ <div class="text-center">
+ <strong>@Model.PostCount</strong>
+ <div class="text-muted">Posts</div>
+ </div>
+ <div class="text-center">
+ <strong>@Model.FollowersCount</strong>
+ <div class="text-muted">Followers</div>
+ </div>
+ <div class="text-center">
+ <strong>@Model.FollowingCount</strong>
+ <div class="text-muted">Following</div>
+ </div>
+ </div>
+ </div>
+ </div>
+ </div>
+
+ <div class="col-md-8">
+ <div class="card mb-3">
+ <div class="card-body">
+ <h5>Badges</h5>
+ @if (Model.Badges != null && Model.Badges.Count >0)
+ {
+ <div>
+ @foreach (var badge in Model.Badges)
+ {
+ <span class="badge bg-primary me-1">@badge</span>
+ }
+ </div>
+ }
+ else
+ {
+ <p class="text-muted">No badges yet.</p>
+ }
+ </div>
+ </div>
+
+ <div class="card">
+ <div class="card-body">
+ <h5>Spritz-o-meter</h5>
+ @if (Model.DrinkStats != null && Model.DrinkStats.Count >0)
+ {
+ foreach (var kv in Model.DrinkStats)
+ {
+ <div class="mb-2">
+ <div class="d-flex justify-content-between">
+ <div>@kv.Key</div>
+ <div>@string.Format("{0:0}%", kv.Value)</div>
+ </div>
+ <div class="progress">
+ <div class="progress-bar" role="progressbar" style="width:@kv.Value%" aria-valuenow="@kv.Value" aria-valuemin="0" aria-valuemax="100"></div>
+ </div>
+ </div>
+ }
+ }
+ else
+ {
+ <p class="text-muted">No drink stats yet.</p>
+ }
+ </div>
+ </div>
+ </div>
+ </div>
+</div>

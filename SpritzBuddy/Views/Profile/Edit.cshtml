@@ -1,0 +1,72 @@
+@model SpritzBuddy.Models.ViewModels.EditProfileViewModel
+
+@{
+ ViewData["Title"] = "Editeaz? Profilul";
+ // Use the canonical ProfilePictureUrl property only
+ var profilePic = (string?)ViewBag.ProfilePictureUrl;
+}
+
+<div class="container py-4">
+ <div class="row justify-content-center">
+ <div class="col-md-8 col-lg-6">
+ <div class="card shadow-sm">
+ <div class="card-body">
+ <h3 class="card-title mb-3 text-center">Editeaz? Profilul</h3>
+
+ <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+ @if (!string.IsNullOrEmpty(profilePic))
+ {
+ <div class="text-center mb-3">
+ <img src="@profilePic" class="rounded-circle img-thumbnail" style="width:120px; height:120px; object-fit:cover;" alt="Poza profil" />
+ </div>
+ }
+
+ <form asp-action="Edit" asp-controller="Profile" method="post" enctype="multipart/form-data">
+ @Html.AntiForgeryToken()
+
+ <div class="mb-3">
+ <label asp-for="ProfileImage" class="form-label">Schimb? poza</label>
+ <input asp-for="ProfileImage" type="file" class="form-control" />
+ <span asp-validation-for="ProfileImage" class="text-danger"></span>
+ </div>
+
+ <div class="row">
+ <div class="col-md-6 mb-3">
+ <label asp-for="FirstName" class="form-label">Prenume</label>
+ <input asp-for="FirstName" class="form-control" />
+ <span asp-validation-for="FirstName" class="text-danger"></span>
+ </div>
+ <div class="col-md-6 mb-3">
+ <label asp-for="LastName" class="form-label">Nume</label>
+ <input asp-for="LastName" class="form-control" />
+ <span asp-validation-for="LastName" class="text-danger"></span>
+ </div>
+ </div>
+
+ <div class="mb-3">
+ <label asp-for="Description" class="form-label">Descriere</label>
+ <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+ <span asp-validation-for="Description" class="text-danger"></span>
+ </div>
+
+ <div class="form-check form-switch mb-3">
+ <input class="form-check-input" asp-for="IsPrivate" type="checkbox" role="switch" id="IsPrivateSwitch" />
+ <label class="form-check-label" for="IsPrivateSwitch">Profil Privat</label>
+ <span asp-validation-for="IsPrivate" class="text-danger"></span>
+ </div>
+
+ <div class="d-flex justify-content-between">
+ <a asp-controller="Profile" asp-action="Index" class="btn btn-secondary">Anuleaz?</a>
+ <button type="submit" class="btn btn-primary">Salveaz? modific?rile</button>
+ </div>
+ </form>
+ </div>
+ </div>
+ </div>
+ </div>
+</div>
+
+@section Scripts {
+ <partial name="_ValidationScriptsPartial" />
+}

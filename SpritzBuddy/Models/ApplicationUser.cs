@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
 
 namespace SpritzBuddy.Models
@@ -36,5 +37,7 @@ namespace SpritzBuddy.Models
         public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
         public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
         public virtual ICollection<GroupMessage> GroupMessages { get; set; } = new List<GroupMessage>();
+
+
     }
 }

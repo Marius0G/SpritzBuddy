@@ -11,11 +11,12 @@
 using System;
 using System.Reflection;
 
+[assembly: Microsoft.AspNetCore.Identity.UI.UIFrameworkAttribute("Bootstrap5")]
 [assembly: Microsoft.Extensions.Configuration.UserSecrets.UserSecretsIdAttribute("aspnet-SpritzBuddy-8ab2837d-4fae-45fd-92a2-e7dd543162fb")]
 [assembly: System.Reflection.AssemblyCompanyAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e569cf5ea0780b8e9ba3b5c49c27b5a6cff12c1a")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0800b62c693a00407a1bd8af224f5b7cd2db9d77")]
 [assembly: System.Reflection.AssemblyProductAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyTitleAttribute("SpritzBuddy")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
