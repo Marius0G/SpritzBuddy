@@ -31,6 +31,14 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole<int>>(options =>
 
 // NOTA: Am șters linia cu "AddDefaultIdentity" care intra in conflict.
 
+// Configure application cookies to redirect to custom login page
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.LoginPath = "/Account/Login"; // Redirect to your custom login page
+    options.LogoutPath = "/Account/Logout";
+    options.AccessDeniedPath = "/Account/AccessDenied"; // Optional: custom access denied page
+});
+
 builder.Services.AddControllersWithViews();
 // Register Razor Pages so Identity area pages (Areas/Identity) are reachable
 builder.Services.AddRazorPages();

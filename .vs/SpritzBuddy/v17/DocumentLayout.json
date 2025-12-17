@@ -1,33 +1,73 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\",
+  "WorkspaceRootPath": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\_viewimports.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\postscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\controllers\\postscontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\posts\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\posts\\create.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\shared\\_layout.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\shared\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\shared\\_loginpartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\data\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\data\\dbseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\data\\applicationdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\home\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\shared\\_validationscriptspartial.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\_viewstart.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\services\\profileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\views\\profile\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\views\\profile\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\views\\profile\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\controllers\\profilecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\services\\iprofileservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\viewmodels\\editprofileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\models\\viewmodels\\editprofileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\viewmodels\\editprofileviewmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|d:\\facultate\\asp .net\\proiect\\spritzbuddy\\spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|c:\\users\\bogda\\onedrive\\desktop\\codat\\scoala\\anul2\\semestrul1\\net\\proiect\\spritzbuddy\\spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{D30C90FB-0788-4653-A9DE-7B49D335E3DB}|SpritzBuddy\\SpritzBuddy.csproj|solutionrelative:spritzbuddy\\models\\applicationuser.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
@@ -37,9 +77,17 @@
       "VerticalTabListWidth": 256,
       "DocumentGroups": [
         {
-          "DockedWidth": 1099,
-          "SelectedChildIndex": 5,
+          "DockedWidth": 348,
+          "SelectedChildIndex": 8,
           "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:1:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:4:0:{e8034f19-ab72-4f06-83fd-f6832b41aa63}"
+            },
             {
               "$type": "Bookmark",
               "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
@@ -50,94 +98,219 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Edit.cshtml",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
-              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
-              "RelativeToolTip": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAtAAAAAAAAAA==",
+              "DocumentIndex": 2,
+              "Title": "Create.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Posts\\Create.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Posts\\Create.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Posts\\Create.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Posts\\Create.cshtml",
+              "ViewState": "AgIAABkAAAAAAAAAAAAUwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-12-14T00:22:14.343Z",
+              "WhenOpened": "2025-12-17T13:17:07.345Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
+              "Title": "_Layout.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_Layout.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Shared\\_Layout.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_Layout.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Shared\\_Layout.cshtml",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAABoAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:07:41.938Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "PostsController.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Controllers\\PostsController.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Controllers\\PostsController.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Controllers\\PostsController.cs",
+              "RelativeToolTip": "SpritzBuddy\\Controllers\\PostsController.cs",
+              "ViewState": "AgIAAAUBAAAAAAAAAAArwHMAAAAuAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T13:06:25.323Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "_LoginPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Shared\\_LoginPartial.cshtml",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:08:37.613Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "_ViewImports.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\_ViewImports.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\_ViewImports.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\_ViewImports.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\_ViewImports.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAZAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:07:32.989Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "ApplicationDbContext.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Data\\ApplicationDbContext.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Data\\ApplicationDbContext.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Data\\ApplicationDbContext.cs",
+              "RelativeToolTip": "SpritzBuddy\\Data\\ApplicationDbContext.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T13:09:22.207Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Home\\Index.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Home\\Index.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Home\\Index.cshtml",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:07:21.086Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "DbSeeder.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Data\\DbSeeder.cs",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Data\\DbSeeder.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Data\\DbSeeder.cs",
+              "RelativeToolTip": "SpritzBuddy\\Data\\DbSeeder.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-12-17T13:09:24.467Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "_ValidationScriptsPartial.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Shared\\_ValidationScriptsPartial.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:08:39.084Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "_ViewStart.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\_ViewStart.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\_ViewStart.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\_ViewStart.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\_ViewStart.cshtml",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-17T13:07:28.442Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Edit.cshtml",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "RelativeDocumentMoniker": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "RelativeToolTip": "SpritzBuddy\\Views\\Profile\\Edit.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-12-14T00:22:14.343Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
               "Title": "Program.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Program.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Program.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Program.cs",
               "RelativeToolTip": "SpritzBuddy\\Program.cs",
-              "ViewState": "AgIAACEAAAAAAAAAAAAAAEEAAAAPAAAAAAAAAA==",
+              "ViewState": "AgIAAGEAAAAAAAAAAIBJwGMAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-13T23:57:17.749Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 13,
               "Title": "ProfileController.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Controllers\\ProfileController.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Controllers\\ProfileController.cs",
               "RelativeToolTip": "SpritzBuddy\\Controllers\\ProfileController.cs",
               "ViewState": "AgIAAD4AAAAAAAAAAAAEwCcAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-13T23:57:07.129Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-13T23:57:07.129Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 10,
               "Title": "ProfileService.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Services\\ProfileService.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Services\\ProfileService.cs",
               "RelativeToolTip": "SpritzBuddy\\Services\\ProfileService.cs",
-              "ViewState": "AgIAAD0AAAAAAAAAAAAEwEYAAAACAAAAAAAAAA==",
+              "ViewState": "AgIAABoAAAAAAAAAAAAqwCQAAAAOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-12-13T23:56:59.22Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 14,
               "Title": "IProfileService.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Services\\IProfileService.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Services\\IProfileService.cs",
               "RelativeToolTip": "SpritzBuddy\\Services\\IProfileService.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-13T23:56:49.292Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-13T23:56:49.292Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 15,
               "Title": "EditProfileViewModel.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
               "RelativeToolTip": "SpritzBuddy\\Models\\ViewModels\\EditProfileViewModel.cs",
               "ViewState": "AgIAAAYAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-13T23:56:45.946Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-13T23:56:45.946Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 16,
               "Title": "ApplicationUser.cs",
-              "DocumentMoniker": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
+              "DocumentMoniker": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
               "RelativeDocumentMoniker": "SpritzBuddy\\Models\\ApplicationUser.cs",
-              "ToolTip": "D:\\Facultate\\ASP .NET\\PROIECT\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
+              "ToolTip": "C:\\Users\\bogda\\OneDrive\\Desktop\\Codat\\Scoala\\Anul2\\Semestrul1\\NET\\Proiect\\SpritzBuddy\\SpritzBuddy\\Models\\ApplicationUser.cs",
               "RelativeToolTip": "SpritzBuddy\\Models\\ApplicationUser.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAuwAcAAAARAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-12-13T23:34:27.641Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-13T23:34:27.641Z"
             }
           ]
         }
