@@ -1,0 +1,8 @@
+# User-uploaded files (keep directory structure, ignore contents)
+wwwroot/uploads/*
+!wwwroot/uploads/.gitkeep
+!wwwroot/uploads/profiles/.gitkeep
+
+# Allow the directory structure to be tracked
+!wwwroot/uploads/
+!wwwroot/uploads/profiles/

@@ -47,7 +47,7 @@
                     </small>
                 </div>
                 <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
                         <div class="btn-group">
                             <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-info btn-sm">Details</a>
                             @if (User.Identity.IsAuthenticated)
@@ -60,13 +60,14 @@
                                 }
                             }
                         </div>
-
+                    </div>
+                    
+                    <div class="d-flex justify-content-between align-items-center">
                         <!-- Like Section -->
                         <div class="like-section" data-post-id="@post.Id">
                             @if (User.Identity.IsAuthenticated)
                             {
-                                <button type="button" class="btn btn-outline-danger btn-sm like-btn"
-                                    data-post-id="@post.Id">
+                                <button type="button" class="btn btn-outline-danger btn-sm like-btn" data-post-id="@post.Id">
                                     <i class="bi bi-heart like-icon"></i>
                                     <span class="like-count">0</span>
                                 </button>
@@ -78,8 +79,13 @@
                                     <span class="like-count">0</span>
                                 </a>
                             }
-                            <a asp-controller="Likes" asp-action="PostLikes" asp-route-id="@post.Id" class="btn btn-link btn-sm p-0 ms-1">
-                                <small>Likes</small>
+                        </div>
+
+                        <!-- Comment Section -->
+                        <div class="comment-section" data-post-id="@post.Id">
+                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-secondary btn-sm">
+                                <i class="bi bi-chat-fill"></i>
+                                <span class="comment-count">0</span>
                             </a>
                         </div>
                     </div>
@@ -107,7 +113,7 @@
 
 @section Scripts {
     <script>
-        // Load like status for all posts when page loads
+        // Load like status and comment counts for all posts when page loads
         $(document).ready(function() {
             @if (User.Identity.IsAuthenticated)
             {
@@ -128,6 +134,12 @@
                 });
                 </text>
             }
+
+            // Load comment counts for all posts
+            $('.comment-section').each(function() {
+                var postId = $(this).data('post-id');
+                loadCommentCount(postId);
+            });
         });
 
         // Handle like button clicks
@@ -150,6 +162,15 @@
                 .done(function(data) {
                     if (data.success) {
                         $('.like-section[data-post-id="' + postId + '"] .like-count').text(data.likeCount);
+                    }
+                });
+        }
+
+        function loadCommentCount(postId) {
+            $.get('/Comments/GetPostComments', { postId: postId })
+                .done(function(data) {
+                    if (data.success) {
+                        $('.comment-section[data-post-id="' + postId + '"] .comment-count').text(data.comments.length);
                     }
                 });
         }
