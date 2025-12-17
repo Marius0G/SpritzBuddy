@@ -46,6 +46,9 @@ builder.Services.AddRazorPages();
 // Register profile service
 builder.Services.AddScoped<IProfileService, ProfileService>();
 
+// Register file upload service
+builder.Services.AddScoped<IFileUploadService, FileUploadService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

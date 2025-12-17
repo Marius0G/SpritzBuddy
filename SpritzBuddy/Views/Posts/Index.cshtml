@@ -1,53 +1,193 @@
 ﻿@model IEnumerable<SpritzBuddy.Models.Post>
+@using System.Security.Claims
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Posts";
+    bool showingAllPosts = ViewData["ShowingAllPosts"] as bool? ?? true;
 }
 
-<h1>Index</h1>
+<h1>@(showingAllPosts ? "All Posts" : "My Posts")</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Title)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Content)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.CreateDate)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.User)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Title)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Content)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.CreateDate)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.User.FirstName)
-            </td>
-            <td>
-                <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
-            </td>
-        </tr>
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    </div>
 }
-    </tbody>
-</table>
+
+<div class="mb-3">
+    <a asp-action="Create" class="btn btn-primary">Create New Post</a>
+    @if (showingAllPosts)
+    {
+        <a asp-action="MyPosts" class="btn btn-secondary">View My Posts</a>
+    }
+    else
+    {
+        <a asp-action="Index" class="btn btn-secondary">View All Posts</a>
+    }
+    @if (User.Identity.IsAuthenticated)
+    {
+        <a asp-controller="Likes" asp-action="UserLikes" class="btn btn-outline-danger">My Liked Posts ❤️</a>
+    }
+</div>
+
+<div class="row">
+    @foreach (var post in Model)
+    {
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">@post.Title</h5>
+                    <p class="card-text">@(post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content)
+                    </p>
+                    <small class="text-muted">
+                        By @post.User.FirstName @post.User.LastName on
+                        @post.CreateDate.ToString("MMM dd, yyyy")
+                    </small>
+                </div>
+                <div class="card-footer">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="btn-group">
+                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-info btn-sm">Details</a>
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                                if (userId != null && int.TryParse(userId, out int userIdInt) && post.UserId == userIdInt)
+                                {
+                                    <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-warning btn-sm">Edit</a>
+                                    <a asp-action="Delete" asp-route-id="@post.Id" class="btn btn-danger btn-sm">Delete</a>
+                                }
+                            }
+                        </div>
+
+                        <!-- Like Section -->
+                        <div class="like-section" data-post-id="@post.Id">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-sm like-btn"
+                                    data-post-id="@post.Id">
+                                    <i class="bi bi-heart like-icon"></i>
+                                    <span class="like-count">0</span>
+                                </button>
+                            }
+                            else
+                            {
+                                <a href="/Account/Login" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-heart"></i>
+                                    <span class="like-count">0</span>
+                                </a>
+                            }
+                            <a asp-controller="Likes" asp-action="PostLikes" asp-route-id="@post.Id" class="btn btn-link btn-sm p-0 ms-1">
+                                <small>Likes</small>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info text-center">
+        @if (showingAllPosts)
+        {
+            <h4>No posts available yet.</h4>
+            <p>Be the first to create a post!</p>
+        }
+        else
+        {
+            <h4>You haven't created any posts yet.</h4>
+            <p><a asp-action="Create" class="btn btn-primary">Create your first post!</a></p>
+        }
+    </div>
+}
+
+@section Scripts {
+    <script>
+        // Load like status for all posts when page loads
+        $(document).ready(function() {
+            @if (User.Identity.IsAuthenticated)
+            {
+                <text>
+                $('.like-section').each(function() {
+                    var postId = $(this).data('post-id');
+                    loadLikeStatus(postId);
+                });
+                </text>
+            }
+            else
+            {
+                <text>
+                // Load like count for non-authenticated users
+                $('.like-section').each(function() {
+                    var postId = $(this).data('post-id');
+                    loadLikeCount(postId);
+                });
+                </text>
+            }
+        });
+
+        // Handle like button clicks
+        $(document).on('click', '.like-btn', function() {
+            var postId = $(this).data('post-id');
+            toggleLike(postId);
+        });
+
+        function loadLikeStatus(postId) {
+            $.get('/Likes/GetLikeStatus', { postId: postId })
+                .done(function(data) {
+                    if (data.success) {
+                        updateLikeButton(postId, data.isLiked, data.likeCount);
+                    }
+                });
+        }
+
+        function loadLikeCount(postId) {
+            $.get('/Likes/GetLikeStatus', { postId: postId })
+                .done(function(data) {
+                    if (data.success) {
+                        $('.like-section[data-post-id="' + postId + '"] .like-count').text(data.likeCount);
+                    }
+                });
+        }
+
+        function toggleLike(postId) {
+            $.post('/Likes/Toggle', { 
+                postId: postId,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+            .done(function(data) {
+                if (data.success) {
+                    updateLikeButton(postId, data.isLiked, data.likeCount);
+                } else {
+                    alert(data.message || 'Error occurred');
+                }
+            })
+            .fail(function() {
+                alert('Error occurred while processing like');
+            });
+        }
+
+        function updateLikeButton(postId, isLiked, likeCount) {
+            var likeBtn = $('.like-btn[data-post-id="' + postId + '"]');
+            var likeIcon = likeBtn.find('.like-icon');
+            var likeCountSpan = likeBtn.find('.like-count');
+            
+            if (isLiked) {
+                likeBtn.removeClass('btn-outline-danger').addClass('btn-danger');
+                likeIcon.removeClass('bi-heart').addClass('bi-heart-fill');
+            } else {
+                likeBtn.removeClass('btn-danger').addClass('btn-outline-danger');
+                likeIcon.removeClass('bi-heart-fill').addClass('bi-heart');
+            }
+            
+            likeCountSpan.text(likeCount);
+        }
+    </script>
+
+    <!-- Add Bootstrap Icons if not already included -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+}

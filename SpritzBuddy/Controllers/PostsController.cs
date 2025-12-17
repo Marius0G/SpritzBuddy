@@ -54,7 +54,8 @@ namespace SpritzBuddy.Controllers
             }
 
             var allPosts = await query
-                .OrderByDescending(p => p.CreateDate)
+                .OrderByDescending(p => p.Likes.Count)
+                .ThenByDescending(p => p.CreateDate)
                 .ToListAsync();
 
             ViewData["ShowingAllPosts"] = true;
@@ -113,17 +114,41 @@ namespace SpritzBuddy.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
-                return RedirectToAction("Login", "Account");
+                ModelState.AddModelError("", "Unable to determine current user. Please log in again.");
+                return View(post);
             }
+
+            // Set the required fields
+            post.UserId = userIdInt;
+            post.CreateDate = DateTime.UtcNow;
+
+            // Remove validation errors for fields we're setting programmatically
+            ModelState.Remove("UserId");
+            ModelState.Remove("CreateDate");
+            ModelState.Remove("User");
 
             if (ModelState.IsValid)
             {
-                post.UserId = userIdInt;
-                post.CreateDate = DateTime.UtcNow;
-                
-                _context.Add(post);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(post);
+                    await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Post created successfully!";
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (Exception ex)
+                {
+                    ModelState.AddModelError("", $"Error creating post: {ex.Message}");
+                }
+            }
+            else
+            {
+                // Log validation errors for debugging
+                var errors = ModelState.Values.SelectMany(v => v.Errors);
+                foreach (var error in errors)
+                {
+                    Console.WriteLine($"Validation Error: {error.ErrorMessage}");
+                }
             }
             
             return View(post);
