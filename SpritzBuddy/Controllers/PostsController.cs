@@ -7,27 +7,37 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Hosting;
 using SpritzBuddy.Data;
 using SpritzBuddy.Models;
+using SpritzBuddy.Models.ViewModels;
+using SpritzBuddy.Services;
 
 namespace SpritzBuddy.Controllers
 {
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IPostMediaService _postMediaService;
+        private readonly IWebHostEnvironment _environment;
 
-        public PostsController(ApplicationDbContext context)
+        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IWebHostEnvironment environment)
         {
             _context = context;
+            _postMediaService = postMediaService;
+            _environment = environment;
         }
 
         // GET: Posts - Shows posts based on privacy and following relationships
         public async Task<IActionResult> Index()
         {
-            var query = _context.Posts.Include(p => p.User).AsQueryable();
+            var query = _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.PostMedias)
+                .AsQueryable();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int? currentUserId = null;
-            
+
             if (userId != null && int.TryParse(userId, out int userIdInt))
             {
                 currentUserId = userIdInt;
@@ -41,7 +51,7 @@ namespace SpritzBuddy.Controllers
                     .Select(f => f.FollowingId)
                     .ToListAsync();
 
-                query = query.Where(p => 
+                query = query.Where(p =>
                     !p.User.IsPrivate ||                           // Public posts
                     p.UserId == currentUserId.Value ||             // Own posts
                     followingIds.Contains(p.UserId)                // Posts from followed users
@@ -72,6 +82,7 @@ namespace SpritzBuddy.Controllers
             }
             var userPosts = _context.Posts
                 .Include(p => p.User)
+                .Include(p => p.PostMedias)
                 .Where(p => p.UserId == userIdInt)
                 .OrderByDescending(p => p.CreateDate);
 
@@ -89,6 +100,7 @@ namespace SpritzBuddy.Controllers
 
             var post = await _context.Posts
                 .Include(p => p.User)
+                .Include(p => p.PostMedias)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (post == null)
             {
@@ -109,30 +121,53 @@ namespace SpritzBuddy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Create([Bind("Title,Content")] Post post)
+        public async Task<IActionResult> Create(CreatePostViewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
                 ModelState.AddModelError("", "Unable to determine current user. Please log in again.");
-                return View(post);
+                return View(model);
             }
-
-            // Set the required fields
-            post.UserId = userIdInt;
-            post.CreateDate = DateTime.UtcNow;
-
-            // Remove validation errors for fields we're setting programmatically
-            ModelState.Remove("UserId");
-            ModelState.Remove("CreateDate");
-            ModelState.Remove("User");
 
             if (ModelState.IsValid)
             {
+                // Create the post
+                var post = new Post
+                {
+                    UserId = userIdInt,
+                    Title = model.Title,
+                    Content = model.Content,
+                    CreateDate = DateTime.UtcNow
+                };
+
                 try
                 {
                     _context.Add(post);
                     await _context.SaveChangesAsync();
+
+                    // Handle media uploads if any
+                    if (model.MediaFiles != null && model.MediaFiles.Any())
+                    {
+                        var uploadedPaths = await _postMediaService.UploadPostMediaAsync(model.MediaFiles, post.Id);
+
+                        // Save media references to database
+                        int orderIndex = 0;
+                        foreach (var path in uploadedPaths)
+                        {
+                            var postMedia = new PostMedia
+                            {
+                                PostId = post.Id,
+                                FilePath = path,
+                                MediaType = PostMediaType.Image,
+                                OrderIndex = orderIndex++
+                            };
+                            _context.PostMedias.Add(postMedia);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
                     TempData["SuccessMessage"] = "Post created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -150,8 +185,8 @@ namespace SpritzBuddy.Controllers
                     Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                 }
             }
-            
-            return View(post);
+
+            return View(model);
         }
 
         // GET: Posts/Edit/5 - ONLY POST OWNER CAN ACCESS
@@ -302,6 +337,50 @@ namespace SpritzBuddy.Controllers
         private bool PostExists(int id)
         {
             return _context.Posts.Any(e => e.Id == id);
+        }
+
+        // DIAGNOSTIC: Check post media status
+        [HttpGet]
+        [Authorize]
+        public async Task<IActionResult> DiagnoseMedia(int postId)
+        {
+            var post = await _context.Posts
+                .Include(p => p.PostMedias)
+                .FirstOrDefaultAsync(p => p.Id == postId);
+
+            if (post == null)
+                return Content($"Post {postId} not found");
+
+            var mediaCount = post.PostMedias?.Count ?? 0;
+            var mediaInfo = post.PostMedias?.Select(pm => new
+            {
+                pm.Id,
+                pm.FilePath,
+                pm.OrderIndex,
+                pm.MediaType,
+                FileExists = System.IO.File.Exists(Path.Combine(_environment.WebRootPath, pm.FilePath.TrimStart('/')))
+            }).ToList();
+
+            var uploadsPath = Path.Combine(_environment.WebRootPath, "uploads", "posts");
+            var filesInDirectory = Directory.Exists(uploadsPath) 
+                ? Directory.GetFiles(uploadsPath).Select(f => Path.GetFileName(f)).ToList()
+                : new List<string>();
+
+            return Content($@"
+POST MEDIA DIAGNOSTIC for Post #{postId}
+
+Post Title: {post.Title}
+PostMedias Count: {mediaCount}
+
+Database Records:
+{string.Join("\n", mediaInfo?.Select(m => $"  - ID: {m.Id}, Path: {m.FilePath}, Exists: {m.FileExists}") ?? new[] { "  (none)" })}
+
+Files in uploads/posts directory:
+{string.Join("\n", filesInDirectory.Select(f => $"  - {f}"))}
+
+Upload Directory: {uploadsPath}
+Directory Exists: {Directory.Exists(uploadsPath)}
+            ");
         }
     }
 }

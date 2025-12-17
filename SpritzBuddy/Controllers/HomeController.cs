@@ -36,7 +36,7 @@ namespace SpritzBuddy.Controllers
                 // Încercăm să numărăm utilizatorii (chiar dacă e 0, înseamnă că tabelul există)
                 int userCount = _context.Users.Count();
 
-                string dbName = _context.Database.ProviderName;
+                string? dbName = _context.Database.ProviderName;
 
                 return Content($"SUCCES! ✅\n" +
                                $"M-am conectat la baza de date!\n" +

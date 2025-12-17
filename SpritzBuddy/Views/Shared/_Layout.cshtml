@@ -1,4 +1,6 @@
-﻿<!DOCTYPE html>
+﻿@using System.Security.Claims
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -8,6 +10,8 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SpritzBuddy.styles.css" asp-append-version="true" />
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
 </head>
 <body>
     <!-- Add anti-forgery token for AJAX requests -->
@@ -29,13 +33,26 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="Index">All Posts</a>
                         </li>
-                        @if (User.Identity.IsAuthenticated)
+                        @if (User.Identity?.IsAuthenticated == true)
                         {
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Posts" asp-action="MyPosts">My Posts</a>
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-area="" asp-controller="Likes" asp-action="UserLikes">Liked Posts ❤️</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-area="" asp-controller="Search" asp-action="Index">
+                                    <i class="bi bi-search"></i> Search Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark position-relative" asp-area="" asp-controller="Follows" asp-action="Requests">
+                                    <i class="bi bi-bell"></i> Requests
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="pending-requests-badge" style="display: none;">
+                                        0
+                                    </span>
+                                </a>
                             </li>
                         }
                         <li class="nav-item">
@@ -61,6 +78,35 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        <script>
+            // Load pending requests count for notification badge
+            $(document).ready(function() {
+                loadPendingRequestsCount();
+                
+                // Refresh count every 30 seconds
+                setInterval(loadPendingRequestsCount, 30000);
+            });
+            
+            function loadPendingRequestsCount() {
+                var userId = '@userId';
+                if (userId) {
+                    $.get('/Follows/GetFollowCounts', { userId: userId })
+                        .done(function(data) {
+                            if (data.success && data.pendingRequestsCount > 0) {
+                                $('#pending-requests-badge').text(data.pendingRequestsCount).show();
+                            } else {
+                                $('#pending-requests-badge').hide();
+                            }
+                        });
+                }
+            }
+        </script>
+    }
+    
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

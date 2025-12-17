@@ -1,7 +1,7 @@
 @model SpritzBuddy.Models.ViewModels.LoginViewModel
 
 @{
- ViewData["Title"] = "Bine ai revenit! ??";
+ ViewData["Title"] = "Bine ai revenit!";
 }
 
 <div class="container py-5">
@@ -9,7 +9,7 @@
  <div class="col-12" style="max-width:500px">
  <div class="card shadow-sm">
  <div class="card-body p-4">
- <h3 class="card-title text-center mb-4">Bine ai revenit! ??</h3>
+ <h3 class="card-title text-center mb-4">Bine ai revenit!</h3>
 
  <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -24,21 +24,21 @@
 
  <div class="form-floating mb-3">
  <input asp-for="Password" class="form-control" id="Password" placeholder="Parola" />
- <label for="Password">Parol?</label>
+ <label for="Password">Parola</label>
  <span asp-validation-for="Password" class="text-danger"></span>
  </div>
 
  <div class="form-check form-switch mb-3">
  <input class="form-check-input" asp-for="RememberMe" type="checkbox" id="RememberMe" />
- <label class="form-check-label" for="RememberMe">?ine-m? minte</label>
+ <label class="form-check-label" for="RememberMe">Tine-ma minte</label>
  </div>
 
  <div class="d-grid mb-3">
- <button type="submit" class="btn btn-success btn-lg">Intr? în cont</button>
+ <button type="submit" class="btn btn-success btn-lg">Intra în cont</button>
  </div>
 
  <div class="text-center">
- <a asp-controller="Account" asp-action="Register">Nu ai cont? Înregistreaz?-te</a>
+ <a asp-controller="Account" asp-action="Register">Nu ai cont? Înregistreaza-te</a>
  </div>
  </form>
  </div>

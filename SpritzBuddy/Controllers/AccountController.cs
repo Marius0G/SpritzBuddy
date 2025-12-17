@@ -74,7 +74,7 @@ namespace SpritzBuddy.Controllers
  // Allow login with either email or username.
  var identifier = model.Identifier?.Trim() ?? string.Empty;
 
- string userNameToSignIn = identifier;
+ string? userNameToSignIn = identifier;
 
  if (!string.IsNullOrEmpty(identifier))
  {
@@ -96,6 +96,12 @@ namespace SpritzBuddy.Controllers
  userNameToSignIn = byName.UserName;
  }
  }
+ }
+
+ if (string.IsNullOrEmpty(userNameToSignIn))
+ {
+ ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+ return View(model);
  }
 
  var result = await _signInManager.PasswordSignInAsync(userNameToSignIn, model.Password, model.RememberMe, lockoutOnFailure: false);

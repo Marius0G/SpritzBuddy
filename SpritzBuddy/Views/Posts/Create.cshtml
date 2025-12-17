@@ -1,31 +1,46 @@
-﻿@model SpritzBuddy.Models.Post
+﻿@model SpritzBuddy.Models.ViewModels.CreatePostViewModel
 
 @{
     ViewData["Title"] = "Create Post";
 }
 
-<h1>Create New Post</h1>
+<h2>Create New Post</h2>
 
-<h4>Share your thoughts</h4>
 <hr />
 <div class="row">
     <div class="col-md-8">
-        <form asp-action="Create" method="post">
-            @Html.AntiForgeryToken()
+        <form asp-action="Create" method="post" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             
             <div class="form-group mb-3">
                 <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" placeholder="Enter post title" />
+                <input asp-for="Title" class="form-control" />
                 <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             
             <div class="form-group mb-3">
                 <label asp-for="Content" class="control-label"></label>
-                <textarea asp-for="Content" class="form-control" rows="5" placeholder="What's on your mind?"></textarea>
+                <textarea asp-for="Content" class="form-control" rows="6"></textarea>
                 <span asp-validation-for="Content" class="text-danger"></span>
             </div>
-            
+
+            <div class="form-group mb-3">
+                <label for="MediaFiles" class="control-label">Add Photos (Optional)</label>
+                <input type="file" 
+                       id="MediaFiles" 
+                       name="MediaFiles" 
+                       class="form-control" 
+                       accept="image/*" 
+                       multiple 
+                       onchange="previewImages(event)" />
+                <small class="form-text text-muted">
+                    You can upload up to 5 images (max 10MB each). Supported formats: JPG, PNG, GIF, WEBP
+                </small>
+            </div>
+
+            <!-- Image Preview Container -->
+            <div id="image-preview" class="row mb-3"></div>
+
             <div class="form-group">
                 <input type="submit" value="Create Post" class="btn btn-primary" />
                 <a asp-action="Index" class="btn btn-secondary">Cancel</a>
@@ -36,4 +51,51 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        function previewImages(event) {
+            const files = event.target.files;
+            const previewContainer = document.getElementById('image-preview');
+            previewContainer.innerHTML = ''; // Clear previous previews
+
+            if (files.length > 5) {
+                alert('You can only upload up to 5 images');
+                event.target.value = '';
+                return;
+            }
+
+            Array.from(files).forEach((file, index) => {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`File ${file.name} is too large. Maximum size is 10MB.`);
+                    return;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    alert(`File ${file.name} is not an image.`);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-3 col-sm-4 col-6 mb-3';
+                    
+                    const imgContainer = document.createElement('div');
+                    imgContainer.className = 'position-relative';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'img-thumbnail';
+                    img.style.width = '100%';
+                    img.style.height = '150px';
+                    img.style.objectFit = 'cover';
+                    
+                    imgContainer.appendChild(img);
+                    col.appendChild(imgContainer);
+                    previewContainer.appendChild(col);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    </script>
 }

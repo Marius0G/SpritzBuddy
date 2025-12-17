@@ -1,0 +1,176 @@
+@model IEnumerable<SpritzBuddy.Models.Follow>
+
+@{
+    ViewData["Title"] = "Following";
+    var targetUser = ViewBag.TargetUser as SpritzBuddy.Models.ApplicationUser;
+    var isOwnProfile = ViewBag.IsOwnProfile as bool? ?? false;
+}
+
+<div class="container mt-4">
+    <h2>
+        @if (isOwnProfile)
+        {
+            <text>People You Follow</text>
+        }
+        else if (targetUser != null)
+        {
+            <text>People @targetUser.FirstName Follows</text>
+        }
+        else
+        {
+            <text>Following</text>
+        }
+    </h2>
+    <p class="text-muted">Following @Model.Count() @(Model.Count() == 1 ? "person" : "people")</p>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            @foreach (var follow in Model)
+            {
+                <div class="col-md-6 col-lg-4 mb-3">
+                    <div class="card following-item" data-following-id="@follow.FollowingId">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <!-- Profile Picture -->
+                                @if (!string.IsNullOrEmpty(follow.Following.ProfilePictureUrl))
+                                {
+                                    <img src="@follow.Following.ProfilePictureUrl" 
+                                         class="rounded-circle me-3" 
+                                         alt="Profile" 
+                                         style="width: 60px; height: 60px; object-fit: cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                                         style="width: 60px; height: 60px;">
+                                        <span class="fw-bold fs-4">@follow.Following.FirstName.Substring(0, 1)@follow.Following.LastName.Substring(0, 1)</span>
+                                    </div>
+                                }
+
+                                <!-- User Info -->
+                                <div class="flex-grow-1">
+                                    <h6 class="mb-0">
+                                        <a asp-controller="Profile" asp-action="Index" asp-route-username="@follow.Following.UserName">
+                                            @follow.Following.FirstName @follow.Following.LastName
+                                        </a>
+                                        @if (follow.Following.IsPrivate)
+                                        {
+                                            <i class="bi bi-lock-fill text-muted small" title="Private account"></i>
+                                        }
+                                    </h6>
+                                    <small class="text-muted">@("@" + follow.Following.UserName)</small>
+                                    @if (!string.IsNullOrEmpty(follow.Following.Description))
+                                    {
+                                        <p class="mb-0 mt-1 text-muted small">
+                                            @(follow.Following.Description.Length > 50 ? follow.Following.Description.Substring(0, 50) + "..." : follow.Following.Description)
+                                        </p>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center">
+                                <small class="text-muted">Following since @follow.RequestDate.ToString("MMM yyyy")</small>
+                                @if (isOwnProfile)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-danger unfollow-btn" data-following-id="@follow.FollowingId">
+                                        Unfollow
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            <i class="bi bi-person-check" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Not following anyone yet</h4>
+            @if (isOwnProfile)
+            {
+                <p>Start following people to see their content in your feed.</p>
+            }
+            else
+            {
+                <p>This user isn't following anyone yet.</p>
+            }
+        </div>
+    }
+
+    <div class="mt-4">
+        @if (isOwnProfile)
+        {
+            <a asp-action="Requests" class="btn btn-primary">View Requests</a>
+            <a asp-action="Followers" class="btn btn-secondary">View Followers</a>
+        }
+        else if (targetUser != null)
+        {
+            <a asp-controller="Profile" asp-action="Index" asp-route-username="@targetUser.UserName" class="btn btn-secondary">Back to Profile</a>
+        }
+        <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Home</a>
+    </div>
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    
+    @if (isOwnProfile)
+    {
+        <script>
+            $(document).ready(function() {
+                $('.unfollow-btn').on('click', function() {
+                    if (!confirm('Are you sure you want to unfollow this user?')) {
+                        return;
+                    }
+                    var followingId = $(this).data('following-id');
+                    unfollowUser(followingId);
+                });
+            });
+
+            function unfollowUser(followingId) {
+                $.post('/Follows/Unfollow', {
+                    followingId: followingId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        $('.following-item[data-following-id="' + followingId + '"]').fadeOut('slow', function() {
+                            $(this).remove();
+                            
+                            if ($('.following-item').length === 0) {
+                                location.reload();
+                            }
+                        });
+                        showSuccessMessage(data.message || 'Unfollowed successfully');
+                    } else {
+                        alert(data.message || 'Error unfollowing user');
+                    }
+                })
+                .fail(function() {
+                    alert('Error occurred while unfollowing');
+                });
+            }
+
+            function showSuccessMessage(message) {
+                var alertHtml = '<div class="alert alert-success alert-dismissible fade show mt-3" role="alert">' +
+                                message +
+                                '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>' +
+                                '</div>';
+                
+                $('h2').after(alertHtml);
+                
+                setTimeout(function() {
+                    $('.alert-success').fadeOut('slow', function() {
+                        $(this).remove();
+                    });
+                }, 3000);
+            }
+        </script>
+    }
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+}

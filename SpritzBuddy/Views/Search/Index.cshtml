@@ -1,0 +1,307 @@
+@model IEnumerable<SpritzBuddy.Models.ApplicationUser>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Search Users";
+    var query = ViewBag.Query as string ?? "";
+    var currentUserId = ViewBag.CurrentUserId as int? ?? 0;
+}
+
+<div class="container mt-4">
+    <h2><i class="bi bi-search"></i> Search Users</h2>
+    <hr />
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-md-8 col-lg-6">
+            <form asp-action="Index" method="get" class="d-flex">
+                <input type="text" 
+                       id="search-input"
+                       name="query" 
+                       class="form-control me-2" 
+                       placeholder="Search by name, username, or email..." 
+                       value="@query"
+                       autocomplete="off" />
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> Search
+                </button>
+            </form>
+            <!-- Autocomplete Dropdown -->
+            <div id="autocomplete-results" class="list-group position-absolute" style="display: none; z-index: 1000; max-width: 500px;"></div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(query))
+    {
+        @if (Model.Any())
+        {
+            <h4>Found @Model.Count() @(Model.Count() == 1 ? "user" : "users")</h4>
+            
+            <div class="row">
+                @foreach (var user in Model)
+                {
+                    <div class="col-md-6 col-lg-4 mb-4">
+                        <div class="card h-100 user-card" data-user-id="@user.Id">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center mb-3">
+                                    <!-- Profile Picture -->
+                                    @if (!string.IsNullOrEmpty(user.ProfilePictureUrl))
+                                    {
+                                        <img src="@user.ProfilePictureUrl" 
+                                             class="rounded-circle me-3" 
+                                             alt="Profile" 
+                                             style="width: 60px; height: 60px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                                             style="width: 60px; height: 60px;">
+                                            <span class="fw-bold fs-4">@user.FirstName.Substring(0, 1)@user.LastName.Substring(0, 1)</span>
+                                        </div>
+                                    }
+
+                                    <!-- User Info -->
+                                    <div class="flex-grow-1">
+                                        <h5 class="mb-0">
+                                            <a asp-controller="Profile" asp-action="Index" asp-route-username="@user.UserName">
+                                                @user.FirstName @user.LastName
+                                            </a>
+                                            @if (user.IsPrivate)
+                                            {
+                                                <i class="bi bi-lock-fill text-muted small" title="Private account"></i>
+                                            }
+                                        </h5>
+                                        <small class="text-muted">@("@" + user.UserName)</small>
+                                    </div>
+                                </div>
+
+                                @if (!string.IsNullOrEmpty(user.Description))
+                                {
+                                    <p class="card-text text-muted small">
+                                        @(user.Description.Length > 100 ? user.Description.Substring(0, 100) + "..." : user.Description)
+                                    </p>
+                                }
+
+                                <!-- Stats -->
+                                <div class="d-flex justify-content-around mb-3 text-center">
+                                    <div>
+                                        <strong class="d-block">@user.Posts.Count</strong>
+                                        <small class="text-muted">Posts</small>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block follower-count-@user.Id">@user.Followers.Count(f => f.Status == FollowStatus.Accepted)</strong>
+                                        <small class="text-muted">Followers</small>
+                                    </div>
+                                    <div>
+                                        <strong class="d-block">@user.Following.Count(f => f.Status == FollowStatus.Accepted)</strong>
+                                        <small class="text-muted">Following</small>
+                                    </div>
+                                </div>
+
+                                <!-- Action Buttons -->
+                                <div class="d-flex gap-2">
+                                    <a asp-controller="Profile" asp-action="Index" asp-route-username="@user.UserName" 
+                                       class="btn btn-outline-primary btn-sm flex-grow-1">
+                                        <i class="bi bi-person"></i> View Profile
+                                    </a>
+                                    <button type="button" 
+                                            class="btn btn-primary btn-sm flex-grow-1 follow-btn" 
+                                            data-user-id="@user.Id"
+                                            data-username="@user.UserName">
+                                        <i class="bi bi-person-plus"></i> <span class="follow-text">Follow</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                <i class="bi bi-search" style="font-size: 3rem;"></i>
+                <h4 class="mt-3">No users found</h4>
+                <p>Try searching with different terms.</p>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="alert alert-secondary text-center">
+            <i class="bi bi-search" style="font-size: 3rem;"></i>
+            <h4 class="mt-3">Start searching</h4>
+            <p>Enter a name, username, or email to find users.</p>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    
+    <script>
+        $(document).ready(function() {
+            // Load follow status for all users
+            $('.user-card').each(function() {
+                var userId = $(this).data('user-id');
+                loadFollowStatus(userId);
+            });
+
+            // Autocomplete functionality
+            var autocompleteTimeout;
+            $('#search-input').on('input', function() {
+                clearTimeout(autocompleteTimeout);
+                var term = $(this).val().trim();
+                
+                if (term.length < 2) {
+                    $('#autocomplete-results').hide();
+                    return;
+                }
+
+                autocompleteTimeout = setTimeout(function() {
+                    searchUsers(term);
+                }, 300);
+            });
+
+            // Hide autocomplete when clicking outside
+            $(document).on('click', function(e) {
+                if (!$(e.target).closest('#search-input, #autocomplete-results').length) {
+                    $('#autocomplete-results').hide();
+                }
+            });
+
+            // Handle follow button clicks
+            $(document).on('click', '.follow-btn', function() {
+                var userId = $(this).data('user-id');
+                var username = $(this).data('username');
+                toggleFollow(userId, username);
+            });
+        });
+
+        function searchUsers(term) {
+            $.get('/Search/Users', { term: term })
+                .done(function(users) {
+                    displayAutocomplete(users);
+                })
+                .fail(function() {
+                    console.error('Autocomplete search failed');
+                });
+        }
+
+        function displayAutocomplete(users) {
+            var html = '';
+            
+            if (users.length === 0) {
+                $('#autocomplete-results').hide();
+                return;
+            }
+
+            users.forEach(function(user) {
+                var initials = user.fullName.split(' ').map(n => n[0]).join('');
+                var profileImg = user.profilePictureUrl 
+                    ? '<img src="' + user.profilePictureUrl + '" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;" />'
+                    : '<div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;"><span>' + initials + '</span></div>';
+                
+                var privateIcon = user.isPrivate ? ' <i class="bi bi-lock-fill text-muted small"></i>' : '';
+
+                html += '<a href="/Profile/' + user.userName + '" class="list-group-item list-group-item-action">';
+                html += '  <div class="d-flex align-items-center">';
+                html += profileImg;
+                html += '    <div>';
+                html += '      <div>' + user.fullName + privateIcon + '</div>';
+                html += '      <small class="text-muted">@@' + user.userName + '</small>';
+                html += '    </div>';
+                html += '  </div>';
+                html += '</a>';
+            });
+
+            $('#autocomplete-results').html(html).show();
+        }
+
+        function loadFollowStatus(userId) {
+            $.get('/Follows/GetFollowStatus', { userId: userId })
+                .done(function(data) {
+                    if (data.success) {
+                        updateFollowButton(userId, data);
+                    }
+                });
+        }
+
+        function updateFollowButton(userId, data) {
+            var btn = $('.follow-btn[data-user-id="' + userId + '"]');
+            var icon = btn.find('i');
+            var text = btn.find('.follow-text');
+
+            if (data.status === 'Self') {
+                btn.hide();
+                return;
+            }
+
+            if (data.isFollowing) {
+                btn.removeClass('btn-primary').addClass('btn-outline-danger');
+                icon.removeClass('bi-person-plus').addClass('bi-person-dash');
+                text.text('Unfollow');
+            } else if (data.isPending) {
+                btn.removeClass('btn-primary').addClass('btn-outline-secondary');
+                icon.removeClass('bi-person-plus').addClass('bi-clock');
+                text.text('Pending');
+                btn.prop('disabled', true);
+            } else {
+                btn.removeClass('btn-outline-danger btn-outline-secondary').addClass('btn-primary');
+                icon.removeClass('bi-person-dash bi-clock').addClass('bi-person-plus');
+                text.text('Follow');
+                btn.prop('disabled', false);
+            }
+        }
+
+        function toggleFollow(userId, username) {
+            var btn = $('.follow-btn[data-user-id="' + userId + '"]');
+            var isFollowing = btn.hasClass('btn-outline-danger');
+
+            if (isFollowing) {
+                // Unfollow
+                if (!confirm('Unfollow ' + username + '?')) {
+                    return;
+                }
+
+                $.post('/Follows/Unfollow', {
+                    followingId: userId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        loadFollowStatus(userId);
+                        updateFollowerCount(userId, -1);
+                    } else {
+                        alert(data.message || 'Error unfollowing user');
+                    }
+                });
+            } else {
+                // Follow
+                $.post('/Follows/SendRequest', {
+                    followingId: userId,
+                    __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+                })
+                .done(function(data) {
+                    if (data.success) {
+                        loadFollowStatus(userId);
+                        if (data.status !== 'Pending') {
+                            updateFollowerCount(userId, 1);
+                        }
+                    } else {
+                        alert(data.message || 'Error following user');
+                    }
+                });
+            }
+        }
+
+        function updateFollowerCount(userId, change) {
+            var countElement = $('.follower-count-' + userId);
+            var currentCount = parseInt(countElement.text());
+            countElement.text(currentCount + change);
+        }
+    </script>
+
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+}

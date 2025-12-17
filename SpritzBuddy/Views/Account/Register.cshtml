@@ -1,7 +1,7 @@
 @model SpritzBuddy.Models.ViewModels.RegisterViewModel
 
 @{
- ViewData["Title"] = "Al?tur?-te SpritzBuddy ??";
+ ViewData["Title"] = "Alatura-te SpritzBuddy ?";
 }
 
 <div class="container py-5">
@@ -9,7 +9,7 @@
  <div class="col-md-8 col-lg-6">
  <div class="card shadow-sm">
  <div class="card-body p-4">
- <h3 class="card-title text-center mb-4">Al?tur?-te SpritzBuddy ??</h3>
+ <h3 class="card-title text-center mb-4">Alatura-te SpritzBuddy ?</h3>
 
  <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -42,23 +42,23 @@
  </div>
 
  <div class="mb-3">
- <label asp-for="Password" class="form-label">Parol?</label>
- <input asp-for="Password" class="form-control" placeholder="Minim6 caractere" />
+ <label asp-for="Password" class="form-label">Parola</label>
+ <input asp-for="Password" class="form-control" placeholder="Minim 6 caractere" />
  <span asp-validation-for="Password" class="text-danger"></span>
  </div>
 
  <div class="mb-4">
- <label asp-for="ConfirmPassword" class="form-label">Confirm? parola</label>
+ <label asp-for="ConfirmPassword" class="form-label">Confirma parola</label>
  <input asp-for="ConfirmPassword" class="form-control" placeholder="Reintrodu parola" />
  <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
  </div>
 
  <div class="d-grid mb-3">
- <button type="submit" class="btn btn-primary btn-lg">Creeaz? Cont</button>
+ <button type="submit" class="btn btn-primary btn-lg">Creeaza Cont</button>
  </div>
 
  <div class="text-center">
- <a asp-controller="Account" asp-action="Login">Ai deja cont? Logheaz?-te</a>
+ <a asp-controller="Account" asp-action="Login">Ai deja cont? Logheaza-te</a>
  </div>
  </form>
  </div>

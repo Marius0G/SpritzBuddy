@@ -26,7 +26,7 @@
     {
         <a asp-action="Index" class="btn btn-secondary">View All Posts</a>
     }
-    @if (User.Identity.IsAuthenticated)
+    @if (User.Identity?.IsAuthenticated == true)
     {
         <a asp-controller="Likes" asp-action="UserLikes" class="btn btn-outline-danger">My Liked Posts ❤️</a>
     }
@@ -37,6 +37,30 @@
     {
         <div class="col-md-6 col-lg-4 mb-4">
             <div class="card h-100">
+                <!-- Post Images (if any) -->
+                @if (post.PostMedias != null && post.PostMedias.Any())
+                {
+                    var firstImage = post.PostMedias.OrderBy(pm => pm.OrderIndex).FirstOrDefault();
+                    if (firstImage != null)
+                    {
+                        <div class="position-relative">
+                            <img src="@firstImage.FilePath" 
+                                 class="card-img-top" 
+                                 alt="Post image"
+                                 style="height: 200px; object-fit: cover; cursor: pointer;"
+                                 onclick="window.location.href='@Url.Action("Details", "Posts", new { id = post.Id })'" />
+                            @if (post.PostMedias.Count > 1)
+                            {
+                                <div class="position-absolute top-0 end-0 m-2">
+                                    <span class="badge bg-dark bg-opacity-75">
+                                        <i class="bi bi-images"></i> @post.PostMedias.Count
+                                    </span>
+                                </div>
+                            }
+                        </div>
+                    }
+                }
+                
                 <div class="card-body">
                     <h5 class="card-title">@post.Title</h5>
                     <p class="card-text">@(post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content)
@@ -50,7 +74,7 @@
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <div class="btn-group">
                             <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-info btn-sm">Details</a>
-                            @if (User.Identity.IsAuthenticated)
+                            @if (User.Identity?.IsAuthenticated == true)
                             {
                                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                                 if (userId != null && int.TryParse(userId, out int userIdInt) && post.UserId == userIdInt)
@@ -65,7 +89,7 @@
                     <div class="d-flex justify-content-between align-items-center">
                         <!-- Like Section -->
                         <div class="like-section" data-post-id="@post.Id">
-                            @if (User.Identity.IsAuthenticated)
+                            @if (User.Identity?.IsAuthenticated == true)
                             {
                                 <button type="button" class="btn btn-outline-danger btn-sm like-btn" data-post-id="@post.Id">
                                     <i class="bi bi-heart like-icon"></i>
@@ -115,7 +139,7 @@
     <script>
         // Load like status and comment counts for all posts when page loads
         $(document).ready(function() {
-            @if (User.Identity.IsAuthenticated)
+            @if (User.Identity?.IsAuthenticated == true)
             {
                 <text>
                 $('.like-section').each(function() {
