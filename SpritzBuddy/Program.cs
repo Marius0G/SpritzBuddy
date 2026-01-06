@@ -52,8 +52,14 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 // Register post media service
 builder.Services.AddScoped<IPostMediaService, PostMediaService>();
 
+// Register post service
+builder.Services.AddScoped<IPostService, PostService>();
+
 // Register group service
 builder.Services.AddScoped<IGroupService, GroupService>();
+
+// Register gamification service
+builder.Services.AddScoped<IGamificationService, GamificationService>();
 
 var app = builder.Build();
 
@@ -96,6 +102,10 @@ using (var scope = app.Services.CreateScope())
  // Seed roles using DbSeeder
  DbSeeder.SeedRolesAsync(services).GetAwaiter().GetResult();
  Console.WriteLine("✅ Roles seeding complete.");
+
+ // Seed drinks using DbSeeder
+ DbSeeder.SeedDrinksAsync(context).GetAwaiter().GetResult();
+ Console.WriteLine("✅ Drinks seeding complete.");
  }
  catch (Exception ex)
  {

@@ -73,6 +73,81 @@ namespace SpritzBuddy.Controllers
             });
         }
 
+        // POST: Likes/Like - Like a post (form post)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Like(int postId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || !int.TryParse(userId, out int userIdInt))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Check if post exists
+            var post = await _context.Posts.FindAsync(postId);
+            if (post == null)
+            {
+                TempData["Error"] = "Post not found";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Check if user already liked this post
+            var existingLike = await _context.Likes
+                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userIdInt);
+
+            if (existingLike == null)
+            {
+                // Add new like
+                var newLike = new Like
+                {
+                    PostId = postId,
+                    UserId = userIdInt
+                };
+                _context.Likes.Add(newLike);
+                await _context.SaveChangesAsync();
+            }
+
+            // Check if coming from PostComments page
+            var returnUrl = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("/Comments/PostComments/"))
+            {
+                return RedirectToAction("PostComments", "Comments", new { id = postId });
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
+        // POST: Likes/Unlike - Unlike a post (form post)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Unlike(int postId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || !int.TryParse(userId, out int userIdInt))
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var existingLike = await _context.Likes
+                .FirstOrDefaultAsync(l => l.PostId == postId && l.UserId == userIdInt);
+
+            if (existingLike != null)
+            {
+                _context.Likes.Remove(existingLike);
+                await _context.SaveChangesAsync();
+            }
+
+            // Check if coming from PostComments page
+            var returnUrl = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("/Comments/PostComments/"))
+            {
+                return RedirectToAction("PostComments", "Comments", new { id = postId });
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
+
         // GET: Likes/GetLikeStatus - Get like status for a post (AJAX)
         [HttpGet]
         public async Task<IActionResult> GetLikeStatus(int postId)

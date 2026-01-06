@@ -23,13 +23,15 @@ namespace SpritzBuddy.Controllers
  private readonly UserManager<ApplicationUser> _userManager;
  private readonly ApplicationDbContext _context;
  private readonly ILogger<ProfileController> _logger;
+ private readonly IGamificationService _gamificationService;
 
- public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<ProfileController> logger)
+ public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<ProfileController> logger, IGamificationService gamificationService)
  {
  _profileService = profileService;
  _userManager = userManager;
  _context = context;
  _logger = logger;
+ _gamificationService = gamificationService;
  }
 
  [HttpGet("Edit")]
@@ -121,14 +123,30 @@ namespace SpritzBuddy.Controllers
  FollowersCount =0,
  FollowingCount =0,
  Badges = new List<string> { "Visitor" },
- DrinkStats = new Dictionary<string, double> { { "Aperol",60 }, { "Bere",40 } },
+ DrinkStats = new List<DrinkStatViewModel>(),
  IsCurrentUser = false
  };
 
  return View(guestVm);
  }
 
- // Build view model with data from the target user and mock stats
+ // Get real stats from database
+ var postCount = await _context.Posts.CountAsync(p => p.UserId == targetUser.Id);
+ var followersCount = await _context.Follows
+ .CountAsync(f => f.FollowingId == targetUser.Id && f.Status == FollowStatus.Accepted);
+ var followingCount = await _context.Follows
+ .CountAsync(f => f.FollowerId == targetUser.Id && f.Status == FollowStatus.Accepted);
+
+ // Get user posts for grid display
+ var userPosts = await _context.Posts
+ .Include(p => p.PostMedias)
+ .Include(p => p.Likes)
+ .Include(p => p.Comments)
+ .Where(p => p.UserId == targetUser.Id)
+ .OrderByDescending(p => p.CreateDate)
+ .ToListAsync();
+
+ // Build view model with data from the target user and real stats
  var vm = new ProfileViewModel
  {
  UserId = targetUser.Id,
@@ -138,13 +156,17 @@ namespace SpritzBuddy.Controllers
  ProfilePicturePath = targetUser.ProfilePictureUrl,
  IsPrivate = targetUser.IsPrivate,
 
- // mock stats
- PostCount =3,
- FollowersCount =42,
- FollowingCount =10,
+ // real stats
+ PostCount = postCount,
+ FollowersCount = followersCount,
+ FollowingCount = followingCount,
 
- Badges = new List<string> { "Newbie", "Night Owl" },
- DrinkStats = new Dictionary<string, double> { { "Aperol",60 }, { "Bere",40 } },
+ // Get real gamification data
+ Badges = await _gamificationService.GetUserBadgesAsync(targetUser.Id),
+ DrinkStats = await _gamificationService.GetDrinkStatsAsync(targetUser.Id),
+
+ // Posts for grid
+ Posts = userPosts,
 
  IsCurrentUser = currentUser != null && currentUser.Id == targetUser.Id
  };

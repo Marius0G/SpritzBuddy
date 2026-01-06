@@ -19,12 +19,14 @@ namespace SpritzBuddy.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IPostMediaService _postMediaService;
+        private readonly IPostService _postService;
         private readonly IWebHostEnvironment _environment;
 
-        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IWebHostEnvironment environment)
+        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IPostService postService, IWebHostEnvironment environment)
         {
             _context = context;
             _postMediaService = postMediaService;
+            _postService = postService;
             _environment = environment;
         }
 
@@ -34,6 +36,8 @@ namespace SpritzBuddy.Controllers
             var query = _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.PostMedias)
+                .Include(p => p.PostDrinks)
+                    .ThenInclude(pd => pd.Drink)
                 .AsQueryable();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int? currentUserId = null;
@@ -112,9 +116,19 @@ namespace SpritzBuddy.Controllers
 
         // GET: Posts/Create - Redirects to login if not authenticated
         [Authorize]
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var model = new CreatePostViewModel();
+            
+            // Populate available drinks for the dropdown
+            var drinks = await _context.Drinks.OrderBy(d => d.Name).ToListAsync();
+            model.AvailableDrinks = drinks.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name
+            }).ToList();
+            
+            return View(model);
         }
 
         // POST: Posts/Create
@@ -127,6 +141,13 @@ namespace SpritzBuddy.Controllers
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
                 ModelState.AddModelError("", "Unable to determine current user. Please log in again.");
+                // Repopulate drinks dropdown
+                var drinksError = await _context.Drinks.OrderBy(d => d.Name).ToListAsync();
+                model.AvailableDrinks = drinksError.Select(d => new SelectListItem
+                {
+                    Value = d.Id.ToString(),
+                    Text = d.Name
+                }).ToList();
                 return View(model);
             }
 
@@ -168,6 +189,22 @@ namespace SpritzBuddy.Controllers
                         await _context.SaveChangesAsync();
                     }
 
+                    // Handle drink tagging
+                    if (model.SelectedDrinkIds != null && model.SelectedDrinkIds.Any())
+                    {
+                        foreach (var drinkId in model.SelectedDrinkIds)
+                        {
+                            var postDrink = new PostDrink
+                            {
+                                PostId = post.Id,
+                                DrinkId = drinkId
+                            };
+                            _context.PostDrinks.Add(postDrink);
+                        }
+
+                        await _context.SaveChangesAsync();
+                    }
+
                     TempData["SuccessMessage"] = "Post created successfully!";
                     return RedirectToAction(nameof(Index));
                 }
@@ -185,6 +222,14 @@ namespace SpritzBuddy.Controllers
                     Console.WriteLine($"Validation Error: {error.ErrorMessage}");
                 }
             }
+
+            // Repopulate drinks dropdown on error
+            var drinks = await _context.Drinks.OrderBy(d => d.Name).ToListAsync();
+            model.AvailableDrinks = drinks.Select(d => new SelectListItem
+            {
+                Value = d.Id.ToString(),
+                Text = d.Name
+            }).ToList();
 
             return View(model);
         }
@@ -381,6 +426,28 @@ Files in uploads/posts directory:
 Upload Directory: {uploadsPath}
 Directory Exists: {Directory.Exists(uploadsPath)}
             ");
+        }
+
+        // POST: Posts/ToggleLike - Toggle like for a post (Noroc!)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> ToggleLike(int id)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || !int.TryParse(userId, out int userIdInt))
+            {
+                return Unauthorized();
+            }
+
+            try
+            {
+                var likeCount = await _postService.ToggleLikeAsync(id, userIdInt);
+                return Ok(new { success = true, likeCount = likeCount });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { success = false, message = ex.Message });
+            }
         }
     }
 }

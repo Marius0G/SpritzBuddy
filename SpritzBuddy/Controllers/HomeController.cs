@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using SpritzBuddy.Data; // <--- Asigură-te că ai acest using
 using SpritzBuddy.Models;
 using System.Diagnostics;
@@ -15,9 +16,21 @@ namespace SpritzBuddy.Controllers
             _context = context;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            return View();
+            // Load all posts ordered by most recent, include user, likes, comments with users
+            var posts = await _context.Posts
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments.OrderBy(c => c.CreateDate).Take(3))
+                    .ThenInclude(c => c.User)
+                .Include(p => p.PostMedias)
+                .Include(p => p.PostDrinks)
+                    .ThenInclude(pd => pd.Drink)
+                .OrderByDescending(p => p.CreateDate)
+                .ToListAsync();
+
+            return View(posts);
         }
 
         public IActionResult Privacy()

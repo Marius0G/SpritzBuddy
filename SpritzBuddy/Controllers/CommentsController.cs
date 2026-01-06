@@ -26,19 +26,27 @@ namespace SpritzBuddy.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
-                return Json(new { success = false, message = "User not authenticated" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "User not authenticated" });
+                return RedirectToAction("Login", "Account");
             }
 
             if (string.IsNullOrWhiteSpace(content))
             {
-                return Json(new { success = false, message = "Comment cannot be empty" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Comment cannot be empty" });
+                TempData["Error"] = "Comment cannot be empty";
+                return RedirectToAction("Index", "Home");
             }
 
             // Check if post exists
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
             {
-                return Json(new { success = false, message = "Post not found" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Post not found" });
+                TempData["Error"] = "Post not found";
+                return RedirectToAction("Index", "Home");
             }
 
             var comment = new Comment
@@ -55,18 +63,34 @@ namespace SpritzBuddy.Controllers
             // Load user data for the response
             var user = await _context.ApplicationUsers.FindAsync(userIdInt);
 
-            return Json(new
+            // Handle AJAX requests
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                success = true,
-                comment = new
+                return Json(new
                 {
-                    id = comment.Id,
-                    content = comment.Content,
-                    createDate = comment.CreateDate.ToString("MMM dd, yyyy HH:mm"),
-                    userName = $"{user?.FirstName} {user?.LastName}",
-                    userId = userIdInt
-                }
-            });
+                    success = true,
+                    comment = new
+                    {
+                        id = comment.Id,
+                        content = comment.Content,
+                        createDate = comment.CreateDate.ToString("MMM dd, yyyy HH:mm"),
+                        userName = $"{user?.FirstName} {user?.LastName}",
+                        userId = userIdInt
+                    }
+                });
+            }
+
+            // Handle form post - redirect back to home
+            TempData["Success"] = "Comment added!";
+            
+            // Check if there's a return URL or redirect to post comments page
+            var returnUrl = Request.Headers["Referer"].ToString();
+            if (!string.IsNullOrEmpty(returnUrl) && returnUrl.Contains("/Comments/PostComments/"))
+            {
+                return RedirectToAction("PostComments", new { id = postId });
+            }
+            
+            return RedirectToAction("Index", "Home");
         }
 
         // GET: Comments/PostComments/5 - Get all comments for a post (AJAX)
@@ -133,10 +157,15 @@ namespace SpritzBuddy.Controllers
         }
 
         // GET: Comments/PostComments/5 - Show all comments for a post (View)
+        [AllowAnonymous]
         public async Task<IActionResult> PostComments(int id)
         {
             var post = await _context.Posts
                 .Include(p => p.User)
+                .Include(p => p.PostMedias)
+                .Include(p => p.Likes)
+                .Include(p => p.PostDrinks)
+                    .ThenInclude(pd => pd.Drink)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (post == null)
@@ -147,7 +176,7 @@ namespace SpritzBuddy.Controllers
             var comments = await _context.Comments
                 .Include(c => c.User)
                 .Where(c => c.PostId == id)
-                .OrderByDescending(c => c.CreateDate)
+                .OrderBy(c => c.CreateDate)
                 .ToListAsync();
 
             ViewBag.Post = post;

@@ -123,10 +123,10 @@ namespace SpritzBuddy.Controllers
  }
 
  [HttpGet]
- public IActionResult AccessDenied(string returnUrl = null)
+ public IActionResult AccessDenied(string returnUrl = "")
  {
- ViewData["ReturnUrl"] = returnUrl;
- return View();
+  ViewData["ReturnUrl"] = returnUrl;
+  return View();
  }
  }
 }

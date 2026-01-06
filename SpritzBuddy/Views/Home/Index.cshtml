@@ -1,8 +1,365 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@model List<SpritzBuddy.Models.Post>
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<SpritzBuddy.Models.ApplicationUser> SignInManager
+@inject UserManager<SpritzBuddy.Models.ApplicationUser> UserManager
+
+@{
+    ViewData["Title"] = "Home";
+    var currentUser = await UserManager.GetUserAsync(User);
 }
-<h1>LABA LABA</h1>
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+
+<div class="container" style="max-width: 600px;">
+    <div class="py-4">
+        <h2 class="mb-4">Feed</h2>
+        
+        @if (Model == null || Model.Count == 0)
+        {
+            <div class="text-center py-5">
+                <i class="bi bi-chat-square-text" style="font-size: 3rem; color: #ccc;"></i>
+                <p class="text-muted mt-3">No posts yet. Be the first to share!</p>
+                @if (SignInManager.IsSignedIn(User))
+                {
+                    <a asp-controller="Posts" asp-action="Create" class="btn btn-primary">Create Post</a>
+                }
+            </div>
+        }
+        else
+        {
+            @foreach (var post in Model)
+            {
+                <div class="card mb-4 shadow-sm">
+                    <!-- Post Header -->
+                    <div class="card-header bg-white border-0 py-3">
+                        <div class="d-flex align-items-center">
+                            @if (!string.IsNullOrEmpty(post.User.ProfilePictureUrl))
+                            {
+                                <img src="@post.User.ProfilePictureUrl" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" alt="@post.User.FirstName" />
+                            }
+                            else
+                            {
+                                <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                    @((post.User.FirstName ?? "U")[0])
+                                </div>
+                            }
+                            <div>
+                                <a asp-controller="Profile" asp-action="Index" asp-route-username="@post.User.UserName" class="fw-bold text-decoration-none text-dark">
+                                    @post.User.FirstName @post.User.LastName
+                                </a>
+                                <div class="text-muted small">@post.CreateDate.ToString("MMM dd, yyyy")</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Post Media (if exists) -->
+                    @if (post.PostMedias != null && post.PostMedias.Any())
+                    {
+                        <div class="position-relative" style="background: #fff; line-height: 0;">
+                            @{
+                                var firstMedia = post.PostMedias.First();
+                            }
+                            @if (firstMedia.MediaType == SpritzBuddy.Models.PostMediaType.Image)
+                            {
+                                <img src="@firstMedia.FilePath" class="w-100" style="display: block; height: auto;" alt="Post image" />
+                            }
+                            else if (firstMedia.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                            {
+                                <video controls class="w-100" style="display: block; height: auto;">
+                                    <source src="@firstMedia.FilePath" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <!-- Post Content (when no media) - Tweet style -->
+                        <div class="p-4">
+                            @if (!string.IsNullOrEmpty(post.Title))
+                            {
+                                <h5 class="fw-bold mb-2">@post.Title</h5>
+                            }
+                            <p class="mb-0" style="font-size: 1rem; line-height: 1.5; color: #0f1419;">@post.Content</p>
+                        </div>
+                    }
+
+                    <!-- Post Actions -->
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-2">
+                            @if (SignInManager.IsSignedIn(User))
+                            {
+                                var userHasLiked = currentUser != null && post.Likes.Any(l => l.UserId == currentUser.Id);
+                                <button type="button" 
+                                        class="btn btn-link p-0 me-3 noroc-btn @(userHasLiked ? "liked" : "")" 
+                                        data-post-id="@post.Id"
+                                        style="font-size: 1.5rem;">
+                                    <i class="bi bi-cup-straw"></i>
+                                    <span class="noroc-text ms-1">Noroc!</span>
+                                </button>
+                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="btn btn-link p-0 text-dark me-3" style="font-size: 1.5rem;">
+                                    <i class="bi bi-chat"></i>
+                                </a>
+                            }
+                            else
+                            {
+                                <span class="me-3 text-muted" style="font-size: 1.5rem;">
+                                    <i class="bi bi-cup-straw"></i>
+                                    <span class="ms-1">Noroc!</span>
+                                </span>
+                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="text-muted me-3" style="font-size: 1.5rem;">
+                                    <i class="bi bi-chat"></i>
+                                </a>
+                            }
+                        </div>
+
+                        <!-- Noroc Count -->
+                        @if (post.Likes.Any())
+                        {
+                            <div class="fw-bold mb-2 noroc-count" data-post-id="@post.Id">
+                                <span class="count-value">@post.Likes.Count</span> @(post.Likes.Count == 1 ? "Noroc" : "Noroc-uri")
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="fw-bold mb-2 noroc-count" data-post-id="@post.Id" style="display: none;">
+                                <span class="count-value">0</span> Noroc-uri
+                            </div>
+                        }
+
+                        <!-- Drink Tags -->
+                        @if (post.PostDrinks != null && post.PostDrinks.Any())
+                        {
+                            <div class="mb-2 drink-tags-container">
+                                @foreach (var postDrink in post.PostDrinks)
+                                {
+                                    <span class="drink-tag" style="background-color: @(postDrink.Drink.ColorHex ?? "#6c757d");">
+                                        <i class="bi bi-cup-straw"></i> @postDrink.Drink.Name
+                                    </span>
+                                }
+                            </div>
+                        }
+
+                        <!-- Post Content (only show if media exists) -->
+                        @if (post.PostMedias != null && post.PostMedias.Any())
+                        {
+                            <div class="mb-2">
+                                @if (!string.IsNullOrEmpty(post.Title))
+                                {
+                                    <span class="fw-bold d-block mb-1">@post.Title</span>
+                                }
+                                <span>@post.Content</span>
+                            </div>
+                        }
+
+                        <!-- Comments Preview -->
+                        @if (post.Comments.Any())
+                        {
+                            <div class="mb-2">
+                                @if (post.Comments.Count > 3)
+                                {
+                                    <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="text-muted text-decoration-none small d-block mb-2">
+                                        View all @post.Comments.Count comments
+                                    </a>
+                                }
+                                @foreach (var comment in post.Comments.Take(3))
+                                {
+                                    var commentTimeSpan = DateTime.UtcNow - comment.CreateDate;
+                                    string commentTimeAgo;
+                                    if (commentTimeSpan.TotalMinutes < 1)
+                                        commentTimeAgo = "just now";
+                                    else if (commentTimeSpan.TotalMinutes < 60)
+                                        commentTimeAgo = $"{(int)commentTimeSpan.TotalMinutes}m";
+                                    else if (commentTimeSpan.TotalHours < 24)
+                                        commentTimeAgo = $"{(int)commentTimeSpan.TotalHours}h";
+                                    else if (commentTimeSpan.TotalDays < 7)
+                                        commentTimeAgo = $"{(int)commentTimeSpan.TotalDays}d";
+                                    else if (commentTimeSpan.TotalDays < 30)
+                                        commentTimeAgo = $"{(int)(commentTimeSpan.TotalDays / 7)}w";
+                                    else
+                                        commentTimeAgo = comment.CreateDate.ToString("MMM d");
+
+                                    <div class="mb-1">
+                                        <a asp-controller="Profile" asp-action="Index" asp-route-username="@comment.User.UserName" class="fw-bold text-decoration-none text-dark small me-1">
+                                            @comment.User.FirstName
+                                        </a>
+                                        <span class="small">@comment.Content</span>
+                                        <span class="text-muted small ms-2">@commentTimeAgo</span>
+                                    </div>
+                                }
+                            </div>
+                        }
+
+                        <!-- Time ago -->
+                        <div class="text-muted small">
+                            @{
+                                var timeSpan = DateTime.UtcNow - post.CreateDate;
+                                string timeAgo;
+                                if (timeSpan.TotalMinutes < 1)
+                                    timeAgo = "just now";
+                                else if (timeSpan.TotalHours < 1)
+                                    timeAgo = $"{(int)timeSpan.TotalMinutes} minutes ago";
+                                else if (timeSpan.TotalDays < 1)
+                                    timeAgo = $"{(int)timeSpan.TotalHours} hours ago";
+                                else if (timeSpan.TotalDays < 7)
+                                    timeAgo = $"{(int)timeSpan.TotalDays} days ago";
+                                else
+                                    timeAgo = post.CreateDate.ToString("MMM dd, yyyy");
+                            }
+                            @timeAgo
+                        </div>
+
+                        <!-- Add Comment (if logged in) -->
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            <hr class="my-2" />
+                            <form asp-controller="Comments" asp-action="Create" method="post" class="d-flex">
+                                <input type="hidden" name="postId" value="@post.Id" />
+                                <input type="text" name="content" class="form-control form-control-sm border-0" placeholder="Add a comment..." required />
+                                <button type="submit" class="btn btn-link btn-sm text-primary">Post</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            }
+        }
+    </div>
 </div>
+
+<style>
+    .btn-link:hover {
+        text-decoration: none;
+    }
+    .card {
+        border-radius: 8px;
+    }
+    /* Aspect ratio constraints */
+    .position-relative img,
+    .position-relative video {
+        max-width: 100%;
+        height: auto;
+    }
+    /* Drink tags styling */
+    .drink-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .drink-tag {
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        color: white;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .drink-tag i {
+        margin-right: 4px;
+        font-size: 0.9rem;
+    }
+    /* Noroc button styling */
+    .noroc-btn {
+        color: #6c757d;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        border: none;
+        background: none;
+        outline: none !important;
+        box-shadow: none !important;
+    }
+    .noroc-btn:hover {
+        color: #ffc107;
+        transform: scale(1.1);
+        background: none !important;
+    }
+    .noroc-btn:focus {
+        outline: none !important;
+        box-shadow: none !important;
+        background: none !important;
+    }
+    .noroc-btn:active {
+        background: none !important;
+        box-shadow: none !important;
+    }
+    .noroc-btn.liked {
+        color: #ffc107;
+        font-weight: bold;
+    }
+    .noroc-btn.liked:hover {
+        color: #6c757d;
+    }
+    .noroc-text {
+        font-size: 0.9rem;
+        vertical-align: middle;
+    }
+    /* Click animation */
+    @@keyframes noroc-pulse {
+        0% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.3) rotate(15deg);
+        }
+        100% {
+            transform: scale(1);
+        }
+    }
+    .noroc-btn.animate {
+        animation: noroc-pulse 0.5s ease;
+    }
+</style>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle Noroc button clicks
+            document.querySelectorAll('.noroc-btn').forEach(button => {
+                button.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    const postId = this.getAttribute('data-post-id');
+                    
+                    try {
+                        const response = await fetch('@Url.Action("ToggleLike", "Posts")?id=' + postId, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]')?.value
+                            }
+                        });
+
+                        if (response.ok) {
+                            const data = await response.json();
+                            
+                            // Add animation class
+                            this.classList.add('animate');
+                            setTimeout(() => {
+                                this.classList.remove('animate');
+                            }, 500);
+                            
+                            // Toggle the button appearance
+                            this.classList.toggle('liked');
+                            
+                            // Update the like count
+                            const countElement = document.querySelector(`.noroc-count[data-post-id="${postId}"]`);
+                            const countValue = countElement.querySelector('.count-value');
+                            countValue.textContent = data.likeCount;
+                            
+                            // Update the text (Noroc vs Noroc-uri)
+                            const countText = data.likeCount === 1 ? 'Noroc' : 'Noroc-uri';
+                            countElement.innerHTML = `<span class="count-value">${data.likeCount}</span> ${countText}`;
+                            
+                            // Show/hide the count element
+                            if (data.likeCount > 0) {
+                                countElement.style.display = 'block';
+                            } else {
+                                countElement.style.display = 'none';
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error toggling like:', error);
+                    }
+                });
+            });
+        });
+    </script>
+}

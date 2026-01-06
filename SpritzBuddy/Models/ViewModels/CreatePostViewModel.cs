@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace SpritzBuddy.Models.ViewModels
 {
@@ -15,5 +16,9 @@ namespace SpritzBuddy.Models.ViewModels
 
         // Optional media files (up to 5 images)
         public List<IFormFile>? MediaFiles { get; set; }
+
+        // Drink tagging support
+        public List<int> SelectedDrinkIds { get; set; } = new List<int>();
+        public List<SelectListItem> AvailableDrinks { get; set; } = new List<SelectListItem>();
     }
 }

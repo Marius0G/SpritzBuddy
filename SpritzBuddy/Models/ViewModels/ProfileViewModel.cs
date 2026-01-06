@@ -18,8 +18,11 @@ namespace SpritzBuddy.Models.ViewModels
  // Gamification placeholders
  public List<string>? Badges { get; set; }
 
- // Drink statistics: drink name -> percentage
- public Dictionary<string, double>? DrinkStats { get; set; }
+ // Drink statistics with colors
+ public List<DrinkStatViewModel>? DrinkStats { get; set; }
+
+ // User posts for grid display
+ public List<Post>? Posts { get; set; }
 
  // Whether the currently logged-in user is viewing their own profile
  public bool IsCurrentUser { get; set; }
