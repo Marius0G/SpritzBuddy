@@ -308,7 +308,7 @@ namespace SpritzBuddy.Controllers
                 return Forbid();
             }
 
-            return RedirectToAction("MyInvites");
+            return RedirectToAction("Index", "Notifications");
         }
 
         [HttpPost]
@@ -329,7 +329,7 @@ namespace SpritzBuddy.Controllers
                 return Forbid();
             }
 
-            return RedirectToAction("MyInvites");
+            return RedirectToAction("Index", "Notifications");
         }
 
         [HttpGet]

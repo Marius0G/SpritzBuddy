@@ -1,12 +1,15 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using SpritzBuddy.Data;
 using SpritzBuddy.Models;
 using SpritzBuddy.Models.ViewModels;
 using SpritzBuddy.Services;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SpritzBuddy.Controllers
@@ -18,12 +21,14 @@ namespace SpritzBuddy.Controllers
  {
  private readonly IProfileService _profileService;
  private readonly UserManager<ApplicationUser> _userManager;
+ private readonly ApplicationDbContext _context;
  private readonly ILogger<ProfileController> _logger;
 
- public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ILogger<ProfileController> logger)
+ public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<ProfileController> logger)
  {
  _profileService = profileService;
  _userManager = userManager;
+ _context = context;
  _logger = logger;
  }
 
@@ -126,10 +131,12 @@ namespace SpritzBuddy.Controllers
  // Build view model with data from the target user and mock stats
  var vm = new ProfileViewModel
  {
+ UserId = targetUser.Id,
  FirstName = targetUser.FirstName,
  LastName = targetUser.LastName,
  Description = targetUser.Description,
  ProfilePicturePath = targetUser.ProfilePictureUrl,
+ IsPrivate = targetUser.IsPrivate,
 
  // mock stats
  PostCount =3,
@@ -141,6 +148,25 @@ namespace SpritzBuddy.Controllers
 
  IsCurrentUser = currentUser != null && currentUser.Id == targetUser.Id
  };
+
+ // Check follow status if viewing another user's profile
+ if (currentUser != null && currentUser.Id != targetUser.Id)
+ {
+ var followRecord = await _context.Follows
+ .FirstOrDefaultAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == targetUser.Id);
+
+ if (followRecord != null)
+ {
+ if (followRecord.Status == FollowStatus.Accepted)
+ {
+ vm.IsFollowing = true;
+ }
+ else if (followRecord.Status == FollowStatus.Pending)
+ {
+ vm.HasPendingRequest = true;
+ }
+ }
+ }
 
  return View(vm);
  }

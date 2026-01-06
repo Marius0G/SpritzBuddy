@@ -23,5 +23,11 @@ namespace SpritzBuddy.Models.ViewModels
 
  // Whether the currently logged-in user is viewing their own profile
  public bool IsCurrentUser { get; set; }
+
+ // Follow status
+ public int UserId { get; set; }
+ public bool IsFollowing { get; set; }
+ public bool HasPendingRequest { get; set; }
+ public bool IsPrivate { get; set; }
  }
 }

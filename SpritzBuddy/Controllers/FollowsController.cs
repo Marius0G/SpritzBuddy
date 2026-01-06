@@ -102,20 +102,28 @@ namespace SpritzBuddy.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
-                return Json(new { success = false, message = "User not authenticated" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "User not authenticated" });
+                return RedirectToAction("Login", "Account");
             }
 
             // Prevent following yourself
             if (userIdInt == followingId)
             {
-                return Json(new { success = false, message = "You cannot follow yourself" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "You cannot follow yourself" });
+                TempData["Error"] = "You cannot follow yourself";
+                return RedirectToAction("Index", "Home");
             }
 
             // Check if user to follow exists
             var userToFollow = await _context.ApplicationUsers.FindAsync(followingId);
             if (userToFollow == null)
             {
-                return Json(new { success = false, message = "User not found" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "User not found" });
+                TempData["Error"] = "User not found";
+                return RedirectToAction("Index", "Home");
             }
 
             // Check if follow relationship already exists
@@ -126,11 +134,17 @@ namespace SpritzBuddy.Controllers
             {
                 if (existingFollow.Status == FollowStatus.Pending)
                 {
-                    return Json(new { success = false, message = "Follow request already sent" });
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = "Follow request already sent" });
+                    TempData["Error"] = "Follow request already sent";
+                    return RedirectToAction("Index", "Profile", new { username = userToFollow.UserName });
                 }
                 if (existingFollow.Status == FollowStatus.Accepted)
                 {
-                    return Json(new { success = false, message = "Already following this user" });
+                    if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                        return Json(new { success = false, message = "Already following this user" });
+                    TempData["Error"] = "Already following this user";
+                    return RedirectToAction("Index", "Profile", new { username = userToFollow.UserName });
                 }
                 // If rejected, allow sending a new request
                 existingFollow.Status = FollowStatus.Pending;
@@ -153,17 +167,25 @@ namespace SpritzBuddy.Controllers
 
             await _context.SaveChangesAsync();
 
-            return Json(new
+            var successMessage = userToFollow.IsPrivate
+                ? "Follow request sent! Waiting for approval."
+                : "You are now following this user!";
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
             {
-                success = true,
-                message = userToFollow.IsPrivate
-                    ? "Follow request sent! Waiting for approval."
-                    : "You are now following this user!",
-                status = "Pending"
-            });
+                return Json(new
+                {
+                    success = true,
+                    message = successMessage,
+                    status = "Pending"
+                });
+            }
+
+            TempData["Success"] = successMessage;
+            return RedirectToAction("Index", "Profile", new { username = userToFollow.UserName });
         }
 
-        // POST: Follows/Approve - Approve a follow request
+        // POST: Follows/Approve - Approve a follow request (AJAX)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Approve(int followerId)
@@ -194,7 +216,64 @@ namespace SpritzBuddy.Controllers
             return Json(new { success = true, message = "Follow request approved" });
         }
 
-        // POST: Follows/Reject - Reject a follow request
+        // POST: Follows/Accept - Accept a follow request (Form Post)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Accept(int followerId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || !int.TryParse(userId, out int userIdInt))
+            {
+                return Unauthorized();
+            }
+
+            var follow = await _context.Follows
+                .FirstOrDefaultAsync(f => f.FollowerId == followerId && f.FollowingId == userIdInt);
+
+            if (follow != null && follow.Status == FollowStatus.Pending)
+            {
+                follow.Status = FollowStatus.Accepted;
+                _context.Follows.Update(follow);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Cerere de follow acceptată.";
+            }
+            else
+            {
+                TempData["Error"] = "Cererea nu a fost găsită sau a fost deja procesată.";
+            }
+
+            return RedirectToAction("Index", "Notifications");
+        }
+
+        // POST: Follows/Decline - Decline a follow request (Form Post)
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Decline(int followerId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (userId == null || !int.TryParse(userId, out int userIdInt))
+            {
+                return Unauthorized();
+            }
+
+            var follow = await _context.Follows
+                .FirstOrDefaultAsync(f => f.FollowerId == followerId && f.FollowingId == userIdInt);
+
+            if (follow != null)
+            {
+                _context.Follows.Remove(follow);
+                await _context.SaveChangesAsync();
+                TempData["Success"] = "Cerere de follow refuzată.";
+            }
+            else
+            {
+                TempData["Error"] = "Cererea nu a fost găsită.";
+            }
+
+            return RedirectToAction("Index", "Notifications");
+        }
+
+        // POST: Follows/Reject - Reject a follow request (AJAX)
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Reject(int followerId)
@@ -233,25 +312,38 @@ namespace SpritzBuddy.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
-                return Json(new { success = false, message = "User not authenticated" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "User not authenticated" });
+                return RedirectToAction("Login", "Account");
             }
 
             var follow = await _context.Follows
+                .Include(f => f.Following)
                 .FirstOrDefaultAsync(f => f.FollowerId == userIdInt && f.FollowingId == followingId);
 
             if (follow == null)
             {
-                return Json(new { success = false, message = "You are not following this user" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "You are not following this user" });
+                TempData["Error"] = "You are not following this user";
+                return RedirectToAction("Index", "Home");
             }
 
-            _context.Follows.Remove(follow);
-            await _context.SaveChangesAsync();
-
+            var unfollowedUsername = follow.Following?.UserName;
             var message = follow.Status == FollowStatus.Pending
                 ? "Follow request cancelled"
                 : "Unfollowed successfully";
 
-            return Json(new { success = true, message = message });
+            _context.Follows.Remove(follow);
+            await _context.SaveChangesAsync();
+
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+            {
+                return Json(new { success = true, message = message });
+            }
+
+            TempData["Success"] = message;
+            return RedirectToAction("Index", "Profile", new { username = unfollowedUsername });
         }
 
         // POST: Follows/RemoveFollower - Remove a follower

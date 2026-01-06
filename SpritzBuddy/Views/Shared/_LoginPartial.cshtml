@@ -9,7 +9,7 @@
     var user = await UserManager.GetUserAsync(User);
     var email = user?.Email ?? User.Identity?.Name ?? "User";
     <li class="nav-item">
-        <a class="nav-link" asp-controller="Profile" asp-action="Edit">Hello, @email!</a>
+        <a class="nav-link" asp-controller="Profile" asp-action="Index">Hello, @email!</a>
     </li>
     <li class="nav-item">
         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
