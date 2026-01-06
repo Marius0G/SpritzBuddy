@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SpritzBuddy.Data;
 
@@ -11,9 +12,11 @@ using SpritzBuddy.Data;
 namespace SpritzBuddy.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260106105913_GroupsRefactor")]
+    partial class GroupsRefactor
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -424,43 +427,6 @@ namespace SpritzBuddy.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("SpritzBuddy.Models.GroupInvite", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("GroupId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("InvitedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("InvitedUserId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InviterId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsAccepted")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeclined")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("GroupId");
-
-                    b.HasIndex("InvitedUserId");
-
-                    b.HasIndex("InviterId");
-
-                    b.ToTable("GroupInvites");
-                });
-
             modelBuilder.Entity("SpritzBuddy.Models.GroupMessage", b =>
                 {
                     b.Property<int>("Id")
@@ -745,33 +711,6 @@ namespace SpritzBuddy.Migrations
                         .IsRequired();
 
                     b.Navigation("Moderator");
-                });
-
-            modelBuilder.Entity("SpritzBuddy.Models.GroupInvite", b =>
-                {
-                    b.HasOne("SpritzBuddy.Models.Group", "Group")
-                        .WithMany()
-                        .HasForeignKey("GroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SpritzBuddy.Models.ApplicationUser", "InvitedUser")
-                        .WithMany()
-                        .HasForeignKey("InvitedUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("SpritzBuddy.Models.ApplicationUser", "Inviter")
-                        .WithMany()
-                        .HasForeignKey("InviterId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Group");
-
-                    b.Navigation("InvitedUser");
-
-                    b.Navigation("Inviter");
                 });
 
             modelBuilder.Entity("SpritzBuddy.Models.GroupMessage", b =>

@@ -1,0 +1,60 @@
+@model List<SpritzBuddy.Models.GroupInvite>
+
+@{
+    ViewData["Title"] = "Invitații Mele";
+}
+
+<div class="container mt-4">
+    <h2>Invitații Mele la Grupuri</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">@TempData["Success"]</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (Model == null || !Model.Any())
+    {
+        <p class="text-muted">Nu ai invitații pendinte la grupuri.</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var invite in Model)
+            {
+                <div class="list-group-item">
+                    <div class="row align-items-center">
+                        <div class="col-md-8">
+                            <h5>@invite.Group.Name</h5>
+                            <p class="mb-1 text-muted">@invite.Group.Description</p>
+                            <small class="text-muted">
+                                Invitat de <strong>@invite.Inviter.UserName</strong> 
+                                la @invite.InvitedDate.ToString("dd/MM/yyyy HH:mm")
+                            </small>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <form method="post" asp-action="AcceptInvite" class="d-inline">
+                                <input type="hidden" name="inviteId" value="@invite.Id" />
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    <i class="bi bi-check-circle"></i> Acceptă
+                                </button>
+                            </form>
+                            <form method="post" asp-action="DeclineInvite" class="d-inline">
+                                <input type="hidden" name="inviteId" value="@invite.Id" />
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="bi bi-x-circle"></i> Refuză
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</div>

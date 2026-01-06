@@ -1,0 +1,34 @@
+@model SpritzBuddy.Models.ViewModels.CreateGroupViewModel
+@{
+    ViewData["Title"] = "Înființează un Grup Nou 🥂";
+}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm rounded">
+                <div class="card-header bg-white text-center">
+                    <h3 class="fw-bold">Înființează un Grup Nou 🥂</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+                        <div class="mb-3">
+                            <label asp-for="Name" class="form-label">Nume Grup</label>
+                            <input asp-for="Name" class="form-control" placeholder="Ex: Ieșiri Vineri Seara" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">Descriere</label>
+                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <button type="submit" class="btn btn-primary">Creează Grup</button>
+                            <a href="@Url.Action("Index", "Group")" class="btn btn-link">Renunță</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <partial name="_ValidationScriptsPartial" />
+        </div>
+    </div>
+</div>

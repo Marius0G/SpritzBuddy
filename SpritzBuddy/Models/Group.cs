@@ -1,21 +1,29 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpritzBuddy.Models
 {
     public class Group
     {
+        [Key]
         public int Id { get; set; }
-        public required int AdminId { get; set; }
 
         [Required]
-        [MaxLength(150)]
-        public string Name { get; set; } = string.Empty;
+        [MaxLength(100)]
+        public string Name { get; set; }
 
-        [MaxLength(1000)]
-        public string? Description { get; set; }
-        public DateTime CreatedDate { get; set; }
-        public virtual ApplicationUser Admin { get; set; } = null!;
-        public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
-        public virtual ICollection<GroupMessage> GroupMessages { get; set; } = new List<GroupMessage>();
+        [Required]
+        public string Description { get; set; }
+
+        public DateTime CreationDate { get; set; } = DateTime.Now;
+
+        [Required]
+        public int ModeratorId { get; set; }
+        public ApplicationUser Moderator { get; set; }
+
+        public ICollection<UserGroup> Members { get; set; } = new List<UserGroup>();
+        public ICollection<GroupMessage> Messages { get; set; } = new List<GroupMessage>();
     }
 }

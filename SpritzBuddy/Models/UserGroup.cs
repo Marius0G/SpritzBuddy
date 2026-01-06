@@ -1,18 +1,11 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SpritzBuddy.Models
 {
-    public class GroupMessage
+    public class UserGroup
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        public string Content { get; set; }
-
-        public DateTime SentDate { get; set; } = DateTime.Now;
 
         [Required]
         public int UserId { get; set; }
@@ -21,5 +14,8 @@ namespace SpritzBuddy.Models
         [Required]
         public int GroupId { get; set; }
         public Group Group { get; set; }
+
+        public DateTime JoinedDate { get; set; } = DateTime.Now;
+        public bool IsAccepted { get; set; } = false;
     }
 }

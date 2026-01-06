@@ -52,6 +52,9 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 // Register post media service
 builder.Services.AddScoped<IPostMediaService, PostMediaService>();
 
+// Register group service
+builder.Services.AddScoped<IGroupService, GroupService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())

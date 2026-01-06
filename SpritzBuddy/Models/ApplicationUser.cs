@@ -35,7 +35,7 @@ namespace SpritzBuddy.Models
         public virtual ICollection<Event> Events { get; set; } = new List<Event>();
         public virtual ICollection<EventParticipant> EventParticipants { get; set; } = new List<EventParticipant>();
         public virtual ICollection<Group> Groups { get; set; } = new List<Group>();
-        public virtual ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
+        public virtual ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
         public virtual ICollection<GroupMessage> GroupMessages { get; set; } = new List<GroupMessage>();
 
 

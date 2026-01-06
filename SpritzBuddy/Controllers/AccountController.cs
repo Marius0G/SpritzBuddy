@@ -121,5 +121,12 @@ namespace SpritzBuddy.Controllers
  await _signInManager.SignOutAsync();
  return RedirectToAction("Index", "Home");
  }
+
+ [HttpGet]
+ public IActionResult AccessDenied(string returnUrl = null)
+ {
+ ViewData["ReturnUrl"] = returnUrl;
+ return View();
+ }
  }
 }

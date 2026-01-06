@@ -25,8 +25,9 @@ namespace SpritzBuddy.Data
         public DbSet<Event> Events => Set<Event>();
         public DbSet<EventParticipant> EventParticipants => Set<EventParticipant>();
         public DbSet<Group> Groups => Set<Group>();
-        public DbSet<GroupMember> GroupMembers => Set<GroupMember>();
+        public DbSet<UserGroup> UserGroups => Set<UserGroup>();
         public DbSet<GroupMessage> GroupMessages => Set<GroupMessage>();
+        public DbSet<GroupInvite> GroupInvites => Set<GroupInvite>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -132,36 +133,54 @@ namespace SpritzBuddy.Data
                 .HasConversion<string>();
 
             builder.Entity<Group>()
-                .HasOne(g => g.Admin)
-                .WithMany(u => u.Groups)
-                .HasForeignKey(g => g.AdminId)
+                .HasOne(g => g.Moderator)
+                .WithMany()
+                .HasForeignKey(g => g.ModeratorId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<GroupMember>()
-                .HasKey(gm => new { gm.UserId, gm.GroupId });
+            builder.Entity<UserGroup>()
+                .HasKey(ug => new { ug.UserId, ug.GroupId });
 
-            builder.Entity<GroupMember>()
+            builder.Entity<UserGroup>()
+                .HasOne(ug => ug.User)
+                .WithMany()
+                .HasForeignKey(ug => ug.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<UserGroup>()
+                .HasOne(ug => ug.Group)
+                .WithMany(g => g.Members)
+                .HasForeignKey(ug => ug.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<GroupMessage>()
+                .HasOne(gm => gm.Group)
+                .WithMany(g => g.Messages)
+                .HasForeignKey(gm => gm.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<GroupMessage>()
                 .HasOne(gm => gm.User)
-                .WithMany(u => u.GroupMembers)
+                .WithMany()
                 .HasForeignKey(gm => gm.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<GroupInvite>()
+                .HasOne(gi => gi.Group)
+                .WithMany()
+                .HasForeignKey(gi => gi.GroupId)
                 .OnDelete(DeleteBehavior.Cascade);
 
-            builder.Entity<GroupMember>()
-                .HasOne(gm => gm.Group)
-                .WithMany(g => g.GroupMembers)
-                .HasForeignKey(gm => gm.GroupId)
-                .OnDelete(DeleteBehavior.Cascade);
+            builder.Entity<GroupInvite>()
+                .HasOne(gi => gi.Inviter)
+                .WithMany()
+                .HasForeignKey(gi => gi.InviterId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<GroupMessage>()
-                .HasOne(gm => gm.Group)
-                .WithMany(g => g.GroupMessages)
-                .HasForeignKey(gm => gm.GroupId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<GroupMessage>()
-                .HasOne(gm => gm.Sender)
-                .WithMany(u => u.GroupMessages)
-                .HasForeignKey(gm => gm.SenderId)
+            builder.Entity<GroupInvite>()
+                .HasOne(gi => gi.InvitedUser)
+                .WithMany()
+                .HasForeignKey(gi => gi.InvitedUserId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

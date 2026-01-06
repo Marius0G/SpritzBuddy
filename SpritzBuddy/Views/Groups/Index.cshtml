@@ -1,0 +1,35 @@
+@model IEnumerable<SpritzBuddy.Models.Group>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<SpritzBuddy.Models.ApplicationUser> UserManager
+@{
+    var currentUserId = UserManager.GetUserAsync(User).Result?.Id;
+}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">Grupuri SpritzBuddy 👥</h2>
+        <a href="@Url.Action("Create", "Groups")" class="btn btn-success">Creează Grup Nou</a>
+    </div>
+    <div class="row">
+        @foreach (var group in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm rounded">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span class="fw-bold">@group.Name</span>
+                        @if (group.ModeratorId == currentUserId)
+                        {
+                            <span class="badge bg-warning text-dark ms-2">Moderator</span>
+                        }
+                    </div>
+                    <div class="card-body">
+                        <p class="card-text">@((group.Description?.Length > 100 ? group.Description.Substring(0, 100) + "..." : group.Description))</p>
+                    </div>
+                    <div class="card-footer d-flex justify-content-between align-items-center">
+                        <span class="text-muted">@((group.Members?.Count ?? 0)) membri</span>
+                        <a href="@Url.Action("Details", "Groups", new { id = group.Id })" class="btn btn-outline-primary btn-sm">Vezi Detalii</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</div>

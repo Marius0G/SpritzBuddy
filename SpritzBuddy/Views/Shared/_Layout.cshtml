@@ -54,6 +54,14 @@
                                     </span>
                                 </a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark position-relative" asp-area="" asp-controller="Groups" asp-action="MyInvites">
+                                    <i class="bi bi-envelope"></i> Group Invites
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-success" id="pending-invites-badge" style="display: none;">
+                                        0
+                                    </span>
+                                </a>
+                            </li>
                         }
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
@@ -86,9 +94,13 @@
             // Load pending requests count for notification badge
             $(document).ready(function() {
                 loadPendingRequestsCount();
+                loadPendingInvitesCount();
                 
                 // Refresh count every 30 seconds
-                setInterval(loadPendingRequestsCount, 30000);
+                setInterval(function() {
+                    loadPendingRequestsCount();
+                    loadPendingInvitesCount();
+                }, 30000);
             });
             
             function loadPendingRequestsCount() {
@@ -103,6 +115,20 @@
                             }
                         });
                 }
+            }
+            
+            function loadPendingInvitesCount() {
+                $.get('/Groups/GetPendingInvitesCount')
+                    .done(function(data) {
+                        if (data.count > 0) {
+                            $('#pending-invites-badge').text(data.count).show();
+                        } else {
+                            $('#pending-invites-badge').hide();
+                        }
+                    })
+                    .fail(function() {
+                        $('#pending-invites-badge').hide();
+                    });
             }
         </script>
     }

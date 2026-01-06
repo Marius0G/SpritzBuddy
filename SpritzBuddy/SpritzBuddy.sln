@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SpritzBuddy", "SpritzBuddy.csproj", "{ADF4B413-3E60-C2F9-4103-9DD43F17961E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ADF4B413-3E60-C2F9-4103-9DD43F17961E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ADF4B413-3E60-C2F9-4103-9DD43F17961E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ADF4B413-3E60-C2F9-4103-9DD43F17961E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ADF4B413-3E60-C2F9-4103-9DD43F17961E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5160AFA9-D0FA-4F27-BFB6-4D0B6BB0366C}
+	EndGlobalSection
+EndGlobal
