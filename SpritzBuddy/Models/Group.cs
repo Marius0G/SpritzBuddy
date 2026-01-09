@@ -25,6 +25,6 @@ namespace SpritzBuddy.Models
 
         public ICollection<UserGroup> Members { get; set; } = new List<UserGroup>();
         public ICollection<GroupMessage> Messages { get; set; } = new List<GroupMessage>();
-        public ICollection<GroupEvent> Events { get; set; } = new List<GroupEvent>();
+        public ICollection<Event> Events { get; set; } = new List<Event>();
     }
 }

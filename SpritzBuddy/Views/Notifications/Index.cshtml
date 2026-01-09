@@ -3,8 +3,6 @@
     ViewData["Title"] = "Notifications";
     var followRequests = ViewBag.FollowRequests as List<Follow> ?? new List<Follow>();
     var groupInvites = ViewBag.GroupInvites as List<GroupInvite> ?? new List<GroupInvite>();
-    var upcomingEvents = ViewBag.UpcomingEvents as List<GroupEvent> ?? new List<GroupEvent>();
-    var currentUserId = ViewBag.CurrentUserId;
     var totalCount = ViewBag.TotalCount ?? 0;
 }
 
@@ -37,7 +35,7 @@
                 </div>
             }
 
-            @if (totalCount == 0 && !upcomingEvents.Any())
+            @if (totalCount == 0)
             {
                 <div class="text-center py-5">
                     <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
@@ -47,117 +45,6 @@
             }
             else
             {
-                <!-- Upcoming Events Section -->
-                @if (upcomingEvents.Any())
-                {
-                    <div class="card shadow-sm mb-4">
-                        <div class="card-header bg-info text-white">
-                            <h5 class="mb-0">
-                                <i class="bi bi-calendar-event-fill"></i> Evenimente Viitoare
-                                <span class="badge bg-light text-info ms-2">@upcomingEvents.Count</span>
-                            </h5>
-                        </div>
-                        <div class="list-group list-group-flush">
-                            @foreach (var evt in upcomingEvents)
-                            {
-                                var userResponse = evt.Participants?.FirstOrDefault(p => p.UserId == currentUserId);
-                                var timeUntil = evt.EventDate - DateTime.Now;
-                                var isUrgent = timeUntil.TotalDays <= 1;
-                                
-                                <div class="list-group-item @(isUrgent ? "border-start border-danger border-5" : "")">
-                                    <div class="row align-items-center">
-                                        <div class="col-md-8">
-                                            <div class="d-flex align-items-start">
-                                                <div class="rounded-circle me-3 @(isUrgent ? "bg-danger" : "bg-info") d-flex align-items-center justify-content-center" 
-                                                     style="width: 48px; height: 48px;">
-                                                    <i class="bi bi-calendar-event text-white fs-4"></i>
-                                                </div>
-                                                <div class="flex-grow-1">
-                                                    <h6 class="mb-1">
-                                                        <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" 
-                                                           class="text-decoration-none fw-bold">
-                                                            @evt.Title
-                                                        </a>
-                                                        @if (userResponse != null)
-                                                        {
-                                                            @switch (userResponse.Status)
-                                                            {
-                                                                case EventParticipationStatus.Going:
-                                                                    <span class="badge bg-success ms-2">Vin</span>
-                                                                    break;
-                                                                case EventParticipationStatus.Maybe:
-                                                                    <span class="badge bg-warning ms-2">Poate</span>
-                                                                    break;
-                                                                case EventParticipationStatus.NotGoing:
-                                                                    <span class="badge bg-danger ms-2">Nu vin</span>
-                                                                    break;
-                                                            }
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="badge bg-secondary ms-2">Fără răspuns</span>
-                                                        }
-                                                    </h6>
-                                                    <small class="text-muted">
-                                                        <i class="bi bi-people-fill"></i> Grup: 
-                                                        <a asp-controller="Groups" asp-action="Details" asp-route-id="@evt.GroupId" class="text-decoration-none">
-                                                            @evt.Group?.Name
-                                                        </a>
-                                                    </small>
-                                                    <br />
-                                                    <small class="@(isUrgent ? "text-danger fw-bold" : "text-muted")">
-                                                        <i class="bi bi-clock-fill"></i> 
-                                                        @evt.EventDate.ToString("dddd, dd MMMM yyyy, HH:mm")
-                                                        @if (isUrgent)
-                                                        {
-                                                            <span class="ms-2">
-                                                                <i class="bi bi-exclamation-triangle-fill"></i>
-                                                                @if (timeUntil.TotalHours < 1)
-                                                                {
-                                                                    <text>ÎN CURÂND!</text>
-                                                                }
-                                                                else if (timeUntil.TotalHours < 24)
-                                                                {
-                                                                    <text>Peste @((int)timeUntil.TotalHours) ore</text>
-                                                                }
-                                                                else
-                                                                {
-                                                                    <text>Mâine</text>
-                                                                }
-                                                            </span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <text> - În @((int)timeUntil.TotalDays) zile</text>
-                                                        }
-                                                    </small>
-                                                    @if (!string.IsNullOrEmpty(evt.Location))
-                                                    {
-                                                        <br />
-                                                        <small class="text-muted">
-                                                            <i class="bi bi-geo-alt-fill text-danger"></i> @evt.Location
-                                                        </small>
-                                                    }
-                                                    <br />
-                                                    <small class="text-muted">
-                                                        <i class="bi bi-check-circle text-success"></i> @(evt.Participants?.Count(p => p.Status == EventParticipationStatus.Going) ?? 0) vin,
-                                                        <i class="bi bi-question-circle text-warning"></i> @(evt.Participants?.Count(p => p.Status == EventParticipationStatus.Maybe) ?? 0) poate
-                                                    </small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-end">
-                                            <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" class="btn btn-primary btn-sm">
-                                                <i class="bi bi-eye"></i> Vezi Detalii
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            }
-                        </div>
-                    </div>
-                }
-
                 <!-- Follow Requests Section -->
                 @if (followRequests.Any())
                 {

@@ -28,8 +28,6 @@ namespace SpritzBuddy.Data
         public DbSet<UserGroup> UserGroups => Set<UserGroup>();
         public DbSet<GroupMessage> GroupMessages => Set<GroupMessage>();
         public DbSet<GroupInvite> GroupInvites => Set<GroupInvite>();
-        public DbSet<GroupEvent> GroupEvents => Set<GroupEvent>();
-        public DbSet<GroupEventParticipant> GroupEventParticipants => Set<GroupEventParticipant>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -116,6 +114,12 @@ namespace SpritzBuddy.Data
                 .HasForeignKey(e => e.OrganizerId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<Event>()
+                .HasOne(e => e.Group)
+                .WithMany(g => g.Events)
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<EventParticipant>()
                 .HasKey(ep => new { ep.UserId, ep.EventId });
 
@@ -184,37 +188,6 @@ namespace SpritzBuddy.Data
                 .WithMany()
                 .HasForeignKey(gi => gi.InvitedUserId)
                 .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<GroupEvent>()
-                .HasOne(ge => ge.Group)
-                .WithMany(g => g.Events)
-                .HasForeignKey(ge => ge.GroupId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<GroupEvent>()
-                .HasOne(ge => ge.Creator)
-                .WithMany()
-                .HasForeignKey(ge => ge.CreatorId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<GroupEventParticipant>()
-                .HasKey(gep => new { gep.EventId, gep.UserId });
-
-            builder.Entity<GroupEventParticipant>()
-                .HasOne(gep => gep.Event)
-                .WithMany(e => e.Participants)
-                .HasForeignKey(gep => gep.EventId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            builder.Entity<GroupEventParticipant>()
-                .HasOne(gep => gep.User)
-                .WithMany()
-                .HasForeignKey(gep => gep.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<GroupEventParticipant>()
-                .Property(gep => gep.Status)
-                .HasConversion<string>();
         }
     }
 }

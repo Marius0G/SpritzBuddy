@@ -18,13 +18,17 @@
     @Html.AntiForgeryToken()
     
     <header>
-        <nav class="navbar navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SpritzBuddy</a>
                 
-                <!-- Desktop Navigation - visible only on md and up -->
-                <div class="d-none d-md-flex align-items-center">
-                    <ul class="navbar-nav flex-row me-auto">
+                <!-- Hide toggle button - not needed anymore -->
+                <button class="navbar-toggler d-none" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                
+                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
+                    <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-fill"></i> Home
@@ -66,14 +70,6 @@
                         }
                     </ul>
                     <partial name="_LoginPartial" />
-                </div>
-                
-                <!-- Mobile - show only logo, user menu handled by bottom nav -->
-                <div class="d-md-none">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <span class="text-muted small">@User.Identity.Name</span>
-                    }
                 </div>
             </div>
         </nav>
@@ -127,12 +123,10 @@
             // Load pending requests count for notification badge on profile
             $(document).ready(function() {
                 loadNotificationCount();
+                markActiveMobileNav();
                 
                 // Refresh count every 30 seconds
                 setInterval(loadNotificationCount, 30000);
-                
-                // Mark active page in mobile bottom nav
-                markActiveMobileNav();
             });
             
             function loadNotificationCount() {

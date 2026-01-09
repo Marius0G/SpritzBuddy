@@ -78,14 +78,33 @@ body {
   .container {
     padding-bottom: 20px;
   }
-}
-
-/* Hide desktop navbar on very small screens if needed */
-@media (max-width: 575.98px) {
+  
+  /* Hide desktop navbar menu items on mobile */
+  .navbar-collapse {
+    display: none !important;
+  }
+  
+  /* Keep only the brand visible on mobile */
   header .navbar {
     padding: 0.5rem 1rem;
   }
+}
+
+/* Show navbar normally on desktop */
+@media (min-width: 768px) {
+  /* Hide mobile bottom nav on desktop */
+  .mobile-bottom-nav {
+    display: none !important;
+  }
   
+  /* Show navbar collapse on desktop */
+  .navbar-collapse {
+    display: flex !important;
+  }
+}
+
+/* Adjust navbar brand on very small screens */
+@media (max-width: 575.98px) {
   .navbar-brand {
     font-size: 1.1rem;
   }

@@ -17,6 +17,8 @@ namespace SpritzBuddy.Models
         public string? Location { get; set; }
         public int OrganizerId { get; set; }
         public virtual ApplicationUser Organizer { get; set; } = null!;
+        public int GroupId { get; set; }
+        public virtual Group Group { get; set; } = null!;
         public virtual ICollection<EventParticipant> Participants { get; set; } = new List<EventParticipant>();
     }
 }
