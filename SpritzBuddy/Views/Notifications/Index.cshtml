@@ -74,7 +74,7 @@
                                                 </div>
                                                 <div class="flex-grow-1">
                                                     <h6 class="mb-1">
-                                                        <a asp-controller="Groups" asp-action="EventDetails" asp-route-id="@evt.Id" 
+                                                        <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" 
                                                            class="text-decoration-none fw-bold">
                                                             @evt.Title
                                                         </a>
@@ -147,7 +147,7 @@
                                             </div>
                                         </div>
                                         <div class="col-md-4 text-end">
-                                            <a asp-controller="Groups" asp-action="EventDetails" asp-route-id="@evt.Id" class="btn btn-primary btn-sm">
+                                            <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" class="btn btn-primary btn-sm">
                                                 <i class="bi bi-eye"></i> Vezi Detalii
                                             </a>
                                         </div>

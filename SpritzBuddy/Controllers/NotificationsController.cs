@@ -101,5 +101,45 @@ namespace SpritzBuddy.Controllers
                 upcomingEvents = upcomingEventsCount
             });
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetNotificationsHtml()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Content("<div class='alert alert-warning'>Please log in to view notifications.</div>");
+
+            // Get follow requests
+            var followRequests = await _context.Follows
+                .Include(f => f.Follower)
+                .Where(f => f.FollowingId == user.Id && f.Status == FollowStatus.Pending)
+                .OrderByDescending(f => f.RequestDate)
+                .ToListAsync();
+
+            // Get group invites
+            var groupInvites = await _groupService.GetPendingInvitesForUserAsync(user.Id);
+
+            // Get upcoming events from user's groups
+            var userGroupIds = await _context.UserGroups
+                .Where(ug => ug.UserId == user.Id && ug.IsAccepted)
+                .Select(ug => ug.GroupId)
+                .ToListAsync();
+
+            var upcomingEvents = await _context.GroupEvents
+                .Include(e => e.Group)
+                .Include(e => e.Creator)
+                .Include(e => e.Participants)
+                .Where(e => userGroupIds.Contains(e.GroupId) && e.EventDate > DateTime.Now)
+                .OrderBy(e => e.EventDate)
+                .Take(10)
+                .ToListAsync();
+
+            ViewBag.FollowRequests = followRequests;
+            ViewBag.GroupInvites = groupInvites;
+            ViewBag.UpcomingEvents = upcomingEvents;
+            ViewBag.CurrentUserId = user.Id;
+
+            return PartialView("_NotificationsPartial");
+        }
     }
 }

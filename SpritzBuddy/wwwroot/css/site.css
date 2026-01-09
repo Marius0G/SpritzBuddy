@@ -21,6 +21,76 @@ body {
   margin-bottom: 60px;
 }
 
+/* Mobile Bottom Navigation (Instagram Style) */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border-top: 1px solid #dbdbdb;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  height: 60px;
+  z-index: 1000;
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #262626;
+  text-decoration: none;
+  padding: 8px;
+  flex: 1;
+  transition: all 0.2s ease;
+}
+
+.mobile-nav-item i {
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+.mobile-nav-item span {
+  font-size: 0.65rem;
+  font-weight: 500;
+}
+
+.mobile-nav-item:hover,
+.mobile-nav-item:active {
+  color: #0095f6;
+  text-decoration: none;
+}
+
+.mobile-nav-item.active {
+  color: #0095f6;
+}
+
+/* Add padding to body on mobile to account for bottom nav */
+@media (max-width: 767.98px) {
+  body {
+    margin-bottom: 80px; /* Extra space for mobile nav */
+  }
+  
+  .container {
+    padding-bottom: 20px;
+  }
+}
+
+/* Hide desktop navbar on very small screens if needed */
+@media (max-width: 575.98px) {
+  header .navbar {
+    padding: 0.5rem 1rem;
+  }
+  
+  .navbar-brand {
+    font-size: 1.1rem;
+  }
+}
+
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
   color: var(--bs-secondary-color);
   text-align: end;

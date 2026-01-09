@@ -36,7 +36,7 @@
                             </button>
                         </form>
                     }
-                }
+                </div>
             </div>
         </div>
         <div class="card-body">
@@ -75,7 +75,7 @@
             <div class="tab-pane fade show active" id="events" role="tabpanel">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <h4 class="mb-0">Evenimente Grup</h4>
-                    <a asp-action="CreateEvent" asp-route-groupId="@group.Id" class="btn btn-success">
+                    <a asp-controller="Events" asp-action="Create" asp-route-groupId="@group.Id" class="btn btn-success">
                         <i class="bi bi-calendar-plus"></i> Creează Eveniment
                     </a>
                 </div>
@@ -256,9 +256,13 @@
 
         // Load group events via AJAX
         function loadGroupEvents() {
-            $.get('/Groups/GetGroupEventsJson', { groupId: groupId })
+            $.get('/Events/GetJson', { groupId: groupId })
                 .done(function(data) {
-                    displayEvents(data);
+                    if (Array.isArray(data)) {
+                        displayEvents(data);
+                    } else if (data.success === false) {
+                        $('#events-container').html(`<div class="alert alert-danger">${data.message}</div>`);
+                    }
                 })
                 .fail(function() {
                     $('#events-container').html('<div class="alert alert-danger">Eroare la încărcarea evenimentelor.</div>');
@@ -347,7 +351,7 @@
                                     </button>
                                 </div>
 
-                                <a href="/Groups/EventDetails/${evt.id}" class="btn btn-primary btn-sm w-100">
+                                <a href="/Events/Details/${evt.id}" class="btn btn-primary btn-sm w-100">
                                     <i class="bi bi-eye"></i> Vezi Detalii
                                 </a>
                             </div>
@@ -374,7 +378,7 @@
 
         // Respond to event
         function respondToEvent(eventId, status) {
-            $.post('/Groups/RespondToEvent', {
+            $.post('/Events/Respond', {
                 eventId: eventId,
                 status: status,
                 __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
@@ -399,7 +403,7 @@
                 '"': '&quot;',
                 "'": '&#039;'
             };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            return text.replace(/[&<>"'/]/g, function(m) { return map[m]; });
         }
 
         // User search functionality

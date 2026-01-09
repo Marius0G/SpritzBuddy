@@ -1,0 +1,211 @@
+@using SpritzBuddy.Models
+@{
+    var followRequests = ViewBag.FollowRequests as List<Follow> ?? new List<Follow>();
+    var groupInvites = ViewBag.GroupInvites as List<GroupInvite> ?? new List<GroupInvite>();
+    var upcomingEvents = ViewBag.UpcomingEvents as List<GroupEvent> ?? new List<GroupEvent>();
+    var currentUserId = ViewBag.CurrentUserId;
+    var totalCount = followRequests.Count + groupInvites.Count;
+}
+
+@if (totalCount == 0 && !upcomingEvents.Any())
+{
+    <div class="text-center py-5">
+        <i class="bi bi-inbox text-muted" style="font-size: 4rem;"></i>
+        <h4 class="mt-3 text-muted">No notifications</h4>
+        <p class="text-muted">When someone sends you a follow request or group invite, you'll see it here.</p>
+    </div>
+}
+else
+{
+    <!-- Upcoming Events Section -->
+    @if (upcomingEvents.Any())
+    {
+        <div class="mb-4">
+            <h5 class="mb-3">
+                <i class="bi bi-calendar-event-fill text-info"></i> Upcoming Events
+                <span class="badge bg-info ms-2">@upcomingEvents.Count</span>
+            </h5>
+            @foreach (var evt in upcomingEvents)
+            {
+                var userResponse = evt.Participants?.FirstOrDefault(p => p.UserId == currentUserId);
+                var timeUntil = evt.EventDate - DateTime.Now;
+                var isUrgent = timeUntil.TotalDays <= 1;
+                
+                <div class="card mb-2 @(isUrgent ? "border-danger" : "")">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h6 class="mb-1">
+                                    <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" class="text-decoration-none">
+                                        @evt.Title
+                                    </a>
+                                    @if (userResponse != null)
+                                    {
+                                        @switch (userResponse.Status)
+                                        {
+                                            case EventParticipationStatus.Going:
+                                                <span class="badge bg-success ms-2">Going</span>
+                                                break;
+                                            case EventParticipationStatus.Maybe:
+                                                <span class="badge bg-warning ms-2">Maybe</span>
+                                                break;
+                                            case EventParticipationStatus.NotGoing:
+                                                <span class="badge bg-danger ms-2">Not Going</span>
+                                                break;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary ms-2">No Response</span>
+                                    }
+                                </h6>
+                                <small class="text-muted">
+                                    <i class="bi bi-people-fill"></i>
+                                    <a asp-controller="Groups" asp-action="Details" asp-route-id="@evt.GroupId" class="text-decoration-none">
+                                        @evt.Group?.Name
+                                    </a>
+                                </small>
+                                <br />
+                                <small class="@(isUrgent ? "text-danger fw-bold" : "text-muted")">
+                                    <i class="bi bi-clock-fill"></i>
+                                    @evt.EventDate.ToString("dddd, dd MMMM yyyy, HH:mm")
+                                    @if (isUrgent)
+                                    {
+                                        <span class="ms-2">
+                                            <i class="bi bi-exclamation-triangle-fill"></i>
+                                            @if (timeUntil.TotalHours < 1)
+                                            {
+                                                <text>SOON!</text>
+                                            }
+                                            else if (timeUntil.TotalHours < 24)
+                                            {
+                                                <text>In @((int)timeUntil.TotalHours) hours</text>
+                                            }
+                                            else
+                                            {
+                                                <text>Tomorrow</text>
+                                            }
+                                        </span>
+                                    }
+                                </small>
+                            </div>
+                            <a asp-controller="Events" asp-action="Details" asp-route-id="@evt.Id" class="btn btn-sm btn-primary">
+                                <i class="bi bi-eye"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Follow Requests Section -->
+    @if (followRequests.Any())
+    {
+        <div class="mb-4">
+            <h5 class="mb-3">
+                <i class="bi bi-person-plus text-primary"></i> Follow Requests
+                <span class="badge bg-primary ms-2">@followRequests.Count</span>
+            </h5>
+            @foreach (var request in followRequests)
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                @if (!string.IsNullOrEmpty(request.Follower?.ProfilePictureUrl))
+                                {
+                                    <img src="@request.Follower.ProfilePictureUrl" alt="@request.Follower.UserName" 
+                                         class="rounded-circle me-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle me-3 bg-secondary d-flex align-items-center justify-content-center" 
+                                         style="width: 48px; height: 48px;">
+                                        <i class="bi bi-person-fill text-white fs-4"></i>
+                                    </div>
+                                }
+                                <div>
+                                    <a asp-controller="Profile" asp-action="Index" asp-route-username="@request.Follower?.UserName" 
+                                       class="fw-bold text-decoration-none">
+                                        @request.Follower?.UserName
+                                    </a>
+                                    <br />
+                                    <small class="text-muted">@request.Follower?.FirstName @request.Follower?.LastName</small>
+                                </div>
+                            </div>
+                            <div>
+                                <form asp-controller="Follows" asp-action="Accept" method="post" class="d-inline">
+                                    <input type="hidden" name="followerId" value="@request.FollowerId" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success btn-sm me-1">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                </form>
+                                <form asp-controller="Follows" asp-action="Decline" method="post" class="d-inline">
+                                    <input type="hidden" name="followerId" value="@request.FollowerId" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <!-- Group Invites Section -->
+    @if (groupInvites.Any())
+    {
+        <div class="mb-4">
+            <h5 class="mb-3">
+                <i class="bi bi-envelope text-success"></i> Group Invites
+                <span class="badge bg-success ms-2">@groupInvites.Count</span>
+            </h5>
+            @foreach (var invite in groupInvites)
+            {
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between">
+                            <div class="d-flex align-items-center">
+                                <div class="rounded-circle me-3 bg-success d-flex align-items-center justify-content-center" 
+                                     style="width: 48px; height: 48px;">
+                                    <i class="bi bi-people-fill text-white fs-4"></i>
+                                </div>
+                                <div>
+                                    <a asp-controller="Groups" asp-action="Details" asp-route-id="@invite.GroupId" 
+                                       class="fw-bold text-decoration-none">
+                                        @invite.Group?.Name
+                                    </a>
+                                    <br />
+                                    <small class="text-muted">
+                                        Invited by <strong>@invite.Inviter?.UserName</strong>
+                                    </small>
+                                </div>
+                            </div>
+                            <div>
+                                <form asp-controller="Groups" asp-action="AcceptInvite" method="post" class="d-inline">
+                                    <input type="hidden" name="inviteId" value="@invite.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-success btn-sm me-1">
+                                        <i class="bi bi-check"></i>
+                                    </button>
+                                </form>
+                                <form asp-controller="Groups" asp-action="DeclineInvite" method="post" class="d-inline">
+                                    <input type="hidden" name="inviteId" value="@invite.Id" />
+                                    @Html.AntiForgeryToken()
+                                    <button type="submit" class="btn btn-danger btn-sm">
+                                        <i class="bi bi-x"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+}

@@ -18,15 +18,13 @@
     @Html.AntiForgeryToken()
     
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">SpritzBuddy</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                
+                <!-- Desktop Navigation - visible only on md and up -->
+                <div class="d-none d-md-flex align-items-center">
+                    <ul class="navbar-nav flex-row me-auto">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
                                 <i class="bi bi-house-fill"></i> Home
@@ -35,20 +33,6 @@
                         
                         @if (User.Identity?.IsAuthenticated == true)
                         {
-                            <!-- Posts Dropdown -->
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" href="#" id="postsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="bi bi-newspaper"></i> Posts
-                                </a>
-                                <ul class="dropdown-menu" aria-labelledby="postsDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Posts" asp-action="Index"><i class="bi bi-globe"></i> All Posts</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Posts" asp-action="MyPosts"><i class="bi bi-person-badge"></i> My Posts</a></li>
-                                    <li><a class="dropdown-item" asp-controller="Likes" asp-action="UserLikes"><i class="bi bi-heart-fill text-danger"></i> Liked Posts</a></li>
-                                    <li><hr class="dropdown-divider"></li>
-                                    <li><a class="dropdown-item" asp-controller="Posts" asp-action="Create"><i class="bi bi-plus-circle"></i> Create New Post</a></li>
-                                </ul>
-                            </li>
-                            
                             <!-- Groups Dropdown -->
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-dark" href="#" id="groupsDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -58,6 +42,8 @@
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="Index"><i class="bi bi-grid-3x3-gap"></i> All Groups</a></li>
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="MyGroups"><i class="bi bi-collection"></i> My Groups</a></li>
                                     <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" asp-controller="Events" asp-action="MyEvents"><i class="bi bi-calendar-check"></i> My Events</a></li>
+                                    <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="Create"><i class="bi bi-plus-circle"></i> Create New Group</a></li>
                                 </ul>
                             </li>
@@ -65,28 +51,13 @@
                             <!-- Search Users -->
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Search" asp-action="Index">
-                                    <i class="bi bi-search"></i> Search Users
-                                </a>
-                            </li>
-                            
-                            <!-- Notifications -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark position-relative" asp-controller="Notifications" asp-action="Index">
-                                    <i class="bi bi-bell-fill"></i> Notifications
-                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="total-notifications-badge" style="display: none;">
-                                        0
-                                    </span>
+                                    <i class="bi bi-search"></i> Search
                                 </a>
                             </li>
                         }
                         else
                         {
-                            <!-- For non-authenticated users, just show All Posts and All Groups -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Posts" asp-action="Index">
-                                    <i class="bi bi-newspaper"></i> Posts
-                                </a>
-                            </li>
+                            <!-- For non-authenticated users -->
                             <li class="nav-item">
                                 <a class="nav-link text-dark" asp-controller="Groups" asp-action="Index">
                                     <i class="bi bi-people-fill"></i> Groups
@@ -95,6 +66,14 @@
                         }
                     </ul>
                     <partial name="_LoginPartial" />
+                </div>
+                
+                <!-- Mobile - show only logo, user menu handled by bottom nav -->
+                <div class="d-md-none">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <span class="text-muted small">@User.Identity.Name</span>
+                    }
                 </div>
             </div>
         </nav>
@@ -110,6 +89,33 @@
             &copy; 2025 - SpritzBuddy - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+    
+    @if (User.Identity?.IsAuthenticated == true)
+    {
+        <!-- Mobile Bottom Navigation (Instagram Style) -->
+        <nav class="mobile-bottom-nav d-md-none">
+            <a asp-controller="Home" asp-action="Index" class="mobile-nav-item">
+                <i class="bi bi-house-fill"></i>
+                <span>Home</span>
+            </a>
+            <a asp-controller="Groups" asp-action="Index" class="mobile-nav-item">
+                <i class="bi bi-people-fill"></i>
+                <span>Groups</span>
+            </a>
+            <a asp-controller="Search" asp-action="Index" class="mobile-nav-item">
+                <i class="bi bi-search"></i>
+                <span>Search</span>
+            </a>
+            <a asp-controller="Profile" asp-action="Index" class="mobile-nav-item position-relative">
+                <i class="bi bi-person-circle"></i>
+                <span>Profile</span>
+                <span class="position-absolute top-0 start-50 translate-middle badge rounded-pill bg-danger" id="mobile-notifications-badge" style="display: none; font-size: 0.6rem;">
+                    0
+                </span>
+            </a>
+        </nav>
+    }
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -118,26 +124,47 @@
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         <script>
-            // Load pending requests count for notification badge
+            // Load pending requests count for notification badge on profile
             $(document).ready(function() {
                 loadNotificationCount();
                 
                 // Refresh count every 30 seconds
                 setInterval(loadNotificationCount, 30000);
+                
+                // Mark active page in mobile bottom nav
+                markActiveMobileNav();
             });
             
             function loadNotificationCount() {
                 $.get('/Notifications/GetNotificationCount')
                     .done(function(data) {
                         if (data.count > 0) {
-                            $('#total-notifications-badge').text(data.count).show();
+                            $('#profile-notifications-badge').text(data.count).show();
+                            $('#mobile-notifications-badge').text(data.count).show();
                         } else {
-                            $('#total-notifications-badge').hide();
+                            $('#profile-notifications-badge').hide();
+                            $('#mobile-notifications-badge').hide();
                         }
                     })
                     .fail(function() {
-                        $('#total-notifications-badge').hide();
+                        $('#profile-notifications-badge').hide();
+                        $('#mobile-notifications-badge').hide();
                     });
+            }
+            
+            function markActiveMobileNav() {
+                const currentPath = window.location.pathname.toLowerCase();
+                $('.mobile-nav-item').removeClass('active');
+                
+                if (currentPath === '/' || currentPath.includes('/home')) {
+                    $('.mobile-nav-item').eq(0).addClass('active');
+                } else if (currentPath.includes('/groups')) {
+                    $('.mobile-nav-item').eq(1).addClass('active');
+                } else if (currentPath.includes('/search')) {
+                    $('.mobile-nav-item').eq(2).addClass('active');
+                } else if (currentPath.includes('/profile')) {
+                    $('.mobile-nav-item').eq(3).addClass('active');
+                }
             }
         </script>
     }
