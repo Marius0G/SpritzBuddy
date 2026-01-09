@@ -5,100 +5,90 @@
     var currentUserId = Model.CurrentUserId;
 }
 <div class="container mt-4">
-    <div class="row">
-        <!-- Left Column: Info & Members -->
-        <div class="col-md-4">
-            <div class="card shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h3 class="fw-bold">@group.Name</h3>
-                    <span class="text-muted">Moderator: @group.Moderator?.UserName</span>
+    <!-- Group Header -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-0"><i class="bi bi-people-fill"></i> @group.Name</h2>
+                    <small>Moderator: @group.Moderator?.UserName</small>
                 </div>
-                <div class="card-body">
-                    <p>@group.Description</p>
-                    <div class="mb-3">
-                        @if (!Model.IsMember && !Model.IsPending)
-                        {
-                            <form asp-action="Join" method="post">
-                                <input type="hidden" name="id" value="@group.Id" />
-                                <button type="submit" class="btn btn-success w-100">Join Group</button>
-                            </form>
-                        }
-                        else if (Model.IsPending)
-                        {
-                            <span class="badge bg-warning w-100">Request Sent</span>
-                        }
-                        else if (Model.IsMember)
-                        {
-                            <form asp-action="Leave" method="post">
-                                <input type="hidden" name="id" value="@group.Id" />
-                                <button type="submit" class="btn btn-outline-danger w-100">Leave Group</button>
-                            </form>
-                        }
-                        @if (Model.IsModerator)
-                        {
-                            <form asp-action="Delete" method="post" class="mt-2">
-                                <input type="hidden" name="groupId" value="@group.Id" />
-                                <button type="submit" class="btn btn-danger w-100">Delete Group</button>
-                            </form>
-                        }
-                    </div>
-                    <h5 class="fw-bold mt-4">Members (@(group.Members?.Count ?? 0))</h5>
-                    <ul class="list-group mb-3">
-                        @foreach (var m in group.Members?.Where(x => x.IsAccepted) ?? Enumerable.Empty<UserGroup>())
-                        {
-                            <li class="list-group-item d-flex justify-content-between align-items-center">
-                                @m.User?.UserName
-                                @if (Model.IsModerator && m.UserId != group.ModeratorId)
-                                {
-                                    <form asp-action="Kick" method="post" class="d-inline">
-                                        <input type="hidden" name="groupId" value="@group.Id" />
-                                        <input type="hidden" name="userId" value="@m.UserId" />
-                                        <button type="submit" class="btn btn-sm btn-outline-danger ms-2" title="Kick"><i class="bi bi-x"></i></button>
-                                    </form>
-                                }
-                            </li>
-                        }
-                    </ul>
-                    @if (Model.IsModerator)
+                <div>
+                    @if (!Model.IsMember && !Model.IsPending)
                     {
-                        <h6 class="fw-bold">Pending Requests</h6>
-                        <ul class="list-group">
-                            @foreach (var m in group.Members?.Where(x => !x.IsAccepted) ?? Enumerable.Empty<UserGroup>())
-                            {
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    @m.User?.UserName
-                                    <div>
-                                        <form asp-action="Accept" method="post" class="d-inline">
-                                            <input type="hidden" name="groupId" value="@group.Id" />
-                                            <input type="hidden" name="userId" value="@m.UserId" />
-                                            <button type="submit" class="btn btn-sm btn-success me-1">Accept</button>
-                                        </form>
-                                        <form asp-action="Decline" method="post" class="d-inline">
-                                            <input type="hidden" name="groupId" value="@group.Id" />
-                                            <input type="hidden" name="userId" value="@m.UserId" />
-                                            <button type="submit" class="btn btn-sm btn-danger">Reject</button>
-                                        </form>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
-
-                        <h6 class="fw-bold mt-4">Invite Users</h6>
-                        <div class="mb-3">
-                            <input type="text" id="userSearchInput" class="form-control" placeholder="Caută utilizatori după username..." autocomplete="off" />
-                            <div id="searchResults" class="list-group mt-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
-                        </div>
+                        <form asp-action="Join" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@group.Id" />
+                            <button type="submit" class="btn btn-light">
+                                <i class="bi bi-box-arrow-in-right"></i> Join Group
+                            </button>
+                        </form>
                     }
-                </div>
+                    else if (Model.IsPending)
+                    {
+                        <span class="badge bg-warning">Request Sent</span>
+                    }
+                    else if (Model.IsMember)
+                    {
+                        <form asp-action="Leave" method="post" class="d-inline">
+                            <input type="hidden" name="id" value="@group.Id" />
+                            <button type="submit" class="btn btn-outline-light">
+                                <i class="bi bi-box-arrow-right"></i> Leave
+                            </button>
+                        </form>
+                    }
+                }
             </div>
         </div>
-        <!-- Right Column: Chat -->
-        <div class="col-md-8">
-            @if (Model.IsMember || Model.IsModerator)
-            {
-                <div class="card shadow-sm mb-4" style="height: 500px; overflow-y: auto;">
-                    <div class="card-header bg-white fw-bold">Group Chat</div>
-                    <div class="card-body p-3" style="height: 370px; overflow-y: auto;">
+        <div class="card-body">
+            <p>@group.Description</p>
+            <div class="d-flex gap-2">
+                <span class="badge bg-info"><i class="bi bi-people"></i> @(group.Members?.Count(m => m.IsAccepted) ?? 0) membri</span>
+                <span class="badge bg-secondary"><i class="bi bi-calendar-event"></i> @(group.Events?.Count ?? 0) evenimente</span>
+            </div>
+        </div>
+    </div>
+
+    @if (Model.IsMember || Model.IsModerator)
+    {
+        <!-- Tabs Navigation -->
+        <ul class="nav nav-tabs mb-3" id="groupTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                    <i class="bi bi-calendar-event-fill"></i> Evenimente
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab">
+                    <i class="bi bi-chat-dots-fill"></i> Chat
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="members-tab" data-bs-toggle="tab" data-bs-target="#members" type="button" role="tab">
+                    <i class="bi bi-people-fill"></i> Membri
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="groupTabsContent">
+            <!-- Events Tab -->
+            <div class="tab-pane fade show active" id="events" role="tabpanel">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h4 class="mb-0">Evenimente Grup</h4>
+                    <a asp-action="CreateEvent" asp-route-groupId="@group.Id" class="btn btn-success">
+                        <i class="bi bi-calendar-plus"></i> Creează Eveniment
+                    </a>
+                </div>
+
+                <div id="events-container">
+                    <p class="text-center"><i class="bi bi-hourglass-split"></i> Se încarcă evenimente...</p>
+                </div>
+            </div>
+
+            <!-- Chat Tab -->
+            <div class="tab-pane fade" id="chat" role="tabpanel">
+                <div class="card shadow-sm" style="height: 500px;">
+                    <div class="card-body p-3" style="height: 420px; overflow-y: auto;" id="chat-messages">
                         @foreach (var msg in group.Messages ?? Enumerable.Empty<GroupMessage>())
                         {
                             var isMine = msg.UserId.ToString() == currentUserId;
@@ -111,7 +101,9 @@
                                         {
                                             <form asp-action="DeleteMessage" method="post" class="ms-2 d-inline">
                                                 <input type="hidden" name="id" value="@msg.Id" />
-                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete">
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
                                             </form>
                                         }
                                     </div>
@@ -123,24 +115,295 @@
                     <div class="card-footer bg-white">
                         <form asp-action="PostMessage" method="post" class="d-flex">
                             <input type="hidden" name="groupId" value="@group.Id" />
-                            <input type="text" name="content" class="form-control me-2" placeholder="Scrie un mesaj..." autocomplete="off" />
-                            <button type="submit" class="btn btn-primary">Send</button>
+                            <input type="text" name="content" class="form-control me-2" placeholder="Scrie un mesaj..." autocomplete="off" required />
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i>
+                            </button>
                         </form>
                     </div>
                 </div>
-            }
-            else
-            {
-                <div class="alert alert-info mt-4">Doar membrii grupului pot vedea și trimite mesaje.</div>
-            }
+            </div>
+
+            <!-- Members Tab -->
+            <div class="tab-pane fade" id="members" role="tabpanel">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-light">
+                                <h5 class="mb-0">Membri Activi (@(group.Members?.Count(m => m.IsAccepted) ?? 0))</h5>
+                            </div>
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    @foreach (var m in group.Members?.Where(x => x.IsAccepted) ?? Enumerable.Empty<UserGroup>())
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="bi bi-person-fill"></i> @m.User?.UserName
+                                                @if (m.UserId == group.ModeratorId)
+                                                {
+                                                    <span class="badge bg-warning text-dark ms-2">Moderator</span>
+                                                }
+                                            </div>
+                                            @if (Model.IsModerator && m.UserId != group.ModeratorId)
+                                            {
+                                                <form asp-action="Kick" method="post" class="d-inline">
+                                                    <input type="hidden" name="groupId" value="@group.Id" />
+                                                    <input type="hidden" name="userId" value="@m.UserId" />
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Kick">
+                                                        <i class="bi bi-x-lg"></i>
+                                                    </button>
+                                                </form>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.IsModerator)
+                    {
+                        <div class="col-md-6">
+                            <div class="card shadow-sm mb-3">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Cereri Pending (@(group.Members?.Count(m => !m.IsAccepted) ?? 0))</h5>
+                                </div>
+                                <div class="card-body">
+                                    @if (group.Members?.Any(x => !x.IsAccepted) == true)
+                                    {
+                                        <ul class="list-group">
+                                            @foreach (var m in group.Members.Where(x => !x.IsAccepted))
+                                            {
+                                                <li class="list-group-item d-flex justify-content-between align-items-center">
+                                                    <span>@m.User?.UserName</span>
+                                                    <div>
+                                                        <form asp-action="Accept" method="post" class="d-inline">
+                                                            <input type="hidden" name="groupId" value="@group.Id" />
+                                                            <input type="hidden" name="userId" value="@m.UserId" />
+                                                            <button type="submit" class="btn btn-sm btn-success me-1">
+                                                                <i class="bi bi-check"></i>
+                                                            </button>
+                                                        </form>
+                                                        <form asp-action="Decline" method="post" class="d-inline">
+                                                            <input type="hidden" name="groupId" value="@group.Id" />
+                                                            <input type="hidden" name="userId" value="@m.UserId" />
+                                                            <button type="submit" class="btn btn-sm btn-danger">
+                                                                <i class="bi bi-x"></i>
+                                                            </button>
+                                                        </form>
+                                                    </div>
+                                                </li>
+                                            }
+                                        </ul>
+                                    }
+                                    else
+                                    {
+                                        <p class="text-muted text-center">Nu există cereri pending</p>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="card shadow-sm">
+                                <div class="card-header bg-light">
+                                    <h5 class="mb-0">Invită Utilizatori</h5>
+                                </div>
+                                <div class="card-body">
+                                    <input type="text" id="userSearchInput" class="form-control" placeholder="Caută utilizatori..." autocomplete="off" />
+                                    <div id="searchResults" class="list-group mt-2" style="display: none; max-height: 200px; overflow-y: auto;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @if (Model.IsModerator)
+                {
+                    <div class="mt-3">
+                        <form asp-action="Delete" method="post" onsubmit="return confirm('Sigur vrei să ștergi acest grup? Această acțiune este ireversibilă!');">
+                            <input type="hidden" name="groupId" value="@group.Id" />
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash"></i> Șterge Grupul
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
         </div>
+    }
+    else
+    {
+        <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i> Trebuie să fii membru al grupului pentru a vedea evenimentele și discuțiile.
+        </div>
+    }
+
+    <div class="mt-3">
+        <a asp-action="Index" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Înapoi la Grupuri
+        </a>
     </div>
 </div>
 
 @section Scripts {
     <script>
-        let searchTimeout;
         const groupId = @group.Id;
+        const currentUserId = @(currentUserId ?? "null");
+
+        // Load events when page loads
+        $(document).ready(function() {
+            loadGroupEvents();
+        });
+
+        // Load group events via AJAX
+        function loadGroupEvents() {
+            $.get('/Groups/GetGroupEventsJson', { groupId: groupId })
+                .done(function(data) {
+                    displayEvents(data);
+                })
+                .fail(function() {
+                    $('#events-container').html('<div class="alert alert-danger">Eroare la încărcarea evenimentelor.</div>');
+                });
+        }
+
+        // Display events
+        function displayEvents(events) {
+            if (events.length === 0) {
+                $('#events-container').html(`
+                    <div class="alert alert-info text-center">
+                        <h5><i class="bi bi-calendar-x"></i> Nu există evenimente</h5>
+                        <p>Creează primul eveniment pentru acest grup!</p>
+                    </div>
+                `);
+                return;
+            }
+
+            let html = '<div class="row">';
+            events.forEach(function(evt) {
+                const isUpcoming = new Date(evt.eventDate) > new Date();
+                const eventDate = new Date(evt.eventDate);
+                const dateStr = eventDate.toLocaleDateString('ro-RO', { 
+                    day: 'numeric', 
+                    month: 'short', 
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                const userStatus = evt.userStatus || null;
+                const statusBadge = userStatus ? getStatusBadge(userStatus) : '';
+
+                html += `
+                    <div class="col-md-6 mb-3">
+                        <div class="card h-100 ${isUpcoming ? 'border-primary' : 'border-secondary'}">
+                            <div class="card-header ${isUpcoming ? 'bg-primary text-white' : 'bg-secondary text-white'}">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0"><i class="bi bi-calendar-event"></i> ${escapeHtml(evt.title)}</h5>
+                                    ${statusBadge}
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">${escapeHtml(evt.description.substring(0, 100))}${evt.description.length > 100 ? '...' : ''}</p>
+                                <div class="mb-2">
+                                    <i class="bi bi-clock-fill text-primary"></i>
+                                    <strong>${dateStr}</strong>
+                                </div>
+                                ${evt.location ? `<div class="mb-2"><i class="bi bi-geo-alt-fill text-danger"></i> ${escapeHtml(evt.location)}</div>` : ''}
+                                
+                                <hr>
+                                
+                                <div class="d-flex justify-content-around text-center mb-3">
+                                    <div>
+                                        <span class="badge bg-success" style="font-size: 1em;">
+                                            <i class="bi bi-check-circle"></i> ${evt.goingCount}
+                                        </span>
+                                        <small class="d-block text-muted">Vin</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-warning" style="font-size: 1em;">
+                                            <i class="bi bi-question-circle"></i> ${evt.maybeCount}
+                                        </span>
+                                        <small class="d-block text-muted">Poate</small>
+                                    </div>
+                                    <div>
+                                        <span class="badge bg-danger" style="font-size: 1em;">
+                                            <i class="bi bi-x-circle"></i> ${evt.notGoingCount}
+                                        </span>
+                                        <small class="d-block text-muted">Nu vin</small>
+                                    </div>
+                                </div>
+
+                                <div class="btn-group w-100 mb-2" role="group">
+                                    <button type="button" class="btn btn-sm ${userStatus === 'Going' ? 'btn-success' : 'btn-outline-success'}" 
+                                            onclick="respondToEvent(${evt.id}, 'Going')">
+                                        <i class="bi bi-check-circle"></i> Vin
+                                    </button>
+                                    <button type="button" class="btn btn-sm ${userStatus === 'Maybe' ? 'btn-warning' : 'btn-outline-warning'}" 
+                                            onclick="respondToEvent(${evt.id}, 'Maybe')">
+                                        <i class="bi bi-question-circle"></i> Poate
+                                    </button>
+                                    <button type="button" class="btn btn-sm ${userStatus === 'NotGoing' ? 'btn-danger' : 'btn-outline-danger'}" 
+                                            onclick="respondToEvent(${evt.id}, 'NotGoing')">
+                                        <i class="bi bi-x-circle"></i> Nu vin
+                                    </button>
+                                </div>
+
+                                <a href="/Groups/EventDetails/${evt.id}" class="btn btn-primary btn-sm w-100">
+                                    <i class="bi bi-eye"></i> Vezi Detalii
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            html += '</div>';
+            $('#events-container').html(html);
+        }
+
+        function getStatusBadge(status) {
+            switch(status) {
+                case 'Going':
+                    return '<span class="badge bg-success"><i class="bi bi-check-circle"></i> Vin</span>';
+                case 'Maybe':
+                    return '<span class="badge bg-warning"><i class="bi bi-question-circle"></i> Poate</span>';
+                case 'NotGoing':
+                    return '<span class="badge bg-danger"><i class="bi bi-x-circle"></i> Nu vin</span>';
+                default:
+                    return '';
+            }
+        }
+
+        // Respond to event
+        function respondToEvent(eventId, status) {
+            $.post('/Groups/RespondToEvent', {
+                eventId: eventId,
+                status: status,
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
+            })
+            .done(function(data) {
+                if (data.success) {
+                    loadGroupEvents(); // Reload events to show updated status
+                } else {
+                    alert(data.message || 'Eroare la înregistrarea răspunsului');
+                }
+            })
+            .fail(function() {
+                alert('Eroare la înregistrarea răspunsului');
+            });
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // User search functionality
+        let searchTimeout;
         const searchInput = document.getElementById('userSearchInput');
         const searchResults = document.getElementById('searchResults');
 
@@ -208,10 +471,7 @@
                 const formData = new FormData();
                 formData.append('groupId', groupId);
                 formData.append('userId', userId);
-
-                // Get antiforgery token
-                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
-                formData.append('__RequestVerificationToken', token);
+                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
 
                 const response = await fetch('/Groups/SendInvite', {
                     method: 'POST',
@@ -224,7 +484,7 @@
                     searchResults.style.display = 'none';
                     searchResults.innerHTML = '';
                 } else {
-                    alert('Eroare la trimiterea invitației. Te rog încearcă din nou.');
+                    alert('Eroare la trimiterea invitației.');
                 }
             } catch (error) {
                 console.error('Error sending invite:', error);

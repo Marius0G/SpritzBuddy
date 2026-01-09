@@ -42,8 +42,25 @@ namespace SpritzBuddy.Controllers
             // Get group invites
             var groupInvites = await _groupService.GetPendingInvitesForUserAsync(user.Id);
 
+            // Get upcoming events from user's groups
+            var userGroupIds = await _context.UserGroups
+                .Where(ug => ug.UserId == user.Id && ug.IsAccepted)
+                .Select(ug => ug.GroupId)
+                .ToListAsync();
+
+            var upcomingEvents = await _context.GroupEvents
+                .Include(e => e.Group)
+                .Include(e => e.Creator)
+                .Include(e => e.Participants)
+                .Where(e => userGroupIds.Contains(e.GroupId) && e.EventDate > DateTime.Now)
+                .OrderBy(e => e.EventDate)
+                .Take(10)
+                .ToListAsync();
+
             ViewBag.FollowRequests = followRequests;
             ViewBag.GroupInvites = groupInvites;
+            ViewBag.UpcomingEvents = upcomingEvents;
+            ViewBag.CurrentUserId = user.Id;
             ViewBag.TotalCount = followRequests.Count + groupInvites.Count;
 
             return View();
@@ -62,12 +79,26 @@ namespace SpritzBuddy.Controllers
             var groupInvites = await _groupService.GetPendingInvitesForUserAsync(user.Id);
             var groupInvitesCount = groupInvites.Count;
 
-            var totalCount = followRequestsCount + groupInvitesCount;
+            // Get upcoming events count (events in next 7 days that user hasn't responded to)
+            var userGroupIds = await _context.UserGroups
+                .Where(ug => ug.UserId == user.Id && ug.IsAccepted)
+                .Select(ug => ug.GroupId)
+                .ToListAsync();
+
+            var upcomingEventsCount = await _context.GroupEvents
+                .Where(e => userGroupIds.Contains(e.GroupId) && 
+                           e.EventDate > DateTime.Now && 
+                           e.EventDate <= DateTime.Now.AddDays(7) &&
+                           !e.Participants.Any(p => p.UserId == user.Id))
+                .CountAsync();
+
+            var totalCount = followRequestsCount + groupInvitesCount + upcomingEventsCount;
 
             return Json(new { 
                 count = totalCount,
                 followRequests = followRequestsCount,
-                groupInvites = groupInvitesCount
+                groupInvites = groupInvitesCount,
+                upcomingEvents = upcomingEventsCount
             });
         }
     }

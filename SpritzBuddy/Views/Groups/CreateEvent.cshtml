@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Create Event";
+    var groupId = ViewBag.GroupId;
+    var groupName = ViewBag.GroupName;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0"><i class="bi bi-calendar-event"></i> Creeaz? Eveniment în @groupName</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="CreateEvent" method="post">
+                        <input type="hidden" name="groupId" value="@groupId" />
+                        
+                        <div class="mb-3">
+                            <label for="title" class="form-label fw-bold">Titlu Eveniment *</label>
+                            <input type="text" class="form-control" id="title" name="title" required maxlength="200" placeholder="Ex: Întâlnire SpritzBuddy" />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label fw-bold">Descriere *</label>
+                            <textarea class="form-control" id="description" name="description" rows="4" required placeholder="Descrie evenimentul..."></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="eventDate" class="form-label fw-bold">Data ?i Ora *</label>
+                            <input type="datetime-local" class="form-control" id="eventDate" name="eventDate" required />
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="location" class="form-label fw-bold">Loca?ie (op?ional)</label>
+                            <input type="text" class="form-control" id="location" name="location" placeholder="Ex: Cafeneaua din centru" />
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Details" asp-route-id="@groupId" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Înapoi
+                            </a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-calendar-plus"></i> Creeaz? Eveniment
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Set minimum date to today
+        document.getElementById('eventDate').min = new Date().toISOString().slice(0, 16);
+    </script>
+}
