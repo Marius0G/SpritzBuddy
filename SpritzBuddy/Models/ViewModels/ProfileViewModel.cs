@@ -15,9 +15,8 @@ namespace SpritzBuddy.Models.ViewModels
  public int FollowersCount { get; set; }
  public int FollowingCount { get; set; }
 
- // Gamification placeholders
- public List<string>? Badges { get; set; }
-
+         // Gamification placeholders
+         public List<BadgeViewModel>? Badges { get; set; }
  // Drink statistics with colors
  public List<DrinkStatViewModel>? DrinkStats { get; set; }
 

@@ -2,6 +2,115 @@
 
 @{
  ViewData["Title"] = "Profil";
+ var pendingFollowRequests = ViewBag.PendingFollowRequests as List<SpritzBuddy.Models.Follow> ?? new List<SpritzBuddy.Models.Follow>();
+ var pendingGroupRequests = ViewBag.PendingGroupRequests as List<SpritzBuddy.Models.UserGroup> ?? new List<SpritzBuddy.Models.UserGroup>();
+ var upcomingEvents = ViewBag.UpcomingEvents as List<SpritzBuddy.Models.Event> ?? new List<SpritzBuddy.Models.Event>();
+ var hasNotifications = pendingFollowRequests.Any() || pendingGroupRequests.Any() || upcomingEvents.Any();
+}
+
+@if (Model.IsCurrentUser && hasNotifications)
+{
+    <div class="container py-3">
+        <div class="alert alert-warning shadow-sm" style="border-left: 4px solid var(--beer-amber, #C68E17);">
+            <h5 class="alert-heading">
+                <i class="bi bi-bell-fill"></i> Notificări
+                <span class="badge bg-danger ms-2">@(pendingFollowRequests.Count + pendingGroupRequests.Count + upcomingEvents.Count)</span>
+            </h5>
+            <hr>
+            
+            @if (upcomingEvents.Any())
+            {
+                <div class="mb-3">
+                    <h6><i class="bi bi-calendar-event"></i> Evenimente viitoare (@upcomingEvents.Count)</h6>
+                    <div class="list-group">
+                        @foreach (var evt in upcomingEvents)
+                        {
+                            <a href="@Url.Action("Details", "Events", new { id = evt.Id })" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@evt.Title</strong>
+                                    <br>
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar3"></i> @evt.EventDate.ToString("dd MMM yyyy, HH:mm")
+                                        @if (!string.IsNullOrEmpty(evt.Location))
+                                        {
+                                            <span class="ms-2"><i class="bi bi-geo-alt"></i> @evt.Location</span>
+                                        }
+                                    </small>
+                                </div>
+                                <span class="badge bg-success">Confirmat</span>
+                            </a>
+                        }
+                    </div>
+                </div>
+            }
+            
+            @if (pendingFollowRequests.Any())
+            {
+                <div class="mb-3">
+                    <h6><i class="bi bi-person-plus"></i> Cereri de urmărire (@pendingFollowRequests.Count)</h6>
+                    <div class="list-group">
+                        @foreach (var request in pendingFollowRequests)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(request.Follower.ProfilePictureUrl))
+                                    {
+                                        <img src="@request.Follower.ProfilePictureUrl" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                            @((request.Follower.FirstName ?? "U")[0])
+                                        </div>
+                                    }
+                                    <strong>@request.Follower.UserName</strong>
+                                </div>
+                                <div>
+                                    <form asp-controller="Follows" asp-action="Accept" method="post" class="d-inline">
+                                        <input type="hidden" name="followerId" value="@request.FollowerId" />
+                                        <button type="submit" class="btn btn-success btn-sm">Acceptă</button>
+                                    </form>
+                                    <form asp-controller="Follows" asp-action="Decline" method="post" class="d-inline">
+                                        <input type="hidden" name="followerId" value="@request.FollowerId" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Refuză</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+            
+            @if (pendingGroupRequests.Any())
+            {
+                <div class="mb-3">
+                    <h6><i class="bi bi-people"></i> Cereri de intrare în grupuri (@pendingGroupRequests.Count)</h6>
+                    <div class="list-group">
+                        @foreach (var request in pendingGroupRequests)
+                        {
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>@request.User.UserName</strong> → <em>@request.Group.Name</em>
+                                </div>
+                                <div>
+                                    <form asp-controller="Groups" asp-action="Accept" method="post" class="d-inline">
+                                        <input type="hidden" name="groupId" value="@request.GroupId" />
+                                        <input type="hidden" name="userId" value="@request.UserId" />
+                                        <button type="submit" class="btn btn-success btn-sm">Acceptă</button>
+                                    </form>
+                                    <form asp-controller="Groups" asp-action="Decline" method="post" class="d-inline">
+                                        <input type="hidden" name="groupId" value="@request.GroupId" />
+                                        <input type="hidden" name="userId" value="@request.UserId" />
+                                        <button type="submit" class="btn btn-danger btn-sm">Refuză</button>
+                                    </form>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
 }
 
 <div class="container py-4">
@@ -24,7 +133,12 @@
  @if (Model.IsCurrentUser)
  {
  <div class="mb-3">
- <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-primary btn-sm">Editeaz? profil</a>
+ <a asp-controller="Profile" asp-action="Edit" class="btn btn-outline-primary btn-sm w-100 mb-2">
+     <i class="bi bi-pencil"></i> Editează profil
+ </a>
+ <a asp-controller="Posts" asp-action="Create" class="btn btn-primary btn-sm w-100">
+     <i class="bi bi-plus-circle"></i> Postare Nouă
+ </a>
  </div>
  }
  else if (User.Identity?.IsAuthenticated == true)
@@ -82,27 +196,35 @@
  <div class="col-md-8">
  <div class="card mb-3">
  <div class="card-body">
- <h5>Badges</h5>
- @if (Model.Badges != null && Model.Badges.Count >0)
- {
- <div>
- @foreach (var badge in Model.Badges)
- {
- <span class="badge bg-primary me-1">@badge</span>
- }
- </div>
- }
- else
- {
- <p class="text-muted">No badges yet.</p>
- }
- </div>
- </div>
-
- <div class="card">
- <div class="card-body">
- <h5>Spritz-o-meter</h5>
- @if (Model.DrinkStats != null && Model.DrinkStats.Count >0)
+                             <h5>Badges</h5>
+                             <div class="d-flex flex-wrap gap-2 mb-3">
+                                 @if (Model.Badges != null && Model.Badges.Any())
+                                 {
+                                     foreach (var badge in Model.Badges)
+                                     {
+                                         if (Model.IsCurrentUser || badge.IsUnlocked)
+                                         {
+                                             var opacityClass = badge.IsUnlocked ? "" : "opacity-50 grayscale";
+                                             var titleAttr = badge.IsUnlocked ? badge.Name : $"{badge.Name}: {badge.Description}";
+                                             
+                                             <div class="text-center p-2 border rounded @opacityClass" title="@titleAttr" style="width: 80px;" data-bs-toggle="tooltip" data-bs-placement="top">
+                                                 <i class="bi @badge.IconClass fs-2 @badge.ColorClass"></i>
+                                                 <div class="text-truncate" style="font-size: 0.7rem; margin-top: 5px;">@badge.Name</div>
+                                             </div>
+                                         }
+                                     }
+                                 }
+                                 else
+                                 {
+                                     <p class="text-muted">No badges system loaded.</p>
+                                 }
+                             </div>
+                         </div>
+                     </div>
+ 
+                     <div class="card">
+                         <div class="card-body">
+                             <h5>Spritz-o-meter</h5> @if (Model.DrinkStats != null && Model.DrinkStats.Count >0)
  {
  <!-- GitHub-style horizontal bar -->
  <div class="mb-3" style="display: flex; height: 22px; border-radius: 8px; overflow: hidden;">
@@ -190,6 +312,9 @@ else if (Model.IsCurrentUser)
         height: 12px;
         border-radius: 50%;
         margin-right: 8px;
+    }
+    .grayscale {
+        filter: grayscale(100%);
     }
     .drink-name {
         font-size: 1.05rem;

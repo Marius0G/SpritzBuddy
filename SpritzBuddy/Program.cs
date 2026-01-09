@@ -34,6 +34,7 @@ builder.Services.AddScoped<IPostMediaService, PostMediaService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
+builder.Services.AddScoped<IContentModerationService, ContentModerationService>();
 
 builder.Services.AddControllersWithViews();
 

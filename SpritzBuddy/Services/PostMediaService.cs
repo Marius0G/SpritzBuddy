@@ -8,8 +8,8 @@ namespace SpritzBuddy.Services
     {
         private readonly IWebHostEnvironment _environment;
         private readonly ILogger<PostMediaService> _logger;
-        private readonly long _maxFileSize = 10 * 1024 * 1024; // 10MB per image
-        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp" };
+        private readonly long _maxFileSize = 50 * 1024 * 1024; // 50MB per file (increased for video)
+        private readonly string[] _allowedExtensions = { ".jpg", ".jpeg", ".png", ".gif", ".webp", ".mp4", ".mov", ".avi", ".webm" };
 
         public PostMediaService(IWebHostEnvironment environment, ILogger<PostMediaService> logger)
         {
@@ -142,7 +142,10 @@ namespace SpritzBuddy.Services
             }
 
             // Check MIME type
-            var allowedMimeTypes = new[] { "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp" };
+            var allowedMimeTypes = new[] { 
+                "image/jpeg", "image/jpg", "image/png", "image/gif", "image/webp",
+                "video/mp4", "video/quicktime", "video/x-msvideo", "video/webm"
+            };
             if (!allowedMimeTypes.Contains(file.ContentType.ToLowerInvariant()))
             {
                 _logger.LogWarning($"File {file.FileName} has invalid MIME type: {file.ContentType}");

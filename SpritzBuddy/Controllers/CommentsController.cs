@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SpritzBuddy.Data;
 using SpritzBuddy.Models;
+using SpritzBuddy.Services;
 using System.Security.Claims;
 
 namespace SpritzBuddy.Controllers
@@ -12,10 +13,12 @@ namespace SpritzBuddy.Controllers
     public class CommentsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly IContentModerationService _moderationService;
 
-        public CommentsController(ApplicationDbContext context)
+        public CommentsController(ApplicationDbContext context, IContentModerationService moderationService)
         {
             _context = context;
+            _moderationService = moderationService;
         }
 
         // POST: Comments/Create - Add a comment to a post
@@ -37,6 +40,16 @@ namespace SpritzBuddy.Controllers
                     return Json(new { success = false, message = "Comment cannot be empty" });
                 TempData["Error"] = "Comment cannot be empty";
                 return RedirectToAction("Index", "Home");
+            }
+
+            // AI Content Moderation
+            if (!await _moderationService.IsContentSafeAsync(content))
+            {
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
+                
+                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                return RedirectToAction("PostComments", new { id = postId });
             }
 
             // Check if post exists
@@ -144,8 +157,9 @@ namespace SpritzBuddy.Controllers
                 return Json(new { success = false, message = "Comment not found" });
             }
 
-            // Check if user owns this comment
-            if (comment.UserId != userIdInt)
+            // Check if user owns this comment or is admin
+            var isAdmin = User.IsInRole("Administrator");
+            if (!isAdmin && comment.UserId != userIdInt)
             {
                 return Json(new { success = false, message = "You can only delete your own comments" });
             }
@@ -179,7 +193,20 @@ namespace SpritzBuddy.Controllers
                 .OrderBy(c => c.CreateDate)
                 .ToListAsync();
 
+            // Get all posts from the same user with media
+            var userPosts = await _context.Posts
+                .Include(p => p.PostMedias)
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .Where(p => p.UserId == post.UserId && p.PostMedias.Any())
+                .OrderByDescending(p => p.CreateDate)
+                .ToListAsync();
+
             ViewBag.Post = post;
+            ViewBag.UserPosts = userPosts;
+            ViewBag.CurrentPostIndex = userPosts.FindIndex(p => p.Id == id);
+            
             return View(comments);
         }
 
@@ -197,6 +224,12 @@ namespace SpritzBuddy.Controllers
             if (string.IsNullOrWhiteSpace(content))
             {
                 return Json(new { success = false, message = "Comment cannot be empty" });
+            }
+
+            // AI Content Moderation
+            if (!await _moderationService.IsContentSafeAsync(content))
+            {
+                return Json(new { success = false, message = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
             }
 
             var comment = await _context.Comments.FindAsync(id);

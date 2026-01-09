@@ -9,9 +9,42 @@
     {
         currentUserId = userIdInt;
     }
+    
+    var userPosts = ViewBag.UserPosts as List<SpritzBuddy.Models.Post> ?? new List<SpritzBuddy.Models.Post>();
+    var currentIndex = ViewBag.CurrentPostIndex as int? ?? 0;
 }
 
 <div class="container mt-4">
+    <!-- Navigation between user's posts -->
+    @if (userPosts.Count > 1)
+    {
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            @if (currentIndex > 0)
+            {
+                <a href="@Url.Action("Details", new { id = userPosts[currentIndex - 1].Id })" class="btn btn-outline-primary">
+                    <i class="bi bi-chevron-left"></i> Previous
+                </a>
+            }
+            else
+            {
+                <div></div>
+            }
+            
+            <span class="text-muted">Post @(currentIndex + 1) of @userPosts.Count by @Model.User.UserName</span>
+            
+            @if (currentIndex < userPosts.Count - 1)
+            {
+                <a href="@Url.Action("Details", new { id = userPosts[currentIndex + 1].Id })" class="btn btn-outline-primary">
+                    Next <i class="bi bi-chevron-right"></i>
+                </a>
+            }
+            else
+            {
+                <div></div>
+            }
+        </div>
+    }
+
     <!-- Post Details Card -->
     <div class="card mb-4">
         <!-- Post Images Carousel (if any) -->
@@ -38,13 +71,20 @@
 
                 <!-- Images -->
                 <div class="carousel-inner">
-                    @for (int i = 0; i < mediaList.Count; i++)
+                    @foreach (var media in Model.PostMedias.OrderBy(m => m.OrderIndex))
                     {
-                        <div class="carousel-item @(i == 0 ? "active" : "")">
-                            <img src="@mediaList[i].FilePath" 
-                                 class="d-block w-100" 
-                                 alt="Post image @(i + 1)"
-                                 style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;" />
+                        <div class="carousel-item @(media.OrderIndex == 0 ? "active" : "")">
+                            @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                            {
+                                <video class="d-block w-100" controls style="max-height: 500px; object-fit: contain; background-color: #000;">
+                                    <source src="@media.FilePath" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            }
+                            else
+                            {
+                                <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;" />
+                            }
                         </div>
                     }
                 </div>

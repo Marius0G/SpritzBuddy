@@ -1,4 +1,3 @@
-
 using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +21,16 @@ namespace SpritzBuddy.Services
             return await _context.Groups
                 .Include(g => g.Members)
                 .Include(g => g.Moderator)
+                .ToListAsync();
+        }
+
+        public async Task<List<Group>> GetUserGroupsAsync(int userId)
+        {
+            return await _context.Groups
+                .Include(g => g.Members)
+                .Include(g => g.Moderator)
+                .Include(g => g.Events)
+                .Where(g => g.Members.Any(m => m.UserId == userId && m.IsAccepted))
                 .ToListAsync();
         }
 
@@ -188,6 +197,16 @@ namespace SpritzBuddy.Services
             _context.Groups.Remove(group);
             await _context.SaveChangesAsync();
         }
+
+        public async Task DeleteGroupAsAdminAsync(int groupId)
+        {
+            var group = await _context.Groups.FindAsync(groupId);
+            if (group != null)
+            {
+                _context.Groups.Remove(group);
+                await _context.SaveChangesAsync();
+            }
+        }
         public async Task PostMessageAsync(int groupId, int userId, string content)
         {
             var isMember = await _context.UserGroups.AnyAsync(ug => ug.GroupId == groupId && ug.UserId == userId && ug.IsAccepted);
@@ -303,6 +322,109 @@ namespace SpritzBuddy.Services
                 throw new UnauthorizedAccessException();
 
             invite.IsDeclined = true;
+            await _context.SaveChangesAsync();
+        }
+
+        // Event functionality
+        public async Task<int> CreateEventAsync(int groupId, int organizerId, string title, string description, DateTime eventDate, string? location)
+        {
+            // Verify user is a member of the group
+            var isMember = await _context.UserGroups.AnyAsync(ug => 
+                ug.GroupId == groupId && 
+                ug.UserId == organizerId && 
+                ug.IsAccepted);
+            
+            if (!isMember)
+                throw new UnauthorizedAccessException("Only group members can create events.");
+
+            var newEvent = new Event
+            {
+                GroupId = groupId,
+                OrganizerId = organizerId,
+                Title = title,
+                Description = description,
+                EventDate = eventDate,
+                Location = location
+            };
+
+            _context.Events.Add(newEvent);
+            await _context.SaveChangesAsync();
+            return newEvent.Id;
+        }
+
+        public async Task<List<Event>> GetGroupEventsAsync(int groupId)
+        {
+            return await _context.Events
+                .Include(e => e.Organizer)
+                .Include(e => e.Participants)
+                    .ThenInclude(p => p.User)
+                .Where(e => e.GroupId == groupId)
+                .OrderByDescending(e => e.EventDate)
+                .ToListAsync();
+        }
+
+        public async Task<Event?> GetEventDetailsAsync(int eventId)
+        {
+            return await _context.Events
+                .Include(e => e.Group)
+                .Include(e => e.Organizer)
+                .Include(e => e.Participants)
+                    .ThenInclude(p => p.User)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+        }
+
+        public async Task<bool> RespondToEventAsync(int eventId, int userId, EventParticipantStatus status)
+        {
+            var evt = await _context.Events.FindAsync(eventId);
+            if (evt == null)
+                return false;
+
+            // Verify user is a member of the group
+            var isMember = await _context.UserGroups.AnyAsync(ug => 
+                ug.GroupId == evt.GroupId && 
+                ug.UserId == userId && 
+                ug.IsAccepted);
+            
+            if (!isMember)
+                return false;
+
+            // Check if user already responded
+            var existingResponse = await _context.EventParticipants
+                .FirstOrDefaultAsync(p => p.EventId == eventId && p.UserId == userId);
+
+            if (existingResponse != null)
+            {
+                existingResponse.Status = status;
+            }
+            else
+            {
+                var participant = new EventParticipant
+                {
+                    EventId = eventId,
+                    UserId = userId,
+                    Status = status
+                };
+                _context.EventParticipants.Add(participant);
+            }
+
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
+        public async Task DeleteEventAsync(int eventId, int userId)
+        {
+            var evt = await _context.Events
+                .Include(e => e.Group)
+                .FirstOrDefaultAsync(e => e.Id == eventId);
+            
+            if (evt == null)
+                return;
+
+            // Only organizer or group moderator can delete
+            if (evt.OrganizerId != userId && evt.Group.ModeratorId != userId)
+                throw new UnauthorizedAccessException("Only the event organizer or group moderator can delete this event.");
+
+            _context.Events.Remove(evt);
             await _context.SaveChangesAsync();
         }
     }

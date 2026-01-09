@@ -1,4 +1,3 @@
-
 using System.Threading.Tasks;
 using SpritzBuddy.Models;
 using SpritzBuddy.Models.ViewModels;
@@ -9,11 +8,13 @@ namespace SpritzBuddy.Services
     {
         Task<int> CreateGroupAsync(int userId, CreateGroupViewModel model);
         Task<List<Group>> GetAllGroupsAsync();
+        Task<List<Group>> GetUserGroupsAsync(int userId);
         Task<bool> JoinGroupAsync(int userId, int groupId);
         Task<bool> LeaveGroupAsync(int userId, int groupId);
         Task AcceptMemberAsync(int groupId, int userId, int currentModeratorId);
         Task RemoveMemberAsync(int groupId, int userId, int currentModeratorId);
         Task DeleteGroupAsync(int groupId, int currentModeratorId);
+        Task DeleteGroupAsAdminAsync(int groupId);
         Task PostMessageAsync(int groupId, int userId, string content);
         Task EditMessageAsync(int messageId, int userId, string newContent);
         Task DeleteMessageAsync(int messageId, int userId);
@@ -27,5 +28,12 @@ namespace SpritzBuddy.Services
         Task<List<int>> GetPendingInvitesForGroupAsync(int groupId);
         Task AcceptInviteAsync(int inviteId, int userId);
         Task DeclineInviteAsync(int inviteId, int userId);
+
+        // Event functionality
+        Task<int> CreateEventAsync(int groupId, int organizerId, string title, string description, DateTime eventDate, string? location);
+        Task<List<Event>> GetGroupEventsAsync(int groupId);
+        Task<Event?> GetEventDetailsAsync(int eventId);
+        Task<bool> RespondToEventAsync(int eventId, int userId, EventParticipantStatus status);
+        Task DeleteEventAsync(int eventId, int userId);
     }
 }

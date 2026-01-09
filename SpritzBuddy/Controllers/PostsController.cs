@@ -21,13 +21,15 @@ namespace SpritzBuddy.Controllers
         private readonly IPostMediaService _postMediaService;
         private readonly IPostService _postService;
         private readonly IWebHostEnvironment _environment;
+        private readonly IContentModerationService _moderationService;
 
-        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IPostService postService, IWebHostEnvironment environment)
+        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IPostService postService, IWebHostEnvironment environment, IContentModerationService moderationService)
         {
             _context = context;
             _postMediaService = postMediaService;
             _postService = postService;
             _environment = environment;
+            _moderationService = moderationService;
         }
 
         // GET: Posts - Shows posts based on privacy and following relationships
@@ -111,6 +113,19 @@ namespace SpritzBuddy.Controllers
                 return NotFound();
             }
 
+            // Get all posts from the same user with media
+            var userPosts = await _context.Posts
+                .Include(p => p.PostMedias)
+                .Include(p => p.User)
+                .Include(p => p.Likes)
+                .Include(p => p.Comments)
+                .Where(p => p.UserId == post.UserId && p.PostMedias.Any())
+                .OrderByDescending(p => p.CreateDate)
+                .ToListAsync();
+
+            ViewBag.UserPosts = userPosts;
+            ViewBag.CurrentPostIndex = userPosts.FindIndex(p => p.Id == id);
+
             return View(post);
         }
 
@@ -153,6 +168,20 @@ namespace SpritzBuddy.Controllers
 
             if (ModelState.IsValid)
             {
+                // Content Moderation Check
+                if (!await _moderationService.IsContentSafeAsync(model.Title) || !await _moderationService.IsContentSafeAsync(model.Content))
+                {
+                    ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                    // Repopulate drinks dropdown
+                    var drinksList = await _context.Drinks.OrderBy(d => d.Name).ToListAsync();
+                    model.AvailableDrinks = drinksList.Select(d => new SelectListItem
+                    {
+                        Value = d.Id.ToString(),
+                        Text = d.Name
+                    }).ToList();
+                    return View(model);
+                }
+
                 // Create the post
                 var post = new Post
                 {
@@ -176,11 +205,16 @@ namespace SpritzBuddy.Controllers
                         int orderIndex = 0;
                         foreach (var path in uploadedPaths)
                         {
+                            var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
+                            var mediaType = (extension == ".mp4" || extension == ".mov" || extension == ".avi" || extension == ".webm") 
+                                ? PostMediaType.Video 
+                                : PostMediaType.Image;
+
                             var postMedia = new PostMedia
                             {
                                 PostId = post.Id,
                                 FilePath = path,
-                                MediaType = PostMediaType.Image,
+                                MediaType = mediaType,
                                 OrderIndex = orderIndex++
                             };
                             _context.PostMedias.Add(postMedia);
@@ -289,6 +323,13 @@ namespace SpritzBuddy.Controllers
 
             if (ModelState.IsValid)
             {
+                // Content Moderation Check
+                if (!await _moderationService.IsContentSafeAsync(post.Title) || !await _moderationService.IsContentSafeAsync(post.Content))
+                {
+                    ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                    return View(post);
+                }
+
                 try
                 {
                     _context.Update(post);
@@ -323,16 +364,19 @@ namespace SpritzBuddy.Controllers
             var post = await _context.Posts
                 .Include(p => p.User)
                 .FirstOrDefaultAsync(m => m.Id == id);
+            
             if (post == null)
             {
                 return NotFound();
             }
 
-            // CHECK IF CURRENT USER OWNS THIS POST
+            // CHECK IF CURRENT USER OWNS THIS POST OR IS ADMIN
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt)
+            var isAdmin = User.IsInRole("Administrator");
+
+            if (!isAdmin && (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt))
             {
-                return Forbid(); // User doesn't own this post
+                return Forbid(); // User doesn't own this post and is not admin
             }
 
             return View(post);
@@ -347,11 +391,13 @@ namespace SpritzBuddy.Controllers
             var post = await _context.Posts.FindAsync(id);
             if (post != null)
             {
-                // CHECK IF CURRENT USER OWNS THIS POST
+                // CHECK IF CURRENT USER OWNS THIS POST OR IS ADMIN
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                if (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt)
+                var isAdmin = User.IsInRole("Administrator");
+                
+                if (!isAdmin && (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt))
                 {
-                    return Forbid(); // User doesn't own this post
+                    return Forbid(); // User doesn't own this post and is not admin
                 }
 
                 // MANUAL CASCADE DELETE - Remove related data first

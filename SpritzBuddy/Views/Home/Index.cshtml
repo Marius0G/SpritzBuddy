@@ -95,8 +95,9 @@
                                     <i class="bi bi-cup-straw"></i>
                                     <span class="noroc-text ms-1">Noroc!</span>
                                 </button>
-                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="btn btn-link p-0 text-dark me-3" style="font-size: 1.5rem;">
+                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="btn btn-link p-0 text-dark me-3 d-flex align-items-center" style="font-size: 1.5rem; text-decoration: none;">
                                     <i class="bi bi-chat"></i>
+                                    <span class="ms-1 small">(@post.Comments.Count)</span>
                                 </a>
                             }
                             else
@@ -105,8 +106,9 @@
                                     <i class="bi bi-cup-straw"></i>
                                     <span class="ms-1">Noroc!</span>
                                 </span>
-                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="text-muted me-3" style="font-size: 1.5rem;">
+                                <a href="@Url.Action("PostComments", "Comments", new { id = post.Id })" class="text-muted me-3 d-flex align-items-center" style="font-size: 1.5rem; text-decoration: none;">
                                     <i class="bi bi-chat"></i>
+                                    <span class="ms-1 small">(@post.Comments.Count)</span>
                                 </a>
                             }
                         </div>
@@ -257,9 +259,9 @@
         margin-right: 4px;
         font-size: 0.9rem;
     }
-    /* Noroc button styling */
+    /* Noroc button styling - Beer Theme */
     .noroc-btn {
-        color: #6c757d;
+        color: var(--beer-dark, #6B4423);
         text-decoration: none;
         transition: all 0.2s ease;
         border: none;
@@ -268,7 +270,7 @@
         box-shadow: none !important;
     }
     .noroc-btn:hover {
-        color: #ffc107;
+        color: var(--beer-gold, #D4A017);
         transform: scale(1.1);
         background: none !important;
     }
@@ -282,11 +284,11 @@
         box-shadow: none !important;
     }
     .noroc-btn.liked {
-        color: #ffc107;
+        color: var(--beer-amber, #C68E17);
         font-weight: bold;
     }
     .noroc-btn.liked:hover {
-        color: #6c757d;
+        color: var(--beer-dark, #6B4423);
     }
     .noroc-text {
         font-size: 0.9rem;

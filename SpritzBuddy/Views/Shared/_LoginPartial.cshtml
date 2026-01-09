@@ -10,17 +10,17 @@
     var username = user?.UserName ?? "User";
     
     <li class="nav-item">
-        <a class="nav-link text-dark position-relative" asp-controller="Profile" asp-action="Index">
+        <a class="nav-link text-dark position-relative" asp-controller="Profile" asp-action="Index" asp-route-username="@username">
             <i class="bi bi-person-circle"></i> @username
             <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="profile-notifications-badge" style="display: none;">
                 0
             </span>
         </a>
     </li>
-    <li class="nav-item">
+    <li class="nav-item ms-2">
         <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
             @Html.AntiForgeryToken()
-            <button type="submit" class="btn btn-link nav-link text-dark" style="padding:0;">
+            <button type="submit" class="btn btn-link nav-link text-dark" style="padding: 8px 12px;">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </button>
         </form>

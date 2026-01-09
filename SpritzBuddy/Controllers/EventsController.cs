@@ -1,0 +1,192 @@
+using System;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore; // Added for Includes if needed directly, though service handles most
+using SpritzBuddy.Models;
+using SpritzBuddy.Services;
+using System.Linq; // Added for LINQ
+using System.Collections.Generic; // Added for List
+
+namespace SpritzBuddy.Controllers
+{
+    [Authorize]
+    public class EventsController : Controller
+    {
+        private readonly IGroupService _groupService;
+        private readonly UserManager<ApplicationUser> _userManager;
+
+        public EventsController(IGroupService groupService, UserManager<ApplicationUser> userManager)
+        {
+            _groupService = groupService;
+            _userManager = userManager;
+        }
+
+        // GET: Events/Create?groupId=5
+        [HttpGet]
+        public async Task<IActionResult> Create(int groupId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var group = await _groupService.GetGroupWithMembersAndMessagesAsync(groupId);
+            if (group == null) return NotFound();
+
+            // Check if user is member or moderator
+            var isMember = group.Members.Any(m => m.UserId == user.Id && m.IsAccepted);
+            if (!isMember && group.ModeratorId != user.Id)
+            {
+                return Forbid();
+            }
+
+            ViewBag.GroupId = groupId;
+            ViewBag.GroupName = group.Name;
+            return View();
+        }
+
+        // POST: Events/Create
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(int groupId, string title, string description, DateTime eventDate, string? location)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            try
+            {
+                var eventId = await _groupService.CreateEventAsync(groupId, user.Id, title, description, eventDate, location);
+                TempData["Success"] = "Eveniment creat cu succes!";
+                return RedirectToAction("Details", new { id = eventId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Details", "Groups", new { id = groupId });
+            }
+        }
+
+        // GET: Events/Details/5
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var evt = await _groupService.GetEventDetailsAsync(id);
+            if (evt == null) return NotFound();
+
+            // Check access
+            var isMember = evt.Group.Members.Any(m => m.UserId == user.Id && m.IsAccepted);
+            if (!isMember && evt.Group.ModeratorId != user.Id)
+            {
+                return Forbid();
+            }
+
+            ViewBag.CurrentUserId = user.Id;
+            return View(evt);
+        }
+
+        // GET: Events/MyEvents
+        [HttpGet]
+        public async Task<IActionResult> MyEvents()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            // Get all groups user is part of
+            var userGroups = await _groupService.GetUserGroupsAsync(user.Id);
+            var allEvents = new List<Event>();
+
+            foreach (var group in userGroups)
+            {
+                var groupEvents = await _groupService.GetGroupEventsAsync(group.Id);
+                allEvents.AddRange(groupEvents);
+            }
+
+            // Order by date
+            var sortedEvents = allEvents.OrderBy(e => e.EventDate).ToList();
+
+            return View(sortedEvents);
+        }
+
+        // POST: Events/RespondToEvent
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RespondToEvent(int eventId, string status)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            if (!Enum.TryParse<EventParticipantStatus>(status, out var participationStatus))
+            {
+                return Json(new { success = false, message = "Status invalid." });
+            }
+
+            var success = await _groupService.RespondToEventAsync(eventId, user.Id, participationStatus);
+            if (success)
+            {
+                return Json(new { success = true, message = "Răspuns înregistrat!" });
+            }
+            return Json(new { success = false, message = "Eroare la înregistrarea răspunsului." });
+        }
+
+        // POST: Events/Delete/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Delete(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            try
+            {
+                var evt = await _groupService.GetEventDetailsAsync(id);
+                if (evt == null) return NotFound();
+                
+                var groupId = evt.GroupId;
+                await _groupService.DeleteEventAsync(id, user.Id);
+                
+                TempData["Success"] = "Eveniment șters.";
+                return RedirectToAction("Details", "Groups", new { id = groupId });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Details", new { id });
+            }
+        }
+
+        // GET: Events/GetGroupEvents?groupId=5 (AJAX endpoint)
+        [HttpGet]
+        public async Task<IActionResult> GetGroupEvents(int groupId)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            try
+            {
+                var events = await _groupService.GetGroupEventsAsync(groupId);
+                
+                var result = events.Select(e => new
+                {
+                    id = e.Id,
+                    title = e.Title,
+                    description = e.Description,
+                    eventDate = e.EventDate,
+                    location = e.Location,
+                    goingCount = e.Participants?.Count(p => p.Status == EventParticipantStatus.Going) ?? 0,
+                    maybeCount = e.Participants?.Count(p => p.Status == EventParticipantStatus.Maybe) ?? 0,
+                    notGoingCount = e.Participants?.Count(p => p.Status == EventParticipantStatus.NotGoing) ?? 0,
+                    userStatus = e.Participants?.FirstOrDefault(p => p.UserId == user.Id)?.Status.ToString()
+                }).ToList();
+
+                return Json(result);
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = ex.Message });
+            }
+        }
+    }
+}

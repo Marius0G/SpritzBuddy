@@ -15,6 +15,6 @@ namespace SpritzBuddy.Services
         /// <summary>
         /// Calculates and returns a list of badges earned by the user based on their activity.
         /// </summary>
-        Task<List<string>> GetUserBadgesAsync(int userId);
+        Task<List<BadgeViewModel>> GetUserBadgesAsync(int userId);
     }
 }

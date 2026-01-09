@@ -29,6 +29,17 @@ namespace SpritzBuddy.Controllers
         }
 
         [HttpGet]
+        public async Task<IActionResult> MyGroups()
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var myGroups = await _groupService.GetUserGroupsAsync(user.Id);
+            return View("Index", myGroups);
+        }
+
+        [HttpGet]
         public async Task<IActionResult> Details(int id)
         {
             var user = await _userManager.GetUserAsync(User);
@@ -178,7 +189,15 @@ namespace SpritzBuddy.Controllers
                 return Unauthorized();
             try
             {
-                await _groupService.DeleteGroupAsync(groupId, user.Id);
+                if (User.IsInRole("Administrator"))
+                {
+                    await _groupService.DeleteGroupAsAdminAsync(groupId);
+                }
+                else
+                {
+                    await _groupService.DeleteGroupAsync(groupId, user.Id);
+                }
+                
                 TempData["SuccessMessage"] = "Grupul a fost șters.";
                 return RedirectToAction("Index");
             }

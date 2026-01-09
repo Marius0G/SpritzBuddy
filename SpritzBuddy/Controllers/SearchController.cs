@@ -20,32 +20,44 @@ namespace SpritzBuddy.Controllers
         // GET: Search
         public async Task<IActionResult> Index(string query)
         {
-            if (string.IsNullOrWhiteSpace(query))
-            {
-                ViewBag.Query = "";
-                return View(new List<ApplicationUser>());
-            }
-
-            var searchTerm = query.Trim().ToLower();
-
             // Get current user ID for follow status
             var currentUserId = GetCurrentUserId();
 
-            // Search users by first name, last name, username, or email
-            var users = await _context.ApplicationUsers
-                .Where(u => 
-                    u.FirstName.ToLower().Contains(searchTerm) ||
-                    u.LastName.ToLower().Contains(searchTerm) ||
-                    (u.UserName != null && u.UserName.ToLower().Contains(searchTerm)) ||
-                    (u.Email != null && u.Email.ToLower().Contains(searchTerm))
-                )
-                .Where(u => u.Id != currentUserId) // Exclude current user
-                .OrderBy(u => u.FirstName)
-                .ThenBy(u => u.LastName)
-                .Take(50) // Limit to 50 results
-                .ToListAsync();
+            List<ApplicationUser> users;
 
-            ViewBag.Query = query;
+            if (string.IsNullOrWhiteSpace(query))
+            {
+                // Show all users if no search query
+                users = await _context.ApplicationUsers
+                    .Where(u => u.Id != currentUserId) // Exclude current user
+                    .OrderBy(u => u.FirstName)
+                    .ThenBy(u => u.LastName)
+                    .Take(100) // Limit to 100 users
+                    .ToListAsync();
+                    
+                ViewBag.Query = "";
+            }
+            else
+            {
+                var searchTerm = query.Trim().ToLower();
+
+                // Search users by first name, last name, username, or email
+                users = await _context.ApplicationUsers
+                    .Where(u => 
+                        u.FirstName.ToLower().Contains(searchTerm) ||
+                        u.LastName.ToLower().Contains(searchTerm) ||
+                        (u.UserName != null && u.UserName.ToLower().Contains(searchTerm)) ||
+                        (u.Email != null && u.Email.ToLower().Contains(searchTerm))
+                    )
+                    .Where(u => u.Id != currentUserId) // Exclude current user
+                    .OrderBy(u => u.FirstName)
+                    .ThenBy(u => u.LastName)
+                    .Take(50) // Limit to 50 results
+                    .ToListAsync();
+
+                ViewBag.Query = query;
+            }
+
             ViewBag.CurrentUserId = currentUserId;
 
             return View(users);

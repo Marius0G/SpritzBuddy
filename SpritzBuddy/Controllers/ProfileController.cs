@@ -122,7 +122,7 @@ namespace SpritzBuddy.Controllers
  PostCount =0,
  FollowersCount =0,
  FollowingCount =0,
- Badges = new List<string> { "Visitor" },
+ Badges = new List<BadgeViewModel>(), // Empty list instead of string list
  DrinkStats = new List<DrinkStatViewModel>(),
  IsCurrentUser = false
  };
@@ -188,6 +188,43 @@ namespace SpritzBuddy.Controllers
  vm.HasPendingRequest = true;
  }
  }
+ }
+
+ // If viewing own profile, get notifications
+ if (currentUser != null && currentUser.Id == targetUser.Id)
+ {
+ // Get pending follow requests
+ var pendingFollowRequests = await _context.Follows
+ .Include(f => f.Follower)
+ .Where(f => f.FollowingId == currentUser.Id && f.Status == FollowStatus.Pending)
+ .ToListAsync();
+ ViewBag.PendingFollowRequests = pendingFollowRequests;
+
+ // Get pending group join requests (where user is moderator)
+ var moderatedGroups = await _context.Groups
+ .Where(g => g.ModeratorId == currentUser.Id)
+ .Select(g => g.Id)
+ .ToListAsync();
+ 
+ var pendingGroupRequests = await _context.UserGroups
+ .Include(ug => ug.User)
+ .Include(ug => ug.Group)
+ .Where(ug => moderatedGroups.Contains(ug.GroupId) && !ug.IsAccepted)
+ .ToListAsync();
+ ViewBag.PendingGroupRequests = pendingGroupRequests;
+
+ // Get upcoming events user is attending
+ var upcomingEvents = await _context.EventParticipants
+ .Include(ep => ep.Event)
+ .ThenInclude(e => e.Group)
+ .Where(ep => ep.UserId == currentUser.Id && 
+ ep.Status == EventParticipantStatus.Going && 
+ ep.Event.EventDate > DateTime.Now)
+ .OrderBy(ep => ep.Event.EventDate)
+ .Take(5)
+ .Select(ep => ep.Event)
+ .ToListAsync();
+ ViewBag.UpcomingEvents = upcomingEvents;
  }
 
  return View(vm);

@@ -92,40 +92,77 @@
                 </div>
             </div>
         </div>
-        <!-- Right Column: Chat -->
+        <!-- Right Column: Chat & Events -->
         <div class="col-md-8">
             @if (Model.IsMember || Model.IsModerator)
             {
-                <div class="card shadow-sm mb-4" style="height: 500px; overflow-y: auto;">
-                    <div class="card-header bg-white fw-bold">Group Chat</div>
-                    <div class="card-body p-3" style="height: 370px; overflow-y: auto;">
-                        @foreach (var msg in group.Messages ?? Enumerable.Empty<GroupMessage>())
-                        {
-                            var isMine = msg.UserId.ToString() == currentUserId;
-                            <div class="d-flex mb-2 @(isMine ? "justify-content-end" : "justify-content-start")">
-                                <div class="p-2 rounded shadow-sm" style="max-width: 70%; background: @(isMine ? "#e3f2fd" : "#f8f9fa");">
-                                    <div class="d-flex align-items-center mb-1">
-                                        <span class="fw-bold me-2">@msg.User?.UserName</span>
-                                        <small class="text-muted">@msg.SentDate.ToShortTimeString()</small>
-                                        @if (Model.IsModerator || isMine)
-                                        {
-                                            <form asp-action="DeleteMessage" method="post" class="ms-2 d-inline">
-                                                <input type="hidden" name="id" value="@msg.Id" />
-                                                <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
-                                            </form>
-                                        }
+                <!-- Nav Tabs -->
+                <ul class="nav nav-tabs mb-3" id="groupTabs" role="tablist">
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link active beer-tab" id="chat-tab" data-bs-toggle="tab" data-bs-target="#chat" type="button" role="tab">
+                            <i class="bi bi-chat-dots"></i> Chat
+                        </button>
+                    </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link beer-tab" id="events-tab" data-bs-toggle="tab" data-bs-target="#events" type="button" role="tab">
+                            <i class="bi bi-calendar-event"></i> Evenimente
+                        </button>
+                    </li>
+                </ul>
+
+                <!-- Tab Content -->
+                <div class="tab-content" id="groupTabContent">
+                    <!-- Chat Tab -->
+                    <div class="tab-pane fade show active" id="chat" role="tabpanel">
+                        <div class="card shadow-sm mb-4" style="height: 500px; overflow-y: auto;">
+                            <div class="card-header bg-white fw-bold">Group Chat</div>
+                            <div class="card-body p-3" style="height: 370px; overflow-y: auto;">
+                                @foreach (var msg in group.Messages ?? Enumerable.Empty<GroupMessage>())
+                                {
+                                    var isMine = msg.UserId.ToString() == currentUserId;
+                                    <div class="d-flex mb-2 @(isMine ? "justify-content-end" : "justify-content-start")">
+                                        <div class="p-2 rounded shadow-sm" style="max-width: 70%; background: @(isMine ? "#e3f2fd" : "#f8f9fa");">
+                                            <div class="d-flex align-items-center mb-1">
+                                                <span class="fw-bold me-2">@msg.User?.UserName</span>
+                                                <small class="text-muted">@msg.SentDate.ToShortTimeString()</small>
+                                                @if (Model.IsModerator || isMine)
+                                                {
+                                                    <form asp-action="DeleteMessage" method="post" class="ms-2 d-inline">
+                                                        <input type="hidden" name="id" value="@msg.Id" />
+                                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                                    </form>
+                                                }
+                                            </div>
+                                            <div>@msg.Content</div>
+                                        </div>
                                     </div>
-                                    <div>@msg.Content</div>
+                                }
+                            </div>
+                            <div class="card-footer bg-white">
+                                <form asp-action="PostMessage" method="post" class="d-flex">
+                                    <input type="hidden" name="groupId" value="@group.Id" />
+                                    <input type="text" name="content" class="form-control me-2" placeholder="Scrie un mesaj..." autocomplete="off" />
+                                    <button type="submit" class="btn btn-primary">Send</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Evenimente Tab -->
+                    <div class="tab-pane fade" id="events" role="tabpanel">
+                        <div class="card shadow-sm mb-4">
+                            <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                                <span class="fw-bold">Evenimente Grup</span>
+                                <a asp-controller="Events" asp-action="Create" asp-route-groupId="@group.Id" class="btn btn-success btn-sm">
+                                    <i class="bi bi-plus-circle"></i> Creează Eveniment
+                                </a>
+                            </div>
+                            <div class="card-body" style="max-height: 500px; overflow-y: auto;">
+                                <div id="events-list">
+                                    <p class="text-center text-muted">Se încarcă evenimentele...</p>
                                 </div>
                             </div>
-                        }
-                    </div>
-                    <div class="card-footer bg-white">
-                        <form asp-action="PostMessage" method="post" class="d-flex">
-                            <input type="hidden" name="groupId" value="@group.Id" />
-                            <input type="text" name="content" class="form-control me-2" placeholder="Scrie un mesaj..." autocomplete="off" />
-                            <button type="submit" class="btn btn-primary">Send</button>
-                        </form>
+                        </div>
                     </div>
                 </div>
             }
@@ -231,5 +268,169 @@
                 alert('Eroare la trimiterea invitației.');
             }
         }
+
+        // Load events when Events tab is clicked
+        document.getElementById('events-tab')?.addEventListener('shown.bs.tab', function () {
+            loadGroupEvents();
+        });
+
+        async function loadGroupEvents() {
+            try {
+                const response = await fetch(`/Events/GetGroupEvents?groupId=${groupId}`);
+                const events = await response.json();
+                
+                const eventsList = document.getElementById('events-list');
+                
+                if (events.length === 0) {
+                    eventsList.innerHTML = '<p class="text-center text-muted">Niciun eveniment creat încă.</p>';
+                    return;
+                }
+                
+                eventsList.innerHTML = events.map(event => {
+                    const eventDate = new Date(event.eventDate);
+                    const now = new Date();
+                    const isPast = eventDate < now;
+                    const isToday = eventDate.toDateString() === now.toDateString();
+                    
+                    return `
+                        <div class="card mb-3 ${isPast ? 'opacity-75' : ''}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <h5 class="card-title">${event.title}</h5>
+                                        <p class="card-text text-muted mb-2">${event.description || ''}</p>
+                                    </div>
+                                    ${isToday ? '<span class="badge bg-danger">Astăzi!</span>' : ''}
+                                </div>
+                                <div class="mb-2">
+                                    <small class="text-muted">
+                                        <i class="bi bi-calendar"></i> ${eventDate.toLocaleDateString('ro-RO')} ${eventDate.toLocaleTimeString('ro-RO', {hour: '2-digit', minute: '2-digit'})}
+                                    </small>
+                                    ${event.location ? `<br><small class="text-muted"><i class="bi bi-geo-alt"></i> ${event.location}</small>` : ''}
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div class="btn-group btn-group-sm" role="group">
+                                        <button type="button" class="btn ${event.userStatus === 'Going' ? 'btn-success' : 'btn-outline-success'}" 
+                                                onclick="respondToEvent(${event.id}, 'Going')">
+                                            <i class="bi bi-check-circle"></i> Vin (${event.goingCount})
+                                        </button>
+                                        <button type="button" class="btn ${event.userStatus === 'Maybe' ? 'btn-warning' : 'btn-outline-warning'}" 
+                                                onclick="respondToEvent(${event.id}, 'Maybe')">
+                                            <i class="bi bi-question-circle"></i> Poate (${event.maybeCount})
+                                        </button>
+                                        <button type="button" class="btn ${event.userStatus === 'NotGoing' ? 'btn-danger' : 'btn-outline-danger'}" 
+                                                onclick="respondToEvent(${event.id}, 'NotGoing')">
+                                            <i class="bi bi-x-circle"></i> Nu vin (${event.notGoingCount})
+                                        </button>
+                                    </div>
+                                    <a href="/Events/Details/${event.id}" class="btn btn-sm btn-info">
+                                        <i class="bi bi-eye"></i> Detalii
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (error) {
+                console.error('Error loading events:', error);
+                document.getElementById('events-list').innerHTML = '<p class="text-center text-danger">Eroare la încărcarea evenimentelor.</p>';
+            }
+        }
+
+        async function respondToEvent(eventId, status) {
+            try {
+                const formData = new FormData();
+                formData.append('eventId', eventId);
+                formData.append('status', status);
+                
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+                formData.append('__RequestVerificationToken', token);
+
+                const response = await fetch('/Events/RespondToEvent', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    loadGroupEvents(); // Reload events to show updated counts
+                } else {
+                    alert(result.message || 'Eroare la înregistrarea răspunsului.');
+                }
+            } catch (error) {
+                console.error('Error responding to event:', error);
+                alert('Eroare la înregistrarea răspunsului.');
+            }
+        }
     </script>
 }
+
+<style>
+    /* Beer Theme for Group Tabs */
+    .beer-tab {
+        color: var(--beer-dark, #6B4423);
+        transition: all 0.3s ease;
+    }
+    .beer-tab:hover {
+        color: var(--beer-amber, #C68E17);
+        background-color: var(--beer-foam, #FFF8DC);
+    }
+    .beer-tab.active {
+        background: linear-gradient(135deg, var(--beer-gold, #D4A017) 0%, var(--beer-amber, #C68E17) 100%);
+        color: white !important;
+        border-color: var(--beer-gold, #D4A017);
+        font-weight: bold;
+    }
+    
+    /* Beer Theme for Event Cards */
+    #events-list .card {
+        border: 2px solid var(--beer-light, #F5DEB3);
+        background: linear-gradient(180deg, white 0%, var(--beer-foam, #FFF8DC) 100%);
+    }
+    
+    #events-list .card:hover {
+        box-shadow: 0 4px 12px rgba(212, 160, 23, 0.3);
+        transform: translateY(-2px);
+        transition: all 0.3s ease;
+    }
+    
+    #events-list .btn-success {
+        background-color: var(--beer-brown, #8B4513);
+        border-color: var(--beer-dark, #6B4423);
+    }
+    
+    #events-list .btn-success:hover {
+        background-color: var(--beer-dark, #6B4423);
+    }
+    
+    #events-list .btn-outline-success {
+        color: var(--beer-brown, #8B4513);
+        border-color: var(--beer-brown, #8B4513);
+    }
+    
+    #events-list .btn-outline-success:hover {
+        background-color: var(--beer-brown, #8B4513);
+        color: white;
+    }
+    
+    #events-list .btn-warning {
+        background-color: var(--beer-amber, #C68E17);
+        border-color: var(--beer-gold, #D4A017);
+    }
+    
+    #events-list .btn-outline-warning {
+        color: var(--beer-amber, #C68E17);
+        border-color: var(--beer-amber, #C68E17);
+    }
+    
+    #events-list .btn-outline-warning:hover {
+        background-color: var(--beer-amber, #C68E17);
+        color: white;
+    }
+    
+    /* Beer Theme for Chat Messages */
+    .card-body .p-2.rounded {
+        border: 1px solid var(--beer-light, #F5DEB3);
+    }
+</style>
