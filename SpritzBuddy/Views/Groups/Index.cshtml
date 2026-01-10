@@ -6,8 +6,11 @@
 }
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">Grupuri SpritzBuddy 👥</h2>
-        <a href="@Url.Action("Create", "Groups")" class="btn btn-success">Creează Grup Nou</a>
+        <h2 class="fw-bold">Grupurile Mele 👥</h2>
+        <div>
+            <a href="@Url.Action("AllGroups", "Groups")" class="btn btn-outline-primary me-2">Toate Grupurile</a>
+            <a href="@Url.Action("Create", "Groups")" class="btn btn-success">Creaza Grup Nou</a>
+        </div>
     </div>
     <div class="row">
         @foreach (var group in Model)

@@ -22,6 +22,11 @@ namespace SpritzBuddy.Services
         Task<int?> GetGroupIdForMessageAsync(int messageId);
         Task<Group> GetGroupWithMembersAndMessagesAsync(int groupId);
         
+        // Admin methods
+        Task<GroupMessage?> GetMessageByIdAsync(int messageId);
+        Task EditMessageAsAdminAsync(int messageId, string newContent);
+        Task DeleteMessageAsAdminAsync(int messageId);
+        
         // Invite functionality
         Task<bool> SendInviteAsync(int groupId, int inviterId, int invitedUserId);
         Task<List<GroupInvite>> GetPendingInvitesForUserAsync(int userId);
@@ -34,6 +39,8 @@ namespace SpritzBuddy.Services
         Task<List<Event>> GetGroupEventsAsync(int groupId);
         Task<Event?> GetEventDetailsAsync(int eventId);
         Task<bool> RespondToEventAsync(int eventId, int userId, EventParticipantStatus status);
-        Task DeleteEventAsync(int eventId, int userId);
+        Task DeleteEventAsync(int eventId, int userId, bool isAdmin = false);
+        Task<List<Event>> GetEventsByOrganizerAsync(int organizerId);
+        Task<List<Event>> GetEventsUserIsAttendingAsync(int userId);
     }
 }

@@ -80,14 +80,14 @@
                                 <div class="flex-grow-1">
                                     <h5 class="mb-0">
                                         <a asp-controller="Profile" asp-action="Index" asp-route-username="@user.UserName">
-                                            @user.FirstName @user.LastName
+                                            @("@" + user.UserName)
                                         </a>
                                         @if (user.IsPrivate)
                                         {
                                             <i class="bi bi-lock-fill text-muted small" title="Cont privat"></i>
                                         }
                                     </h5>
-                                    <small class="text-muted">@("@" + user.UserName)</small>
+                                    <small class="text-muted">@user.FirstName @user.LastName</small>
                                 </div>
                             </div>
 
@@ -102,7 +102,7 @@
                             <div class="d-flex justify-content-around mb-3 text-center">
                                 <div>
                                     <strong class="d-block">@user.Posts.Count</strong>
-                                    <small class="text-muted">Post?ri</small>
+                                    <small class="text-muted">Postări</small>
                                 </div>
                                 <div>
                                     <strong class="d-block follower-count-@user.Id">@user.Followers.Count(f => f.Status == FollowStatus.Accepted)</strong>
@@ -185,7 +185,7 @@
             });
         });
 
-        function searchUsers(term) {
+        function searchUsers(term = '') {
             $.get('/Search/Users', { term: term })
                 .done(function(users) {
                     displayAutocomplete(users);
@@ -247,16 +247,16 @@
             if (data.isFollowing) {
                 btn.removeClass('btn-primary').addClass('btn-outline-danger');
                 icon.removeClass('bi-person-plus').addClass('bi-person-dash');
-                text.text('Nu mai urm?ri');
+                text.text('Nu mai urmări');
             } else if (data.isPending) {
                 btn.removeClass('btn-primary').addClass('btn-outline-secondary');
                 icon.removeClass('bi-person-plus').addClass('bi-clock');
-                text.text('�n a?teptare');
+                text.text('In asteptare');
                 btn.prop('disabled', true);
             } else {
                 btn.removeClass('btn-outline-danger btn-outline-secondary').addClass('btn-primary');
                 icon.removeClass('bi-person-dash bi-clock').addClass('bi-person-plus');
-                text.text('Urm?re?te');
+                text.text('Urmăreste');
                 btn.prop('disabled', false);
             }
         }
@@ -267,7 +267,7 @@
 
             if (isFollowing) {
                 // Unfollow
-                if (!confirm('Nu mai urm?ri pe ' + username + '?')) {
+                if (!confirm('Nu mai urmări pe ' + username + '?')) {
                     return;
                 }
 
@@ -280,7 +280,7 @@
                         loadFollowStatus(userId);
                         updateFollowerCount(userId, -1);
                     } else {
-                        alert(data.message || 'Eroare la anularea urm?ririi');
+                        alert(data.message || 'Eroare la anularea urmăririi');
                     }
                 });
             } else {
@@ -296,7 +296,7 @@
                             updateFollowerCount(userId, 1);
                         }
                     } else {
-                        alert(data.message || 'Eroare la urm?rire');
+                        alert(data.message || 'Eroare la urmărire');
                     }
                 });
             }

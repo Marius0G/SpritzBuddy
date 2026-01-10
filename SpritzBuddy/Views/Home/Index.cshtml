@@ -43,7 +43,7 @@
                             }
                             <div>
                                 <a asp-controller="Profile" asp-action="Index" asp-route-username="@post.User.UserName" class="fw-bold text-decoration-none text-dark">
-                                    @post.User.FirstName @post.User.LastName
+                                    @("@" + post.User.UserName)
                                 </a>
                                 <div class="text-muted small">@post.CreateDate.ToString("MMM dd, yyyy")</div>
                             </div>
@@ -181,7 +181,7 @@
 
                                     <div class="mb-1">
                                         <a asp-controller="Profile" asp-action="Index" asp-route-username="@comment.User.UserName" class="fw-bold text-decoration-none text-dark small me-1">
-                                            @comment.User.FirstName
+                                            @("@" + comment.User.UserName)
                                         </a>
                                         <span class="small">@comment.Content</span>
                                         <span class="text-muted small ms-2">@commentTimeAgo</span>

@@ -51,8 +51,9 @@ using (var scope = app.Services.CreateScope())
         // Apply any pending migrations automatically
         await context.Database.MigrateAsync();
         
-        // Seed roles and drinks
+        // Seed roles, admin user, and drinks
         await DbSeeder.SeedRolesAsync(services);
+        await DbSeeder.SeedAdminUserAsync(services);
         await DbSeeder.SeedDrinksAsync(context);
         
         var logger = services.GetRequiredService<ILogger<Program>>();

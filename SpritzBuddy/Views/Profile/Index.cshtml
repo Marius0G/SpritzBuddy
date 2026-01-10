@@ -127,8 +127,9 @@
  <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center mb-3" style="width:160px;height:160px;">@((Model.FirstName ?? "")[0])</div>
  }
 
- <h4>@Model.FirstName @Model.LastName</h4>
- <p class="text-muted">@Model.Description</p>
+ <h4>@("@" + Model.UserName)</h4>
+ <p class="text-muted mb-1">@Model.FirstName @Model.LastName</p>
+ <p class="text-muted small">@Model.Description</p>
 
  @if (Model.IsCurrentUser)
  {
@@ -177,16 +178,22 @@
 
  <div class="d-flex justify-content-around mt-3">
  <div class="text-center">
- <strong>@Model.PostCount</strong>
- <div class="text-muted">Posts</div>
+ <a href="#posts-section" class="text-decoration-none text-dark">
+     <strong class="d-block">@Model.PostCount</strong>
+     <div class="text-muted">Posts</div>
+ </a>
  </div>
  <div class="text-center">
- <strong>@Model.FollowersCount</strong>
- <div class="text-muted">Followers</div>
+ <a asp-controller="Follows" asp-action="Followers" asp-route-userId="@Model.UserId" class="text-decoration-none text-dark">
+     <strong class="d-block">@Model.FollowersCount</strong>
+     <div class="text-muted">Followers</div>
+ </a>
  </div>
  <div class="text-center">
- <strong>@Model.FollowingCount</strong>
- <div class="text-muted">Following</div>
+     <a asp-controller="Follows" asp-action="Following" asp-route-userId="@Model.UserId" class="text-decoration-none text-dark">
+         <strong class="d-block">@Model.FollowingCount</strong>
+         <div class="text-muted">Following</div>
+     </a>
  </div>
  </div>
  </div>
@@ -293,6 +300,15 @@
  </div>
  }
  </div>
+ </div>
+}
+else if (Model.IsPrivate && !Model.IsCurrentUser && !Model.IsFollowing)
+{
+ <div class="container py-4 text-center">
+ <hr class="mb-4" />
+ <i class="bi bi-lock" style="font-size: 3rem; color: #ccc;"></i>
+ <p class="text-muted mt-3">This account is private</p>
+ <p class="small text-muted">Follow this account to see their posts</p>
  </div>
 }
 else if (Model.IsCurrentUser)

@@ -99,7 +99,7 @@
                                 }
                                 <div>
                                     <a asp-controller="Profile" asp-action="Index" asp-route-username="@post.User.UserName" class="fw-bold text-decoration-none text-dark">
-                                        @post.User.FirstName @post.User.LastName
+                                        @("@" + post.User.UserName)
                                     </a>
                                 </div>
                             </div>
@@ -192,7 +192,7 @@
                                                 <div class="comment-view-mode">
                                                     <div>
                                                         <a asp-controller="Profile" asp-action="Index" asp-route-username="@comment.User.UserName" class="fw-bold text-decoration-none text-dark me-2">
-                                                            @comment.User.FirstName
+                                                            @("@" + comment.User.UserName)
                                                         </a>
                                                         <span class="comment-content">@comment.Content</span>
                                                     </div>

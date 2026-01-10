@@ -150,6 +150,7 @@ namespace SpritzBuddy.Controllers
  var vm = new ProfileViewModel
  {
  UserId = targetUser.Id,
+ UserName = targetUser.UserName ?? string.Empty,
  FirstName = targetUser.FirstName,
  LastName = targetUser.LastName,
  Description = targetUser.Description,
@@ -187,6 +188,12 @@ namespace SpritzBuddy.Controllers
  {
  vm.HasPendingRequest = true;
  }
+ }
+ 
+ // If profile is private and not following, hide posts
+ if (targetUser.IsPrivate && !vm.IsFollowing)
+ {
+ vm.Posts = new List<Post>(); // Empty list for private profiles
  }
  }
 

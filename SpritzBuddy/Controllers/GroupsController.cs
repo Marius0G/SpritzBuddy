@@ -24,19 +24,21 @@ namespace SpritzBuddy.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var groups = await _groupService.GetAllGroupsAsync();
-            return View(groups);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> MyGroups()
-        {
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
 
+            // Get only groups where user is a member (accepted) or moderator
             var myGroups = await _groupService.GetUserGroupsAsync(user.Id);
-            return View("Index", myGroups);
+            return View(myGroups);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> AllGroups()
+        {
+            // Get all groups for browsing/joining
+            var allGroups = await _groupService.GetAllGroupsAsync();
+            return View("Index", allGroups);
         }
 
         [HttpGet]
@@ -231,9 +233,19 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+            
+            var isAdmin = User.IsInRole("Administrator");
             var message = await _groupService.GetMessageForEditAsync(id, user.Id);
+            
+            // If not found and user is admin, try to get message without user check
+            if (message == null && isAdmin)
+            {
+                message = await _groupService.GetMessageByIdAsync(id);
+            }
+            
             if (message == null)
                 return Forbid();
+                
             return View(message);
         }
 
@@ -244,14 +256,25 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+            
+            var isAdmin = User.IsInRole("Administrator");
+            
             try
             {
-                await _groupService.EditMessageAsync(id, user.Id, newContent);
+                if (isAdmin)
+                {
+                    await _groupService.EditMessageAsAdminAsync(id, newContent);
+                }
+                else
+                {
+                    await _groupService.EditMessageAsync(id, user.Id, newContent);
+                }
             }
             catch (UnauthorizedAccessException)
             {
                 return Forbid();
             }
+            
             var groupId = await _groupService.GetGroupIdForMessageAsync(id);
             if (groupId.HasValue)
                 return RedirectToAction("Details", new { id = groupId.Value });
@@ -265,16 +288,28 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+            
+            var isAdmin = User.IsInRole("Administrator");
             int? groupId = null;
+            
             try
             {
                 groupId = await _groupService.GetGroupIdForMessageAsync(id);
-                await _groupService.DeleteMessageAsync(id, user.Id);
+                
+                if (isAdmin)
+                {
+                    await _groupService.DeleteMessageAsAdminAsync(id);
+                }
+                else
+                {
+                    await _groupService.DeleteMessageAsync(id, user.Id);
+                }
             }
             catch (UnauthorizedAccessException)
             {
                 return Forbid();
             }
+            
             if (groupId.HasValue)
                 return RedirectToAction("Details", new { id = groupId.Value });
             return RedirectToAction("Index");

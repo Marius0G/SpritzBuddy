@@ -3,11 +3,12 @@
 
 @{
     ViewData["Title"] = "My Events";
+    var currentUserId = (int)ViewBag.CurrentUserId;
 }
 
 <div class="container mt-4">
     <h2><i class="bi bi-calendar-check"></i> Evenimentele Mele</h2>
-    <p class="text-muted">Toate evenimentele din grupurile tale.</p>
+    <p class="text-muted">Toate evenimentele viitoare din grupurile tale.</p>
     <hr />
 
     @if (!Model.Any())
@@ -21,22 +22,84 @@
         <div class="row">
             @foreach (var evt in Model)
             {
+                var myParticipation = evt.Participants.FirstOrDefault(p => p.UserId == currentUserId);
+                var myStatus = myParticipation?.Status;
+                var isToday = evt.EventDate.Date == DateTime.Now.Date;
+                var daysUntil = (evt.EventDate.Date - DateTime.Now.Date).Days;
+                
                 <div class="col-md-6 col-lg-4 mb-4">
-                    <div class="card h-100 shadow-sm">
+                    <div class="card h-100 shadow-sm @(isToday ? "border-danger" : "")">
+                        @if (isToday)
+                        {
+                            <div class="card-header bg-danger text-white text-center">
+                                <strong><i class="bi bi-exclamation-triangle"></i> ASTAZI!</strong>
+                            </div>
+                        }
+                        else if (daysUntil <= 3)
+                        {
+                            <div class="card-header bg-warning text-dark text-center">
+                                <strong>In @daysUntil @(daysUntil == 1 ? "zi" : "zile")</strong>
+                            </div>
+                        }
+                        
                         <div class="card-body">
-                            <h5 class="card-title text-truncate">@evt.Title</h5>
+                            <h5 class="card-title">@evt.Title</h5>
                             <h6 class="card-subtitle mb-2 text-muted">
                                 <i class="bi bi-calendar"></i> @evt.EventDate.ToString("MMM dd, HH:mm")
                             </h6>
-                            <p class="card-text small text-muted text-truncate">@evt.Description</p>
                             
-                            <div class="d-flex justify-content-between align-items-center mt-3">
-                                <span class="badge bg-secondary">@evt.Participants.Count participanți</span>
-                                <small>Grup: <a asp-controller="Groups" asp-action="Details" asp-route-id="@evt.GroupId">@evt.Group?.Name</a></small>
+                            @if (!string.IsNullOrEmpty(evt.Location))
+                            {
+                                <p class="small mb-2"><i class="bi bi-geo-alt"></i> @evt.Location</p>
+                            }
+                            
+                            <p class="card-text small text-muted">@(evt.Description?.Length > 100 ? evt.Description.Substring(0, 100) + "..." : evt.Description)</p>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Grup: <a asp-controller="Groups" asp-action="Details" asp-route-id="@evt.GroupId">@evt.Group?.Name</a></small>
+                            </div>
+                            
+                            <div class="d-flex justify-content-around text-center mb-3">
+                                <div>
+                                    <span class="badge bg-success">@evt.Participants.Count(p => p.Status == EventParticipantStatus.Going)</span>
+                                    <div class="small">Vin</div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-warning text-dark">@evt.Participants.Count(p => p.Status == EventParticipantStatus.Maybe)</span>
+                                    <div class="small">Poate</div>
+                                </div>
+                                <div>
+                                    <span class="badge bg-danger">@evt.Participants.Count(p => p.Status == EventParticipantStatus.NotGoing)</span>
+                                    <div class="small">Nu vin</div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <strong class="small">Raspunsul tau:</strong>
+                                <div class="btn-group w-100 mt-1" role="group">
+                                    <button type="button" 
+                                            class="btn btn-sm @(myStatus == EventParticipantStatus.Going ? "btn-success" : "btn-outline-success")" 
+                                            onclick="respondToEvent(@evt.Id, 'Going')">
+                                        <i class="bi bi-check-circle"></i>
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm @(myStatus == EventParticipantStatus.Maybe ? "btn-warning" : "btn-outline-warning")" 
+                                            onclick="respondToEvent(@evt.Id, 'Maybe')">
+                                        <i class="bi bi-question-circle"></i>
+                                    </button>
+                                    <button type="button" 
+                                            class="btn btn-sm @(myStatus == EventParticipantStatus.NotGoing ? "btn-danger" : "btn-outline-danger")" 
+                                            onclick="respondToEvent(@evt.Id, 'NotGoing')">
+                                        <i class="bi bi-x-circle"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
+                        
                         <div class="card-footer bg-white border-top-0">
-                            <a asp-action="Details" asp-route-id="@evt.Id" class="btn btn-primary btn-sm w-100">Vezi Detalii</a>
+                            <a asp-action="Details" asp-route-id="@evt.Id" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-info-circle"></i> Vezi Detalii
+                            </a>
                         </div>
                     </div>
                 </div>
@@ -44,3 +107,27 @@
         </div>
     }
 </div>
+
+@section Scripts {
+    @Html.AntiForgeryToken()
+    
+    <script>
+        function respondToEvent(eventId, status) {
+            $.post('/Events/RespondToEvent', { 
+                eventId: eventId, 
+                status: status, 
+                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val() 
+            })
+            .done(function (data) {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .fail(function() {
+                alert('Eroare la inregistrarea raspunsului. Te rog incearca din nou.');
+            });
+        }
+    </script>
+}

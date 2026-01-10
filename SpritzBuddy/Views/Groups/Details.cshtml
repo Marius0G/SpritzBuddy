@@ -127,10 +127,18 @@
                                                 <small class="text-muted">@msg.SentDate.ToShortTimeString()</small>
                                                 @if (Model.IsModerator || isMine)
                                                 {
-                                                    <form asp-action="DeleteMessage" method="post" class="ms-2 d-inline">
-                                                        <input type="hidden" name="id" value="@msg.Id" />
-                                                        <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
-                                                    </form>
+                                                    <div class="ms-2 d-inline">
+                                                        @if (isMine)
+                                                        {
+                                                            <a asp-action="EditMessage" asp-route-id="@msg.Id" class="btn btn-sm btn-link text-secondary p-0 me-1" title="Edit">
+                                                                <i class="bi bi-pencil"></i>
+                                                            </a>
+                                                        }
+                                                        <form asp-action="DeleteMessage" method="post" class="d-inline">
+                                                            <input type="hidden" name="id" value="@msg.Id" />
+                                                            <button type="submit" class="btn btn-sm btn-link text-danger p-0" title="Delete"><i class="bi bi-trash"></i></button>
+                                                        </form>
+                                                    </div>
                                                 }
                                             </div>
                                             <div>@msg.Content</div>

@@ -18,6 +18,7 @@ namespace SpritzBuddy.Controllers
         }
 
         // GET: Search
+        [AllowAnonymous]
         public async Task<IActionResult> Index(string query)
         {
             // Get current user ID for follow status
@@ -65,6 +66,7 @@ namespace SpritzBuddy.Controllers
 
         // GET: Search/Users - AJAX endpoint for autocomplete
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> Users(string term)
         {
             if (string.IsNullOrWhiteSpace(term))
@@ -100,6 +102,7 @@ namespace SpritzBuddy.Controllers
 
         // GET: Search/GetUserDetails - Get details about a specific user (AJAX)
         [HttpGet]
+        [AllowAnonymous]
         public async Task<IActionResult> GetUserDetails(int userId)
         {
             var currentUserId = GetCurrentUserId();

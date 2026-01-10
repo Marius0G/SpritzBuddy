@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SpritzBuddy.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace SpritzBuddy.Data
@@ -25,6 +26,45 @@ namespace SpritzBuddy.Data
  {
  var role = new IdentityRole<int> { Name = roleName, NormalizedName = roleName.ToUpperInvariant() };
  await roleManager.CreateAsync(role);
+ }
+ }
+ }
+
+ public static async Task SeedAdminUserAsync(IServiceProvider serviceProvider)
+ {
+ if (serviceProvider == null) throw new ArgumentNullException(nameof(serviceProvider));
+
+ var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+ 
+ // Check if admin user already exists
+ var adminEmail = "admin@test.com";
+ var existingAdmin = await userManager.FindByEmailAsync(adminEmail);
+ 
+ if (existingAdmin == null)
+ {
+ // Create admin user
+ var adminUser = new ApplicationUser
+ {
+ UserName = "admin",
+ Email = adminEmail,
+ EmailConfirmed = true,
+ FirstName = "Admin",
+ LastName = "User",
+ Description = "System Administrator",
+ IsPrivate = false
+ };
+ 
+ var result = await userManager.CreateAsync(adminUser, "Admin123!");
+ 
+ if (result.Succeeded)
+ {
+ // Add to Administrator role
+ await userManager.AddToRoleAsync(adminUser, "Administrator");
+ Console.WriteLine($"Admin user created successfully: {adminEmail}");
+ }
+ else
+ {
+ Console.WriteLine($"Failed to create admin user: {string.Join(", ", result.Errors.Select(e => e.Description))}");
  }
  }
  }

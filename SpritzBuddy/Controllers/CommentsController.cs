@@ -229,7 +229,7 @@ namespace SpritzBuddy.Controllers
             // AI Content Moderation
             if (!await _moderationService.IsContentSafeAsync(content))
             {
-                return Json(new { success = false, message = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
+                return Json(new { success = false, message = "Continutul tau contine termeni nepotriviti. Te rugam sa reformulezi." });
             }
 
             var comment = await _context.Comments.FindAsync(id);
@@ -238,8 +238,9 @@ namespace SpritzBuddy.Controllers
                 return Json(new { success = false, message = "Comment not found" });
             }
 
-            // Check if user owns this comment
-            if (comment.UserId != userIdInt)
+            // Check if user owns this comment or is admin
+            var isAdmin = User.IsInRole("Administrator");
+            if (!isAdmin && comment.UserId != userIdInt)
             {
                 return Json(new { success = false, message = "You can only edit your own comments" });
             }

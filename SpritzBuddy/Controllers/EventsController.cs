@@ -76,9 +76,12 @@ namespace SpritzBuddy.Controllers
             var evt = await _groupService.GetEventDetailsAsync(id);
             if (evt == null) return NotFound();
 
-            // Check access
-            var isMember = evt.Group.Members.Any(m => m.UserId == user.Id && m.IsAccepted);
-            if (!isMember && evt.Group.ModeratorId != user.Id)
+            // Simple check: admin OR member OR moderator
+            var isAdmin = User.IsInRole("Administrator");
+            var isMember = evt.Group?.Members?.Any(m => m.UserId == user.Id && m.IsAccepted) ?? false;
+            var isModerator = evt.Group?.ModeratorId == user.Id;
+            
+            if (!isAdmin && !isMember && !isModerator)
             {
                 return Forbid();
             }
@@ -98,16 +101,21 @@ namespace SpritzBuddy.Controllers
             var userGroups = await _groupService.GetUserGroupsAsync(user.Id);
             var allEvents = new List<Event>();
 
+            // Get all events from all user's groups
             foreach (var group in userGroups)
             {
                 var groupEvents = await _groupService.GetGroupEventsAsync(group.Id);
                 allEvents.AddRange(groupEvents);
             }
 
-            // Order by date
-            var sortedEvents = allEvents.OrderBy(e => e.EventDate).ToList();
+            // Filter out past events - only show upcoming events
+            var upcomingEvents = allEvents
+                .Where(e => e.EventDate >= DateTime.Now)
+                .OrderBy(e => e.EventDate)
+                .ToList();
 
-            return View(sortedEvents);
+            ViewBag.CurrentUserId = user.Id;
+            return View(upcomingEvents);
         }
 
         // POST: Events/RespondToEvent
@@ -145,9 +153,17 @@ namespace SpritzBuddy.Controllers
                 if (evt == null) return NotFound();
                 
                 var groupId = evt.GroupId;
+                var isAdmin = User.IsInRole("Administrator");
+                
+                // Admin can delete any event, otherwise check permissions
+                if (!isAdmin && evt.OrganizerId != user.Id && evt.Group.ModeratorId != user.Id)
+                {
+                    return Forbid();
+                }
+                
                 await _groupService.DeleteEventAsync(id, user.Id);
                 
-                TempData["Success"] = "Eveniment șters.";
+                TempData["Success"] = "Eveniment sters.";
                 return RedirectToAction("Details", "Groups", new { id = groupId });
             }
             catch (Exception ex)

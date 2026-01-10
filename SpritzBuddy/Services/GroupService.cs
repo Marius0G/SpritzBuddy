@@ -244,6 +244,30 @@ namespace SpritzBuddy.Services
             await _context.SaveChangesAsync();
         }
 
+        // Admin methods for group messages
+        public async Task<GroupMessage?> GetMessageByIdAsync(int messageId)
+        {
+            return await _context.GroupMessages.FindAsync(messageId);
+        }
+
+        public async Task EditMessageAsAdminAsync(int messageId, string newContent)
+        {
+            var message = await _context.GroupMessages.FindAsync(messageId);
+            if (message == null)
+                throw new InvalidOperationException("Message not found");
+            message.Content = newContent;
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteMessageAsAdminAsync(int messageId)
+        {
+            var message = await _context.GroupMessages.FindAsync(messageId);
+            if (message == null)
+                return;
+            _context.GroupMessages.Remove(message);
+            await _context.SaveChangesAsync();
+        }
+
         // Invite functionality
         public async Task<bool> SendInviteAsync(int groupId, int inviterId, int invitedUserId)
         {
@@ -411,7 +435,7 @@ namespace SpritzBuddy.Services
             return true;
         }
 
-        public async Task DeleteEventAsync(int eventId, int userId)
+        public async Task DeleteEventAsync(int eventId, int userId, bool isAdmin = false)
         {
             var evt = await _context.Events
                 .Include(e => e.Group)
@@ -420,12 +444,40 @@ namespace SpritzBuddy.Services
             if (evt == null)
                 return;
 
-            // Only organizer or group moderator can delete
-            if (evt.OrganizerId != userId && evt.Group.ModeratorId != userId)
+            // Only organizer or group moderator can delete, OR admin
+            if (!isAdmin && evt.OrganizerId != userId && evt.Group.ModeratorId != userId)
                 throw new UnauthorizedAccessException("Only the event organizer or group moderator can delete this event.");
 
             _context.Events.Remove(evt);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<List<Event>> GetEventsByOrganizerAsync(int organizerId)
+        {
+            return await _context.Events
+                .Include(e => e.Group)
+                .Include(e => e.Organizer)
+                .Include(e => e.Participants)
+                    .ThenInclude(p => p.User)
+                .Where(e => e.OrganizerId == organizerId)
+                .OrderByDescending(e => e.EventDate)
+                .ToListAsync();
+        }
+
+        public async Task<List<Event>> GetEventsUserIsAttendingAsync(int userId)
+        {
+            return await _context.EventParticipants
+                .Include(ep => ep.Event)
+                    .ThenInclude(e => e.Group)
+                .Include(ep => ep.Event)
+                    .ThenInclude(e => e.Organizer)
+                .Include(ep => ep.Event)
+                    .ThenInclude(e => e.Participants)
+                        .ThenInclude(p => p.User)
+                .Where(ep => ep.UserId == userId && ep.Status == EventParticipantStatus.Going)
+                .Select(ep => ep.Event)
+                .OrderByDescending(e => e.EventDate)
+                .ToListAsync();
         }
     }
 }

@@ -35,6 +35,13 @@
                             </a>
                         </li>
                         
+                        <!-- Always visible Search -->
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Search" asp-action="Index">
+                                <i class="bi bi-search"></i> Search
+                            </a>
+                        </li>
+
                         @if (User.Identity?.IsAuthenticated == true)
                         {
                             <!-- Groups Dropdown -->
@@ -43,20 +50,13 @@
                                     <i class="bi bi-people-fill"></i> Groups
                                 </a>
                                 <ul class="dropdown-menu" aria-labelledby="groupsDropdown">
-                                    <li><a class="dropdown-item" asp-controller="Groups" asp-action="Index"><i class="bi bi-grid-3x3-gap"></i> All Groups</a></li>
+                                    <li><a class="dropdown-item" asp-controller="Groups" asp-action="AllGroups"><i class="bi bi-grid-3x3-gap"></i> All Groups</a></li>
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="MyGroups"><i class="bi bi-collection"></i> My Groups</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Events" asp-action="MyEvents"><i class="bi bi-calendar-check"></i> My Events</a></li>
                                     <li><hr class="dropdown-divider"></li>
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="Create"><i class="bi bi-plus-circle"></i> Create New Group</a></li>
                                 </ul>
-                            </li>
-                            
-                            <!-- Search Users -->
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Search" asp-action="Index">
-                                    <i class="bi bi-search"></i> Search
-                                </a>
                             </li>
                         }
                         else
@@ -86,21 +86,21 @@
         </div>
     </footer>
     
-    @if (User.Identity?.IsAuthenticated == true)
-    {
-        <!-- Mobile Bottom Navigation (Instagram Style) -->
-        <nav class="mobile-bottom-nav d-md-none">
-            <a asp-controller="Home" asp-action="Index" class="mobile-nav-item">
-                <i class="bi bi-house-fill"></i>
-                <span>Home</span>
-            </a>
+    <!-- Mobile Bottom Navigation (Instagram Style) -->
+    <nav class="mobile-bottom-nav d-md-none">
+        <a asp-controller="Home" asp-action="Index" class="mobile-nav-item">
+            <i class="bi bi-house-fill"></i>
+            <span>Home</span>
+        </a>
+        <a asp-controller="Search" asp-action="Index" class="mobile-nav-item">
+            <i class="bi bi-search"></i>
+            <span>Search</span>
+        </a>
+        @if (User.Identity?.IsAuthenticated == true)
+        {
             <a asp-controller="Groups" asp-action="Index" class="mobile-nav-item">
                 <i class="bi bi-people-fill"></i>
                 <span>Groups</span>
-            </a>
-            <a asp-controller="Search" asp-action="Index" class="mobile-nav-item">
-                <i class="bi bi-search"></i>
-                <span>Search</span>
             </a>
             <a asp-controller="Profile" asp-action="Index" class="mobile-nav-item position-relative">
                 <i class="bi bi-person-circle"></i>
@@ -109,8 +109,15 @@
                     0
                 </span>
             </a>
-        </nav>
-    }
+        }
+        else
+        {
+            <a asp-controller="Account" asp-action="Login" class="mobile-nav-item">
+                <i class="bi bi-person-circle"></i>
+                <span>Login</span>
+            </a>
+        }
+    </nav>
     
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
