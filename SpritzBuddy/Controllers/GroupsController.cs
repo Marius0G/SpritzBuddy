@@ -14,11 +14,13 @@ namespace SpritzBuddy.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IContentModerationService _moderationService;
 
-        public GroupsController(IGroupService groupService, UserManager<ApplicationUser> userManager)
+        public GroupsController(IGroupService groupService, UserManager<ApplicationUser> userManager, IContentModerationService moderationService)
         {
             _groupService = groupService;
             _userManager = userManager;
+            _moderationService = moderationService;
         }
 
         [HttpGet]
@@ -89,6 +91,14 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(model.Name) || 
+                !await _moderationService.IsContentSafeAsync(model.Description))
+            {
+                ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                return View(model);
+            }
 
             var groupId = await _groupService.CreateGroupAsync(user.Id, model);
             return RedirectToAction("Details", new { id = groupId });
@@ -223,6 +233,14 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+            
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(content))
+            {
+                TempData["ErrorMessage"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                return RedirectToAction("Details", new { id = groupId });
+            }
+            
             try
             {
                 await _groupService.PostMessageAsync(groupId, user.Id, content);
@@ -264,6 +282,16 @@ namespace SpritzBuddy.Controllers
             if (user == null)
                 return Unauthorized();
             
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(newContent))
+            {
+                TempData["ErrorMessage"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                var groupId = await _groupService.GetGroupIdForMessageAsync(id);
+                if (groupId.HasValue)
+                    return RedirectToAction("Details", new { id = groupId.Value });
+                return RedirectToAction("Index");
+            }
+            
             var isAdmin = User.IsInRole("Administrator");
             
             try
@@ -282,9 +310,9 @@ namespace SpritzBuddy.Controllers
                 return Forbid();
             }
             
-            var groupId = await _groupService.GetGroupIdForMessageAsync(id);
-            if (groupId.HasValue)
-                return RedirectToAction("Details", new { id = groupId.Value });
+            var groupIdFinal = await _groupService.GetGroupIdForMessageAsync(id);
+            if (groupIdFinal.HasValue)
+                return RedirectToAction("Details", new { id = groupIdFinal.Value });
             return RedirectToAction("Index");
         }
 

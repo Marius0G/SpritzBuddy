@@ -24,14 +24,16 @@ namespace SpritzBuddy.Controllers
  private readonly ApplicationDbContext _context;
  private readonly ILogger<ProfileController> _logger;
  private readonly IGamificationService _gamificationService;
+ private readonly IContentModerationService _moderationService;
 
- public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<ProfileController> logger, IGamificationService gamificationService)
+ public ProfileController(IProfileService profileService, UserManager<ApplicationUser> userManager, ApplicationDbContext context, ILogger<ProfileController> logger, IGamificationService gamificationService, IContentModerationService moderationService)
  {
  _profileService = profileService;
  _userManager = userManager;
  _context = context;
  _logger = logger;
  _gamificationService = gamificationService;
+ _moderationService = moderationService;
  }
 
  [HttpGet("Edit")]
@@ -66,12 +68,33 @@ namespace SpritzBuddy.Controllers
  if (user == null)
  return Challenge();
 
+ // Content Moderation Check for Description
+ if (!string.IsNullOrWhiteSpace(model.Description))
+ {
+ if (!await _moderationService.IsContentSafeAsync(model.Description))
+ {
+ ModelState.AddModelError("Description", "Descrierea ta con?ine termeni nepotrivi?i. Te rug?m s? reformulezi.");
+ ViewBag.ProfilePictureUrl = user.ProfilePictureUrl;
+ return View(model);
+ }
+ }
+
+ // Content Moderation Check for FirstName and LastName
+ if (!await _moderationService.IsContentSafeAsync(model.FirstName) || 
+ !await _moderationService.IsContentSafeAsync(model.LastName))
+ {
+ ModelState.AddModelError("", "Numele t?u con?ine termeni nepotrivi?i. Te rug?m s? reformulezi.");
+ ViewBag.ProfilePictureUrl = user.ProfilePictureUrl;
+ return View(model);
+ }
+
  try
  {
  var updated = await _profileService.UpdateProfileAsync(user.Id.ToString(), model);
  if (!updated)
  {
  ModelState.AddModelError(string.Empty, "Failed to update profile.");
+ ViewBag.ProfilePictureUrl = user.ProfilePictureUrl;
  return View(model);
  }
 
@@ -81,6 +104,7 @@ namespace SpritzBuddy.Controllers
  {
  _logger.LogError(ex, "Unhandled error updating profile for user {UserId}", user.Id);
  ModelState.AddModelError(string.Empty, "Unexpected error while updating profile. Please try again later.");
+ ViewBag.ProfilePictureUrl = user.ProfilePictureUrl;
  return View(model);
  }
  }

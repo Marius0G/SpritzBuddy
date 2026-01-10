@@ -16,11 +16,13 @@ namespace SpritzBuddy.Controllers
     {
         private readonly IGroupService _groupService;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IContentModerationService _moderationService;
 
-        public EventsController(IGroupService groupService, UserManager<ApplicationUser> userManager)
+        public EventsController(IGroupService groupService, UserManager<ApplicationUser> userManager, IContentModerationService moderationService)
         {
             _groupService = groupService;
             _userManager = userManager;
+            _moderationService = moderationService;
         }
 
         // GET: Events/Create?groupId=5
@@ -52,6 +54,17 @@ namespace SpritzBuddy.Controllers
         {
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
+
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(title) || 
+                !await _moderationService.IsContentSafeAsync(description))
+            {
+                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.GroupId = groupId;
+                var group = await _groupService.GetGroupWithMembersAndMessagesAsync(groupId);
+                ViewBag.GroupName = group?.Name;
+                return View();
+            }
 
             try
             {
