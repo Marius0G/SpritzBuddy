@@ -7,11 +7,36 @@ namespace SpritzBuddy.Services
 {
     public class ContentModerationService : IContentModerationService
     {
-        // Listă simplă de cuvinte interzise pentru demonstrație
+        // Listă extinsă de cuvinte interzise
         private readonly List<string> _bannedWords = new List<string>
         {
-            "prost", "idiot", "tampit", "nebun", "urat", 
-            "hate", "kill", "violence", "spam", "scam"
+            // Injurii românești
+            "prost", "proasta", "prosti", "proaste",
+            "idiot", "idioata", "idioti", "idioate",
+            "tampit", "tampita", "tampiti", "tampite",
+            "nebun", "nebuna", "nebuni", "nebune",
+            "urat", "urata", "urati", "urate",
+            "pula", "pizda", "muie", "futut", "futu",
+            "cacat", "rahat", "dracu", "dracului",
+            "curve", "curva", "curvă", "curvele",
+            "tarfa", "tarfe", "tâmpit", "tâmpită",
+            "fraier", "fraieri", "prostanac", "proștii",
+            
+            // English profanity
+            "fuck", "fucking", "shit", "damn", "bitch",
+            "asshole", "bastard", "crap", "dick", "pussy",
+            "cunt", "whore", "slut", "fag", "retard",
+            
+            // Hate speech
+            "hate", "kill", "death", "murder", "destroy",
+            "violence", "terrorist", "rape", "torture",
+            
+            // Spam related
+            "spam", "scam", "phishing", "viagra", "casino",
+            "lottery", "winner", "claim prize", "click here",
+            
+            // Harassment
+            "kys", "kill yourself", "suicide", "die", "hang yourself"
         };
 
         public async Task<bool> IsContentSafeAsync(string text)
@@ -22,7 +47,7 @@ namespace SpritzBuddy.Services
             }
 
             // Simulăm un mic delay ca și cum ar fi un apel API extern
-            await Task.Delay(100);
+            await Task.Delay(50);
 
             var normalizedText = text.ToLowerInvariant();
 

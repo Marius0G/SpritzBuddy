@@ -54,13 +54,20 @@ namespace SpritzBuddy.Controllers
             var isModerator = group.ModeratorId.ToString() == currentUserId;
             var isMember = group.Members?.Any(m => m.UserId.ToString() == currentUserId && m.IsAccepted) ?? false;
             var isPending = group.Members?.Any(m => m.UserId.ToString() == currentUserId && !m.IsAccepted) ?? false;
+            var isAdmin = User.IsInRole("Administrator");
+
+            if (!isAdmin && !isMember && !isModerator && !isPending)
+            {
+                // Note: We might want guests to see basic details, 
+                // but let's stick to requirements or allow Admin bypass
+            }
 
             var vm = new GroupDetailsViewModel
             {
                 Group = group,
                 CurrentUserId = currentUserId,
-                IsModerator = isModerator,
-                IsMember = isMember,
+                IsModerator = isModerator || isAdmin, // Admin is treated as moderator for UI buttons
+                IsMember = isMember || isAdmin,
                 IsPending = isPending
             };
             return View(vm);

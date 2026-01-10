@@ -175,6 +175,8 @@ namespace SpritzBuddy.Controllers
  // Check follow status if viewing another user's profile
  if (currentUser != null && currentUser.Id != targetUser.Id)
  {
+ var isAdmin = User.IsInRole("Administrator");
+ 
  var followRecord = await _context.Follows
  .FirstOrDefaultAsync(f => f.FollowerId == currentUser.Id && f.FollowingId == targetUser.Id);
 
@@ -190,8 +192,8 @@ namespace SpritzBuddy.Controllers
  }
  }
  
- // If profile is private and not following, hide posts
- if (targetUser.IsPrivate && !vm.IsFollowing)
+ // If profile is private and not following, hide posts (EXCEPT for Admin)
+ if (targetUser.IsPrivate && !vm.IsFollowing && !isAdmin)
  {
  vm.Posts = new List<Post>(); // Empty list for private profiles
  }

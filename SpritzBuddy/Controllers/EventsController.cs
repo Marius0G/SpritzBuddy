@@ -87,6 +87,9 @@ namespace SpritzBuddy.Controllers
             }
 
             ViewBag.CurrentUserId = user.Id;
+            ViewBag.IsAdmin = isAdmin;
+            ViewBag.IsOrganizer = evt.OrganizerId == user.Id;
+            ViewBag.IsModerator = isModerator;
             return View(evt);
         }
 

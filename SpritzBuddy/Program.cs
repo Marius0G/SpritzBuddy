@@ -34,7 +34,12 @@ builder.Services.AddScoped<IPostMediaService, PostMediaService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
-builder.Services.AddScoped<IContentModerationService, ContentModerationService>();
+// Configure HttpClient for OpenAI Content Moderation
+builder.Services.AddHttpClient<IContentModerationService, OpenAIContentModerationService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.openai.com/v1/");
+    client.Timeout = TimeSpan.FromSeconds(30);
+});
 
 builder.Services.AddControllersWithViews();
 

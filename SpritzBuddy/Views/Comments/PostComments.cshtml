@@ -86,22 +86,47 @@
                     <div class="card shadow-sm" style="display: flex; flex-direction: column; height: 700px; border-radius: 8px;">
                         <!-- Post Header -->
                         <div class="border-bottom p-3">
-                            <div class="d-flex align-items-center">
-                                @if (!string.IsNullOrEmpty(post.User.ProfilePictureUrl))
-                                {
-                                    <img src="@post.User.ProfilePictureUrl" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" alt="@post.User.FirstName" />
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    @if (!string.IsNullOrEmpty(post.User.ProfilePictureUrl))
+                                    {
+                                        <img src="@post.User.ProfilePictureUrl" class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;" alt="@post.User.FirstName" />
+                                    }
+                                    else
+                                    {
+                                        <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
+                                            @((post.User.FirstName ?? "U")[0])
+                                        </div>
+                                    }
+                                    <div>
+                                        <a asp-controller="Profile" asp-action="Index" asp-route-username="@post.User.UserName" class="fw-bold text-decoration-none text-dark">
+                                            @("@" + post.User.UserName)
+                                        </a>
+                                    </div>
+                                </div>
+                                @{
+                                    var isPostAdmin = User.IsInRole("Administrator");
+                                    var isPostOwner = currentUserId == post.UserId;
                                 }
-                                else
+                                @if (isPostAdmin || isPostOwner)
                                 {
-                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px; font-size: 1.2rem;">
-                                        @((post.User.FirstName ?? "U")[0])
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                                            <i class="bi bi-three-dots"></i>
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            @if (isPostOwner)
+                                            {
+                                                <li><a class="dropdown-item" asp-controller="Posts" asp-action="Edit" asp-route-id="@post.Id"><i class="bi bi-pencil"></i> Edit</a></li>
+                                            }
+                                            <li>
+                                                <form asp-controller="Posts" asp-action="Delete" asp-route-id="@post.Id" method="post" onsubmit="return confirm('Sigur vrei sa stergi aceasta postare?');" class="d-inline">
+                                                    <button type="submit" class="dropdown-item text-danger"><i class="bi bi-trash"></i> Delete</button>
+                                                </form>
+                                            </li>
+                                        </ul>
                                     </div>
                                 }
-                                <div>
-                                    <a asp-controller="Profile" asp-action="Index" asp-route-username="@post.User.UserName" class="fw-bold text-decoration-none text-dark">
-                                        @("@" + post.User.UserName)
-                                    </a>
-                                </div>
                             </div>
                         </div>
 

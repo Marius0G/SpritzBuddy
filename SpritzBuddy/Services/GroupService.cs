@@ -391,6 +391,7 @@ namespace SpritzBuddy.Services
         {
             return await _context.Events
                 .Include(e => e.Group)
+                    .ThenInclude(g => g.Members)
                 .Include(e => e.Organizer)
                 .Include(e => e.Participants)
                     .ThenInclude(p => p.User)
