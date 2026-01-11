@@ -1,0 +1,250 @@
+@model List<SpritzBuddy.Models.Comment>
+
+@{
+    ViewData["Title"] = "Admin - Comment Sentiment Analysis";
+    var currentFilter = ViewBag.CurrentFilter as string ?? "all";
+    var currentPage = ViewBag.CurrentPage as int? ?? 1;
+    var totalPages = ViewBag.TotalPages as int? ?? 1;
+}
+
+<div class="container-fluid mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2>
+                    <i class="bi bi-shield-check"></i> Comment Sentiment Analysis
+                </h2>
+                <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back to Site
+                </a>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <div class="card bg-danger text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-emoji-frown"></i> Negative
+                            </h5>
+                            <h2 class="mb-0">@ViewBag.NegativeCount</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-warning text-dark">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-emoji-neutral"></i> Neutral
+                            </h5>
+                            <h2 class="mb-0">@ViewBag.NeutralCount</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-success text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-emoji-smile"></i> Positive
+                            </h5>
+                            <h2 class="mb-0">@ViewBag.PositiveCount</h2>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="card bg-secondary text-white">
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                <i class="bi bi-question-circle"></i> Unanalyzed
+                            </h5>
+                            <h2 class="mb-0">@ViewBag.UnanalyzedCount</h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="btn-group mb-3" role="group">
+                <a asp-action="Comments" asp-route-filter="all" class="btn @(currentFilter == "all" ? "btn-primary" : "btn-outline-primary")">
+                    All (@ViewBag.TotalComments)
+                </a>
+                <a asp-action="Comments" asp-route-filter="negative" class="btn @(currentFilter == "negative" ? "btn-danger" : "btn-outline-danger")">
+                    Negative (@ViewBag.NegativeCount)
+                </a>
+                <a asp-action="Comments" asp-route-filter="neutral" class="btn @(currentFilter == "neutral" ? "btn-warning" : "btn-outline-warning")">
+                    Neutral (@ViewBag.NeutralCount)
+                </a>
+                <a asp-action="Comments" asp-route-filter="positive" class="btn @(currentFilter == "positive" ? "btn-success" : "btn-outline-success")">
+                    Positive (@ViewBag.PositiveCount)
+                </a>
+                <a asp-action="Comments" asp-route-filter="unanalyzed" class="btn @(currentFilter == "unanalyzed" ? "btn-secondary" : "btn-outline-secondary")">
+                    Unanalyzed (@ViewBag.UnanalyzedCount)
+                </a>
+            </div>
+
+            <!-- Comments Table -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Comment</th>
+                                    <th>Post</th>
+                                    <th>Sentiment</th>
+                                    <th>Confidence</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var comment in Model)
+                                {
+                                    var sentimentClass = comment.SentimentLabel switch
+                                    {
+                                        "negative" => "table-danger",
+                                        "neutral" => "table-warning",
+                                        "positive" => "table-success",
+                                        _ => ""
+                                    };
+                                    
+                                    var confidencePercent = comment.SentimentConfidence.HasValue 
+                                        ? (comment.SentimentConfidence.Value * 100).ToString("F1") 
+                                        : "N/A";
+
+                                    <tr class="@sentimentClass">
+                                        <td>@comment.Id</td>
+                                        <td>
+                                            <a asp-controller="Profile" asp-action="Index" asp-route-username="@comment.User.UserName">
+                                                @@(@comment.User.UserName)
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <div style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" 
+                                                 title="@comment.Content">
+                                                @comment.Content
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <a asp-controller="Comments" asp-action="PostComments" asp-route-id="@comment.PostId" target="_blank">
+                                                Post by @@(@comment.Post.User.UserName)
+                                            </a>
+                                        </td>
+                                        <td>
+                                            @if (comment.SentimentLabel != null)
+                                            {
+                                                <span class="badge @(comment.SentimentLabel switch
+                                                {
+                                                    "negative" => "bg-danger",
+                                                    "neutral" => "bg-warning text-dark",
+                                                    "positive" => "bg-success",
+                                                    _ => "bg-secondary"
+                                                })">
+                                                    @comment.SentimentLabel.ToUpper()
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge bg-secondary">Unanalyzed</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            @if (comment.SentimentConfidence.HasValue)
+                                            {
+                                                <div class="progress" style="height: 20px;">
+                                                    <div class="progress-bar @(comment.SentimentLabel switch
+                                                    {
+                                                        "negative" => "bg-danger",
+                                                        "neutral" => "bg-warning",
+                                                        "positive" => "bg-success",
+                                                        _ => "bg-secondary"
+                                                    })" 
+                                                         role="progressbar" 
+                                                         style="width: @confidencePercent%">
+                                                        @confidencePercent%
+                                                    </div>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-muted">N/A</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <small>@comment.CreateDate.ToString("yyyy-MM-dd HH:mm")</small>
+                                        </td>
+                                        <td>
+                                            <div class="btn-group btn-group-sm">
+                                                <a href="@Url.Action("PostComments", "Comments", new { id = comment.PostId })#comment-@comment.Id" 
+                                                   class="btn btn-outline-primary" 
+                                                   target="_blank"
+                                                   title="View in context">
+                                                    <i class="bi bi-eye"></i>
+                                                </a>
+                                                <form asp-controller="Comments" asp-action="Delete" method="post" class="d-inline">
+                                                    <input type="hidden" name="id" value="@comment.Id" />
+                                                    <button type="submit" 
+                                                            class="btn btn-outline-danger" 
+                                                            onclick="return confirm('Delete this comment?')"
+                                                            title="Delete">
+                                                        <i class="bi bi-trash"></i>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    @if (totalPages > 1)
+                    {
+                        <nav>
+                            <ul class="pagination justify-content-center">
+                                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Comments" asp-route-filter="@currentFilter" asp-route-page="@(currentPage - 1)">
+                                        Previous
+                                    </a>
+                                </li>
+
+                                @for (int i = 1; i <= totalPages; i++)
+                                {
+                                    <li class="page-item @(i == currentPage ? "active" : "")">
+                                        <a class="page-link" asp-action="Comments" asp-route-filter="@currentFilter" asp-route-page="@i">
+                                            @i
+                                        </a>
+                                    </li>
+                                }
+
+                                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                    <a class="page-link" asp-action="Comments" asp-route-filter="@currentFilter" asp-route-page="@(currentPage + 1)">
+                                        Next
+                                    </a>
+                                </li>
+                            </ul>
+                        </nav>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .progress {
+        background-color: #e9ecef;
+    }
+    
+    .table-hover tbody tr:hover {
+        cursor: pointer;
+    }
+    
+    .badge {
+        font-size: 0.85rem;
+        padding: 0.35em 0.65em;
+    }
+</style>

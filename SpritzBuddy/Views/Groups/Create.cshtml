@@ -14,7 +14,6 @@
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
                             <i class="bi bi-exclamation-triangle-fill"></i> 
-                            <strong>localhost says:</strong> You need to be nice! 🤬<br/>
                             @TempData["Error"]
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -23,6 +22,7 @@
                     @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
                     {
                         <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
                             @ViewBag.ErrorMessage
                             <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                         </div>
@@ -56,8 +56,15 @@
                             <a asp-action="Index" class="btn btn-secondary">
                                 <i class="bi bi-arrow-left"></i> Înapoi
                             </a>
-                            <button type="submit" class="btn btn-success btn-lg">
-                                <i class="bi bi-check-circle"></i> Creează Grup
+                            <button type="submit" 
+                                    id="submit-group-btn"
+                                    class="btn btn-success btn-lg">
+                                <span class="submit-text">
+                                    <i class="bi bi-check-circle"></i> Creează Grup
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </span>
                             </button>
                         </div>
                     </form>
@@ -67,3 +74,18 @@
         </div>
     </div>
 </div>
+
+@section Scripts {
+    <script>
+        // Show loading state on form submit
+        document.querySelector('form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-group-btn');
+            const text = btn.querySelector('.submit-text');
+            const spinner = btn.querySelector('.spinner-border');
+            
+            btn.disabled = true;
+            text.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        });
+    </script>
+}

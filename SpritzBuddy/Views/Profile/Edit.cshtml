@@ -1,72 +1,167 @@
 @model SpritzBuddy.Models.ViewModels.EditProfileViewModel
 
 @{
- ViewData["Title"] = "Editează Profilul";
- // Use the canonical ProfilePictureUrl property only
- var profilePic = (string?)ViewBag.ProfilePictureUrl;
+    ViewData["Title"] = "Editează Profilul";
+    var profilePic = (string?)ViewBag.ProfilePictureUrl;
 }
 
 <div class="container py-4">
- <div class="row justify-content-center">
- <div class="col-md-8 col-lg-6">
- <div class="card shadow-sm">
- <div class="card-body">
- <h3 class="card-title mb-3 text-center">Editează Profilul</h3>
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-person-circle"></i> Editează Profilul
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
- <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+                    <!-- Current Profile Picture -->
+                    <div class="text-center mb-4">
+                        @if (!string.IsNullOrEmpty(profilePic))
+                        {
+                            <img src="@profilePic" 
+                                 id="profile-preview"
+                                 class="rounded-circle img-thumbnail mb-2" 
+                                 style="width:150px; height:150px; object-fit:cover;" 
+                                 alt="Poza profil" />
+                        }
+                        else
+                        {
+                            <div id="profile-preview" 
+                                 class="rounded-circle bg-secondary text-white d-inline-flex align-items-center justify-content-center mb-2"
+                                 style="width:150px; height:150px; font-size: 4rem;">
+                                <i class="bi bi-person-fill"></i>
+                            </div>
+                        }
+                        <div class="small text-muted">Poza curentă de profil</div>
+                    </div>
 
- @if (!string.IsNullOrEmpty(profilePic))
- {
- <div class="text-center mb-3">
- <img src="@profilePic" class="rounded-circle img-thumbnail" style="width:120px; height:120px; object-fit:cover;" alt="Poza profil" />
- </div>
- }
+                    <form asp-action="Edit" asp-controller="Profile" method="post" enctype="multipart/form-data" id="edit-profile-form">
+                        @Html.AntiForgeryToken()
 
- <form asp-action="Edit" asp-controller="Profile" method="post" enctype="multipart/form-data">
- @Html.AntiForgeryToken()
+                        <div class="mb-3">
+                            <label asp-for="ProfileImage" class="form-label">
+                                <i class="bi bi-image"></i> Schimbă poza de profil
+                            </label>
+                            <input asp-for="ProfileImage" 
+                                   type="file" 
+                                   class="form-control" 
+                                   id="profile-image-input"
+                                   accept="image/*" />
+                            <span asp-validation-for="ProfileImage" class="text-danger"></span>
+                            <small class="text-muted d-block mt-1">
+                                Formate acceptate: JPG, PNG, GIF (max 5MB)
+                            </small>
+                        </div>
 
- <div class="mb-3">
- <label asp-for="ProfileImage" class="form-label">Schimbă poza</label>
- <input asp-for="ProfileImage" type="file" class="form-control" />
- <span asp-validation-for="ProfileImage" class="text-danger"></span>
- </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="FirstName" class="form-label">
+                                    <i class="bi bi-person"></i> Prenume *
+                                </label>
+                                <input asp-for="FirstName" class="form-control" required maxlength="50" />
+                                <span asp-validation-for="FirstName" class="text-danger"></span>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label asp-for="LastName" class="form-label">
+                                    <i class="bi bi-person"></i> Nume *
+                                </label>
+                                <input asp-for="LastName" class="form-control" required maxlength="50" />
+                                <span asp-validation-for="LastName" class="text-danger"></span>
+                            </div>
+                        </div>
 
- <div class="row">
- <div class="col-md-6 mb-3">
- <label asp-for="FirstName" class="form-label">Prenume</label>
- <input asp-for="FirstName" class="form-control" />
- <span asp-validation-for="FirstName" class="text-danger"></span>
- </div>
- <div class="col-md-6 mb-3">
- <label asp-for="LastName" class="form-label">Nume</label>
- <input asp-for="LastName" class="form-control" />
- <span asp-validation-for="LastName" class="text-danger"></span>
- </div>
- </div>
+                        <div class="mb-3">
+                            <label asp-for="Description" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Descriere
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="4" maxlength="500" placeholder="Spune-ne ceva despre tine..."></textarea>
+                            <span asp-validation-for="Description" class="text-danger"></span>
+                            <small class="text-muted">Maxim 500 caractere</small>
+                        </div>
 
- <div class="mb-3">
- <label asp-for="Description" class="form-label">Descriere</label>
- <textarea asp-for="Description" class="form-control" rows="4"></textarea>
- <span asp-validation-for="Description" class="text-danger"></span>
- </div>
+                        <div class="form-check form-switch mb-4">
+                            <input class="form-check-input" asp-for="IsPrivate" type="checkbox" role="switch" id="IsPrivateSwitch" />
+                            <label class="form-check-label" for="IsPrivateSwitch">
+                                <i class="bi bi-lock"></i> Profil Privat
+                                <small class="d-block text-muted">Doar followerii acceptați pot vedea postările tale</small>
+                            </label>
+                            <span asp-validation-for="IsPrivate" class="text-danger"></span>
+                        </div>
 
- <div class="form-check form-switch mb-3">
- <input class="form-check-input" asp-for="IsPrivate" type="checkbox" role="switch" id="IsPrivateSwitch" />
- <label class="form-check-label" for="IsPrivateSwitch">Profil Privat</label>
- <span asp-validation-for="IsPrivate" class="text-danger"></span>
- </div>
-
- <div class="d-flex justify-content-between">
- <a asp-controller="Profile" asp-action="Index" class="btn btn-secondary">Anulează</a>
- <button type="submit" class="btn btn-primary">Salvează modificările</button>
- </div>
- </form>
- </div>
- </div>
- </div>
- </div>
+                        <div class="d-flex justify-content-between gap-3">
+                            <a asp-controller="Profile" asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Anulează
+                            </a>
+                            <button type="submit" 
+                                    id="submit-profile-btn"
+                                    class="btn btn-success btn-lg">
+                                <span class="submit-text">
+                                    <i class="bi bi-check-circle"></i> Salvează modificările
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 @section Scripts {
- <partial name="_ValidationScriptsPartial" />
+    <partial name="_ValidationScriptsPartial" />
+    
+    <script>
+        // Preview profile image before upload
+        document.getElementById('profile-image-input').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const preview = document.getElementById('profile-preview');
+                    if (preview.tagName === 'IMG') {
+                        preview.src = e.target.result;
+                    } else {
+                        // Replace placeholder with image
+                        const img = document.createElement('img');
+                        img.id = 'profile-preview';
+                        img.className = 'rounded-circle img-thumbnail mb-2';
+                        img.style.width = '150px';
+                        img.style.height = '150px';
+                        img.style.objectFit = 'cover';
+                        img.src = e.target.result;
+                        preview.replaceWith(img);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Show loading state on form submit
+        document.getElementById('edit-profile-form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-profile-btn');
+            const text = btn.querySelector('.submit-text');
+            const spinner = btn.querySelector('.spinner-border');
+            
+            btn.disabled = true;
+            text.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        });
+    </script>
 }
+
+<style>
+    .img-thumbnail {
+        border: 3px solid #dee2e6;
+        transition: transform 0.2s;
+    }
+    
+    .img-thumbnail:hover {
+        transform: scale(1.05);
+    }
+</style>

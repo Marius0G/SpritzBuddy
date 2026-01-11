@@ -12,6 +12,7 @@ using SpritzBuddy.Data;
 using SpritzBuddy.Models;
 using SpritzBuddy.Models.ViewModels;
 using SpritzBuddy.Services;
+using Microsoft.Extensions.Logging;
 
 namespace SpritzBuddy.Controllers
 {
@@ -22,14 +23,22 @@ namespace SpritzBuddy.Controllers
         private readonly IPostService _postService;
         private readonly IWebHostEnvironment _environment;
         private readonly IContentModerationService _moderationService;
+        private readonly ILogger<PostsController> _logger;
 
-        public PostsController(ApplicationDbContext context, IPostMediaService postMediaService, IPostService postService, IWebHostEnvironment environment, IContentModerationService moderationService)
+        public PostsController(
+            ApplicationDbContext context, 
+            IPostMediaService postMediaService, 
+            IPostService postService, 
+            IWebHostEnvironment environment, 
+            IContentModerationService moderationService,
+            ILogger<PostsController> logger)
         {
             _context = context;
             _postMediaService = postMediaService;
             _postService = postService;
             _environment = environment;
             _moderationService = moderationService;
+            _logger = logger;
         }
 
         // GET: Posts - Shows posts based on privacy and following relationships
@@ -283,7 +292,12 @@ namespace SpritzBuddy.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Posts.FindAsync(id);
+            var post = await _context.Posts
+                .Include(p => p.PostMedias.OrderBy(m => m.OrderIndex))
+                .Include(p => p.PostDrinks)
+                    .ThenInclude(pd => pd.Drink)
+                .FirstOrDefaultAsync(p => p.Id == id);
+                
             if (post == null)
             {
                 return NotFound();
@@ -303,7 +317,7 @@ namespace SpritzBuddy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,CreateDate")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,CreateDate")] Post post, List<IFormFile>? NewMediaFiles)
         {
             if (id != post.Id)
             {
@@ -318,7 +332,10 @@ namespace SpritzBuddy.Controllers
             }
 
             // Verify ownership by checking the original post in database
-            var originalPost = await _context.Posts.FindAsync(id);
+            var originalPost = await _context.Posts
+                .Include(p => p.PostMedias)
+                .FirstOrDefaultAsync(p => p.Id == id);
+                
             if (originalPost == null || (!User.IsInRole("Administrator") && originalPost.UserId != userIdInt))
             {
                 return Forbid(); // User doesn't own this post and is not admin
@@ -333,14 +350,45 @@ namespace SpritzBuddy.Controllers
                 if (!await _moderationService.IsContentSafeAsync(post.Title) || !await _moderationService.IsContentSafeAsync(post.Content))
                 {
                     ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
-                    TempData["Error"] = "Postarea nu a putut fi actualizată din cauza conținutului nepotrivit.";
+                    ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
+                    
+                    // Reload media for view
+                    post.PostMedias = originalPost.PostMedias;
                     return View(post);
                 }
 
                 try
                 {
-                    _context.Update(post);
+                    // Update basic post info
+                    _context.Entry(originalPost).CurrentValues.SetValues(post);
+
+                    // Handle new media uploads if any
+                    if (NewMediaFiles != null && NewMediaFiles.Any())
+                    {
+                        var currentMaxOrder = originalPost.PostMedias?.Max(m => m.OrderIndex) ?? -1;
+                        var uploadedPaths = await _postMediaService.UploadPostMediaAsync(NewMediaFiles, post.Id);
+
+                        int orderIndex = currentMaxOrder + 1;
+                        foreach (var path in uploadedPaths)
+                        {
+                            var extension = System.IO.Path.GetExtension(path).ToLowerInvariant();
+                            var mediaType = (extension == ".mp4" || extension == ".mov" || extension == ".avi" || extension == ".webm") 
+                                ? PostMediaType.Video 
+                                : PostMediaType.Image;
+
+                            var postMedia = new PostMedia
+                            {
+                                PostId = post.Id,
+                                FilePath = path,
+                                MediaType = mediaType,
+                                OrderIndex = orderIndex++
+                            };
+                            _context.PostMedias.Add(postMedia);
+                        }
+                    }
+
                     await _context.SaveChangesAsync();
+                    TempData["SuccessMessage"] = "Postarea a fost actualizată cu succes!";
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -353,9 +401,11 @@ namespace SpritzBuddy.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("PostComments", "Comments", new { id = post.Id });
             }
             
+            // Reload media for view on validation error
+            post.PostMedias = originalPost.PostMedias;
             return View(post);
         }
 
@@ -501,6 +551,57 @@ Directory Exists: {Directory.Exists(uploadsPath)}
             {
                 return BadRequest(new { success = false, message = ex.Message });
             }
+        }
+
+        // POST: Posts/DeleteMedia - Delete a single media file from a post (AJAX)
+        [HttpPost]
+        [Authorize]
+        public async Task<IActionResult> DeleteMedia([FromBody] DeleteMediaRequest request)
+        {
+            try
+            {
+                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (userId == null || !int.TryParse(userId, out int userIdInt))
+                {
+                    return Json(new { success = false, message = "User not authenticated" });
+                }
+
+                var media = await _context.PostMedias
+                    .Include(m => m.Post)
+                    .FirstOrDefaultAsync(m => m.Id == request.MediaId);
+
+                if (media == null)
+                {
+                    return Json(new { success = false, message = "Media not found" });
+                }
+
+                // Check if user owns the post or is admin
+                var isAdmin = User.IsInRole("Administrator");
+                if (!isAdmin && media.Post.UserId != userIdInt)
+                {
+                    return Json(new { success = false, message = "You can only delete media from your own posts" });
+                }
+
+                // Delete physical file
+                await _postMediaService.DeletePostMediaAsync(media.FilePath);
+
+                // Delete database record
+                _context.PostMedias.Remove(media);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Media deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting media");
+                return Json(new { success = false, message = "Error deleting media" });
+            }
+        }
+
+        // Helper class for DeleteMedia request
+        public class DeleteMediaRequest
+        {
+            public int MediaId { get; set; }
         }
     }
 }

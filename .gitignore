@@ -25,6 +25,7 @@ project.lock.json
 .classpath
 /wwwroot/lib/
 /wwwroot/dist/
+appsettings*.json
 
 ## User-specific files ##
 *.suo

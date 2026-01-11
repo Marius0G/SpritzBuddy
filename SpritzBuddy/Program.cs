@@ -35,13 +35,9 @@ builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 
-// Register AI services with HttpClient
-builder.Services.AddHttpClient<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
-builder.Services.AddHttpClient<IContentModerationService, OpenAIContentModerationService>(client =>
-{
-    client.BaseAddress = new Uri("https://api.openai.com/v1/");
-    client.Timeout = TimeSpan.FromSeconds(30);
-});
+// Register AI services (without HttpClient factory - manual instantiation)
+builder.Services.AddScoped<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
+builder.Services.AddScoped<IContentModerationService, OpenAIContentModerationService>();
 
 builder.Services.AddControllersWithViews();
 

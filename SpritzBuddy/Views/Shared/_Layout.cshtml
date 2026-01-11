@@ -58,6 +58,16 @@
                                     <li><a class="dropdown-item" asp-controller="Groups" asp-action="Create"><i class="bi bi-plus-circle"></i> Create New Group</a></li>
                                 </ul>
                             </li>
+                            
+                            <!-- Admin Link (only for Administrators) -->
+                            @if (User.IsInRole("Administrator"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-danger fw-bold" asp-controller="Admin" asp-action="Comments">
+                                        <i class="bi bi-shield-check"></i> Admin Panel
+                                    </a>
+                                </li>
+                            }
                         }
                         else
                         {

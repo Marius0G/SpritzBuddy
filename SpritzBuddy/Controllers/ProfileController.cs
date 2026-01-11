@@ -222,6 +222,14 @@ namespace SpritzBuddy.Controllers
  vm.Posts = new List<Post>(); // Empty list for private profiles
  }
  }
+ else
+ {
+ // Not logged in - if profile is private, hide posts
+ if (targetUser.IsPrivate)
+ {
+ vm.Posts = new List<Post>();
+ }
+ }
 
  // If viewing own profile, get notifications
  if (currentUser != null && currentUser.Id == targetUser.Id)

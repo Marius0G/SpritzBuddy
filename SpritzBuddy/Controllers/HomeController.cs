@@ -23,6 +23,7 @@ namespace SpritzBuddy.Controllers
             var userId = User.FindFirstValue(System.Security.Claims.ClaimTypes.NameIdentifier);
             int? currentUserId = null;
             List<int> followingIds = new List<int>();
+            var isAdmin = User.IsInRole("Administrator");
 
             if (userId != null && int.TryParse(userId, out int userIdInt))
             {
@@ -39,7 +40,7 @@ namespace SpritzBuddy.Controllers
             var allPosts = await _context.Posts
                 .Include(p => p.User)
                 .Include(p => p.Likes)
-                .Include(p => p.Comments.OrderBy(c => c.CreateDate).Take(3))
+                .Include(p => p.Comments) // ← Include ALL comments, not just Take(3)
                     .ThenInclude(c => c.User)
                 .Include(p => p.PostMedias)
                 .Include(p => p.PostDrinks)
@@ -50,13 +51,13 @@ namespace SpritzBuddy.Controllers
             var visiblePosts = allPosts.Where(p => 
                 !p.User.IsPrivate || // Public accounts
                 (currentUserId.HasValue && p.UserId == currentUserId.Value) || // Own posts
-                (currentUserId.HasValue && followingIds.Contains(p.UserId)) // Following users
+                (currentUserId.HasValue && followingIds.Contains(p.UserId)) || // Following users
+                isAdmin // Admin can see ALL posts, even private
             ).ToList();
 
-            // Sort: Followed users first (by date desc), then public posts (by date desc)
+            // Sort chronologically (newest first) - NO MORE following priority
             var sortedPosts = visiblePosts
-                .OrderByDescending(p => followingIds.Contains(p.UserId) ? 1 : 0) // Followed users first
-                .ThenByDescending(p => p.CreateDate) // Then by date
+                .OrderByDescending(p => p.CreateDate)
                 .ToList();
 
             return View(sortedPosts);

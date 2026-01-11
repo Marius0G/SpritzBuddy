@@ -317,7 +317,14 @@
                                            required 
                                            maxlength="1000"
                                            style="box-shadow: none;" />
-                                    <button type="submit" class="btn btn-link text-primary fw-bold">Post</button>
+                                    <button type="submit" 
+                                            id="submit-comment-btn" 
+                                            class="btn btn-link text-primary fw-bold">
+                                        <span class="submit-text">Post</span>
+                                        <span class="spinner-border spinner-border-sm d-none" role="status">
+                                            <span class="visually-hidden">Loading...</span>
+                                        </span>
+                                    </button>
                                 </form>
                             }
                             else
@@ -469,11 +476,19 @@
                     
                     const postId = document.getElementById('comment-postId').value;
                     const content = document.getElementById('comment-input').value.trim();
+                    const submitBtn = document.getElementById('submit-comment-btn');
+                    const submitText = submitBtn.querySelector('.submit-text');
+                    const spinner = submitBtn.querySelector('.spinner-border');
                     
                     if (!content) {
                         alert('Please enter a comment');
                         return;
                     }
+                    
+                    // Show loading state
+                    submitBtn.disabled = true;
+                    submitText.classList.add('d-none');
+                    spinner.classList.remove('d-none');
                     
                     try {
                         const formData = new FormData();
@@ -496,12 +511,22 @@
                             document.getElementById('comment-input').value = '';
                             location.reload();
                         } else {
-                            // Show alert with localhost says message
+                            // Show alert with error message
                             alert(result.message || 'Error posting comment');
+                            
+                            // Reset button state
+                            submitBtn.disabled = false;
+                            submitText.classList.remove('d-none');
+                            spinner.classList.add('d-none');
                         }
                     } catch (error) {
                         console.error('Error posting comment:', error);
                         alert('Error occurred while posting comment');
+                        
+                        // Reset button state
+                        submitBtn.disabled = false;
+                        submitText.classList.remove('d-none');
+                        spinner.classList.add('d-none');
                     }
                 });
             }
@@ -656,46 +681,5 @@
                 alert('Eroare la ștergerea comentariului');
             }
         }
-
-        // Handle add comment form submission
-        document.getElementById('add-comment-form')?.addEventListener('submit', async function(e) {
-            e.preventDefault();
-            
-            const postId = document.getElementById('comment-postId').value;
-            const content = document.getElementById('comment-input').value.trim();
-            
-            if (content === '') {
-                alert('Comment cannot be empty');
-                return;
-            }
-            
-            try {
-                const formData = new FormData();
-                formData.append('postId', postId);
-                formData.append('content', content);
-                formData.append('__RequestVerificationToken', document.querySelector('input[name="__RequestVerificationToken"]').value);
-
-                const response = await fetch('@Url.Action("Create", "Comments")', {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    },
-                    body: formData
-                });
-
-                const result = await response.json();
-                
-                if (result.success) {
-                    // Clear input and reload page to show new comment
-                    document.getElementById('comment-input').value = '';
-                    location.reload();
-                } else {
-                    alert(result.message || 'Eroare la adaugarea comentariului');
-                }
-            } catch (error) {
-                console.error('Error adding comment:', error);
-                alert('Eroare la adaugarea comentariului');
-            }
-        });
     </script>
 }

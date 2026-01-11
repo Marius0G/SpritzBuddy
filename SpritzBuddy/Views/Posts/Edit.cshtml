@@ -2,41 +2,246 @@
 
 @{
     ViewData["Title"] = "Edit Post";
+    var currentMedia = Model.PostMedias?.OrderBy(m => m.OrderIndex).ToList() ?? new List<SpritzBuddy.Models.PostMedia>();
 }
 
 <div class="container mt-4">
-    <h1>Edit Post</h1>
-    <hr />
-    
-    <div class="row">
-        <div class="col-md-8">
-            <form asp-action="Edit">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <input type="hidden" asp-for="Id" />
-                <input type="hidden" asp-for="UserId" />
-                <input type="hidden" asp-for="CreateDate" />
-                
-                <div class="form-group mb-3">
-                    <label asp-for="Title" class="control-label"></label>
-                    <input asp-for="Title" class="form-control" />
-                    <span asp-validation-for="Title" class="text-danger"></span>
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card shadow-sm">
+                <div class="card-header bg-warning text-dark">
+                    <h3 class="mb-0">
+                        <i class="bi bi-pencil-square"></i> Editare Postare
+                    </h3>
                 </div>
-                
-                <div class="form-group mb-3">
-                    <label asp-for="Content" class="control-label"></label>
-                    <textarea asp-for="Content" class="form-control" rows="10"></textarea>
-                    <span asp-validation-for="Content" class="text-danger"></span>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            @ViewBag.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Edit" method="post" enctype="multipart/form-data" id="edit-post-form">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="Id" />
+                        <input type="hidden" asp-for="UserId" />
+                        <input type="hidden" asp-for="CreateDate" />
+                        
+                        <div class="mb-3">
+                            <label asp-for="Title" class="form-label">
+                                <i class="bi bi-card-heading"></i> Titlu *
+                            </label>
+                            <input asp-for="Title" class="form-control" required maxlength="200" />
+                            <span asp-validation-for="Title" class="text-danger"></span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label asp-for="Content" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Conținut *
+                            </label>
+                            <textarea asp-for="Content" class="form-control" rows="6" required maxlength="2000"></textarea>
+                            <span asp-validation-for="Content" class="text-danger"></span>
+                        </div>
+
+                        <!-- Current Media Section -->
+                        @if (currentMedia.Any())
+                        {
+                            <div class="mb-4">
+                                <h5>
+                                    <i class="bi bi-images"></i> Media Curentă
+                                </h5>
+                                <div class="row g-3">
+                                    @foreach (var media in currentMedia)
+                                    {
+                                        <div class="col-md-4" id="media-@media.Id">
+                                            <div class="card">
+                                                @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Image)
+                                                {
+                                                    <img src="@media.FilePath" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Media" />
+                                                }
+                                                else if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                                                {
+                                                    <video class="card-img-top" style="height: 200px; object-fit: cover;">
+                                                        <source src="@media.FilePath" type="video/mp4">
+                                                    </video>
+                                                }
+                                                <div class="card-body p-2">
+                                                    <button type="button" 
+                                                            class="btn btn-danger btn-sm w-100" 
+                                                            onclick="deleteMedia(@media.Id)">
+                                                        <i class="bi bi-trash"></i> Șterge
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                            </div>
+                        }
+
+                        <!-- Add New Media Section -->
+                        <div class="mb-4">
+                            <h5>
+                                <i class="bi bi-plus-circle"></i> Adaugă Media Nouă
+                            </h5>
+                            <div class="mb-3">
+                                <label class="form-label">Imagini/Video noi (max 5 fișiere, max 50MB per fișier)</label>
+                                <input type="file" 
+                                       name="NewMediaFiles" 
+                                       class="form-control" 
+                                       multiple 
+                                       accept="image/*,video/*"
+                                       id="new-media-input" />
+                                <small class="text-muted">
+                                    Formate acceptate: JPG, PNG, GIF, WebP, MP4, MOV, AVI, WebM
+                                </small>
+                            </div>
+                            
+                            <!-- Preview for new files -->
+                            <div id="new-media-preview" class="row g-3 mb-3" style="display: none;">
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            Câmpurile marcate cu * sunt obligatorii.
+                        </div>
+
+                        <div class="d-flex justify-content-between gap-3">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Anulează
+                            </a>
+                            <button type="submit" 
+                                    id="submit-edit-btn"
+                                    class="btn btn-success btn-lg">
+                                <span class="submit-text">
+                                    <i class="bi bi-check-circle"></i> Salvează Modificările
+                                </span>
+                                <span class="spinner-border spinner-border-sm d-none" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                
-                <div class="form-group">
-                    <input type="submit" value="Save Changes" class="btn btn-primary" />
-                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-                </div>
-            </form>
+            </div>
         </div>
     </div>
 </div>
 
 @section Scripts {
+    <script>
+        // Preview new media files
+        document.getElementById('new-media-input').addEventListener('change', function(e) {
+            const preview = document.getElementById('new-media-preview');
+            preview.innerHTML = '';
+            
+            if (this.files.length > 0) {
+                preview.style.display = 'flex';
+                
+                Array.from(this.files).forEach((file, index) => {
+                    const col = document.createElement('div');
+                    col.className = 'col-md-4';
+                    
+                    const card = document.createElement('div');
+                    card.className = 'card';
+                    
+                    if (file.type.startsWith('image/')) {
+                        const img = document.createElement('img');
+                        img.className = 'card-img-top';
+                        img.style.height = '200px';
+                        img.style.objectFit = 'cover';
+                        img.src = URL.createObjectURL(file);
+                        card.appendChild(img);
+                    } else if (file.type.startsWith('video/')) {
+                        const video = document.createElement('video');
+                        video.className = 'card-img-top';
+                        video.style.height = '200px';
+                        video.style.objectFit = 'cover';
+                        video.src = URL.createObjectURL(file);
+                        card.appendChild(video);
+                    }
+                    
+                    const cardBody = document.createElement('div');
+                    cardBody.className = 'card-body p-2';
+                    cardBody.innerHTML = `<small class="text-muted">${file.name}</small>`;
+                    card.appendChild(cardBody);
+                    
+                    col.appendChild(card);
+                    preview.appendChild(col);
+                });
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // Delete media with AJAX
+        async function deleteMedia(mediaId) {
+            if (!confirm('Sigur vrei să ștergi această imagine/video?')) {
+                return;
+            }
+
+            try {
+                const response = await fetch('/Posts/DeleteMedia', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    },
+                    body: JSON.stringify({ mediaId: mediaId })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    // Remove from DOM
+                    document.getElementById('media-' + mediaId).remove();
+                    
+                    // Show success message
+                    alert('Media ștearsă cu succes!');
+                } else {
+                    alert(result.message || 'Eroare la ștergerea media');
+                }
+            } catch (error) {
+                console.error('Error deleting media:', error);
+                alert('Eroare la ștergerea media');
+            }
+        }
+
+        // Show loading state on form submit
+        document.getElementById('edit-post-form').addEventListener('submit', function() {
+            const btn = document.getElementById('submit-edit-btn');
+            const text = btn.querySelector('.submit-text');
+            const spinner = btn.querySelector('.spinner-border');
+            
+            btn.disabled = true;
+            text.classList.add('d-none');
+            spinner.classList.remove('d-none');
+        });
+    </script>
+    
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<style>
+    .card {
+        transition: transform 0.2s;
+    }
+    
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+</style>

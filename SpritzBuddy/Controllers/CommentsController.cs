@@ -44,13 +44,15 @@ namespace SpritzBuddy.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // AI Content Moderation
+            // AI Content Moderation (checks for toxic/harmful content only)
             if (!await _moderationService.IsContentSafeAsync(content))
             {
-                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
+                var errorMessage = "You need to be nice! Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
                 
-                TempData["Error"] = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = errorMessage });
+                
+                TempData["Error"] = errorMessage;
                 return RedirectToAction("PostComments", new { id = postId });
             }
 
@@ -256,10 +258,10 @@ namespace SpritzBuddy.Controllers
                 return Json(new { success = false, message = "Comment cannot be empty" });
             }
 
-            // AI Content Moderation
+            // AI Content Moderation (checks for toxic/harmful content only)
             if (!await _moderationService.IsContentSafeAsync(content))
             {
-                return Json(new { success = false, message = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
+                return Json(new { success = false, message = "🚫 Content blocked: Your comment contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully." });
             }
 
             var comment = await _context.Comments.FindAsync(id);

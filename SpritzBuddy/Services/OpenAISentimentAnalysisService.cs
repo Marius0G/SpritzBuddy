@@ -31,15 +31,15 @@ namespace SpritzBuddy.Services
         private const string ModelName = "gpt-4o-mini";
 
         public OpenAISentimentAnalysisService(
-            HttpClient httpClient,
             IConfiguration configuration, 
             ILogger<OpenAISentimentAnalysisService> logger)
         {
-            _httpClient = httpClient;
+            _httpClient = new HttpClient();
             _apiKey = configuration["OpenAI:ApiKey"] 
-                      ?? throw new ArgumentNullException("OpenAI:ApiKey nu este configurat în appsettings.json");
+                      ?? throw new ArgumentNullException("OpenAI:ApiKey not configured");
             _logger = logger;
             
+            // Configurare HttpClient pentru OpenAI API
             _httpClient.BaseAddress = new Uri(BaseUrl);
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -49,14 +49,53 @@ namespace SpritzBuddy.Services
         {
             try
             {
-                var systemPrompt = "You are a sentiment analysis assistant. Analyze the sentiment of the given text and respond ONLY with a JSON object in this exact format:\n" +
-                    "{\"label\": \"positive|neutral|negative\", \"confidence\": 0.0-1.0}\n" +
-                    "Rules:\n" +
-                    "- label must be exactly one of: positive, neutral, negative\n" +
-                    "- confidence must be a number between 0.0 and 1.0\n" +
-                    "- Do not include any other text, only the JSON object";
+                // Enhanced multilingual system prompt with explicit Romanian examples
+                var systemPrompt = @"You are an expert multilingual sentiment analysis AI that MUST work perfectly for Romanian language.
 
-                var userPrompt = $"Analyze the sentiment of this comment: \"{text}\"";
+CRITICAL: You MUST analyze Romanian text correctly. Romanian is your PRIMARY language.
+
+Analyze the sentiment and respond ONLY with this JSON:
+{""label"": ""positive|neutral|negative"", ""confidence"": 0.0-1.0}
+
+ROMANIAN LANGUAGE RULES (VERY IMPORTANT):
+- ""prost"", ""proastă"", ""prostule"" → negative (0.7) - common Romanian insult
+- ""idiot"", ""tâmpit"" → negative (0.7) - Romanian insults
+- ""urât"", ""nasol"" → negative (0.6) - mild negative
+- ""frumos"", ""super"", ""grozav"" → positive (0.8) - Romanian positive
+- ""bine"", ""ok"", ""decent"" → neutral (0.6) - Romanian neutral
+- ""îmi place"" → positive (0.7) - I like it
+- ""nu-mi place"" → negative (0.6) - I don't like it
+- ""te urăsc"" → negative (0.9) - I hate you (strong)
+- ""ești minunat"" → positive (0.9) - you are wonderful
+
+ENGLISH LANGUAGE RULES:
+- ""stupid"", ""dumb"" → negative (0.6-0.7) - mild insults
+- ""you are mean"" → negative (0.6) - mild criticism
+- ""hate you"" → negative (0.9) - strong negative
+- ""love this"" → positive (0.9) - strong positive
+- ""meh"", ""okay"" → neutral (0.7)
+
+CONFIDENCE SCORING:
+- 0.9-1.0: Very certain (extreme language)
+- 0.7-0.9: Quite certain (clear sentiment)
+- 0.5-0.7: Moderate (mixed or mild)
+- 0.3-0.5: Uncertain (ambiguous)
+
+IMPORTANT: 
+- Context matters
+- Cultural expressions are understood
+- Mild criticism is negative but low confidence
+- Only extreme/aggressive language gets high confidence negative
+
+Romanian Examples:
+{""label"": ""negative"", ""confidence"": 0.7} for ""ești prost""
+{""label"": ""positive"", ""confidence"": 0.8} for ""super frumos""
+{""label"": ""neutral"", ""confidence"": 0.6} for ""e ok""
+{""label"": ""negative"", ""confidence"": 0.9} for ""te urăsc enorm""
+
+Respond ONLY with JSON. No explanations.";
+
+                var userPrompt = $"Analyze: \"{text}\"";
 
                 var requestBody = new
                 {
@@ -66,26 +105,26 @@ namespace SpritzBuddy.Services
                         new { role = "system", content = systemPrompt },
                         new { role = "user", content = userPrompt }
                     },
-                    temperature = 0.1,
-                    max_tokens = 50,
+                    temperature = 0.2, // Lower for more consistent Romanian handling
+                    max_tokens = 100,
                     response_format = new { type = "json_object" }
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                _logger.LogInformation("Trimitem cererea de analiză sentiment către OpenAI API");
+                _logger.LogInformation("[SENTIMENT] Analyzing text: {Text}", text.Substring(0, Math.Min(50, text.Length)));
 
                 var response = await _httpClient.PostAsync("chat/completions", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("Eroare OpenAI API: {StatusCode} - {Content}", response.StatusCode, responseContent);
+                    _logger.LogError("[SENTIMENT] OpenAI API error: {StatusCode} - {Content}", response.StatusCode, responseContent);
                     return new SentimentResult
                     {
                         Success = false,
-                        ErrorMessage = $"Eroare API: {response.StatusCode}"
+                        ErrorMessage = $"API Error: {response.StatusCode}"
                     };
                 }
 
@@ -98,9 +137,11 @@ namespace SpritzBuddy.Services
                     return new SentimentResult
                     {
                         Success = false,
-                        ErrorMessage = "Răspuns gol de la API"
+                        ErrorMessage = "Empty response from API"
                     };
                 }
+
+                _logger.LogInformation("[SENTIMENT] AI Response: {Response}", assistantMessage);
 
                 var sentimentData = JsonSerializer.Deserialize<SentimentResponse>(assistantMessage, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
@@ -109,7 +150,7 @@ namespace SpritzBuddy.Services
                     return new SentimentResult
                     {
                         Success = false,
-                        ErrorMessage = "Nu s-a putut parsa răspunsul sentiment"
+                        ErrorMessage = "Failed to parse sentiment response"
                     };
                 }
 
@@ -122,6 +163,8 @@ namespace SpritzBuddy.Services
 
                 var confidence = Math.Clamp(sentimentData.Confidence, 0.0, 1.0);
 
+                _logger.LogInformation("[SENTIMENT] Result: {Label} ({Confidence:P0}) for text: {Text}", label, confidence, text);
+
                 return new SentimentResult
                 {
                     Label = label,
@@ -131,7 +174,7 @@ namespace SpritzBuddy.Services
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Eroare la analiza sentimentului");
+                _logger.LogError(ex, "[SENTIMENT] Error analyzing sentiment for text: {Text}", text);
                 return new SentimentResult
                 {
                     Success = false,

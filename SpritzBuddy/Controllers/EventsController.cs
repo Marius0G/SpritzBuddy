@@ -73,7 +73,7 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(title) || 
                 !await _moderationService.IsContentSafeAsync(description))
             {
-                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
                 ViewBag.GroupId = groupId;
                 var group = await _groupService.GetGroupWithMembersAndMessagesAsync(groupId);
                 ViewBag.GroupName = group?.Name;
@@ -292,7 +292,7 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(title) || 
                 !await _moderationService.IsContentSafeAsync(description))
             {
-                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
                 
                 // Preserve user input
                 evt.Title = title;

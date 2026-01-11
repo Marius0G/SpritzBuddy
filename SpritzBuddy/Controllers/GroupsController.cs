@@ -85,19 +85,19 @@ namespace SpritzBuddy.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(CreateGroupViewModel model)
         {
-            if (!ModelState.IsValid)
-                return View(model);
-
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
                 return Unauthorized();
+            
+            if (!ModelState.IsValid)
+                return View(model);
 
             // Content Moderation Check
             if (!await _moderationService.IsContentSafeAsync(model.Name) || 
                 !await _moderationService.IsContentSafeAsync(model.Description))
             {
                 ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
-                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
                 return View(model);
             }
 
@@ -527,7 +527,7 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(name) || 
                 !await _moderationService.IsContentSafeAsync(description))
             {
-                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
                 
                 // Preserve user input
                 group.Name = name;
