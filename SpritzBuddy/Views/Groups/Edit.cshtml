@@ -1,20 +1,17 @@
-@model SpritzBuddy.Models.Event
+@model SpritzBuddy.Models.Group
 
 @{
-    ViewData["Title"] = "Editeaz? Eveniment";
-    var groupId = ViewBag.GroupId;
-    var groupName = ViewBag.GroupName;
+    ViewData["Title"] = "Edit Group";
 }
 
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-8">
             <div class="card shadow-sm">
-                <div class="card-header bg-primary text-white">
+                <div class="card-header bg-warning text-dark">
                     <h3 class="mb-0">
-                        <i class="bi bi-calendar-event"></i> Editeaz? Eveniment
+                        <i class="bi bi-pencil"></i> Editeaz? Grup
                     </h3>
-                    <small>Grup: @groupName</small>
                 </div>
                 <div class="card-body">
                     @if (TempData["Error"] != null)
@@ -40,58 +37,32 @@
                         <input type="hidden" name="id" value="@Model.Id" />
 
                         <div class="mb-3">
-                            <label for="title" class="form-label">
-                                <i class="bi bi-card-heading"></i> Titlu Eveniment *
+                            <label for="name" class="form-label">
+                                <i class="bi bi-people"></i> Nume Grup *
                             </label>
                             <input type="text" 
                                    class="form-control" 
-                                   id="title" 
-                                   name="title" 
-                                   value="@Model.Title" 
+                                   id="name" 
+                                   name="name" 
+                                   value="@Model.Name" 
                                    required 
-                                   maxlength="150"
-                                   placeholder="Ex: Ie?ire la terasa" />
-                            <small class="text-muted">Maxim 150 caractere</small>
+                                   maxlength="100"
+                                   placeholder="Ex: Prietenii din cartier" />
+                            <small class="text-muted">Maxim 100 caractere</small>
                         </div>
 
                         <div class="mb-3">
                             <label for="description" class="form-label">
-                                <i class="bi bi-text-paragraph"></i> Descriere
+                                <i class="bi bi-text-paragraph"></i> Descriere *
                             </label>
                             <textarea class="form-control" 
                                       id="description" 
                                       name="description" 
                                       rows="4" 
-                                      maxlength="1000"
-                                      placeholder="Detalii despre eveniment...">@Model.Description</textarea>
-                            <small class="text-muted">Maxim 1000 caractere</small>
-                        </div>
-
-                        <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="eventDate" class="form-label">
-                                    <i class="bi bi-calendar3"></i> Data ?i Ora *
-                                </label>
-                                <input type="datetime-local" 
-                                       class="form-control" 
-                                       id="eventDate" 
-                                       name="eventDate" 
-                                       value="@Model.EventDate.ToString("yyyy-MM-ddTHH:mm")" 
-                                       required />
-                            </div>
-
-                            <div class="col-md-6 mb-3">
-                                <label for="location" class="form-label">
-                                    <i class="bi bi-geo-alt"></i> Loca?ie
-                                </label>
-                                <input type="text" 
-                                       class="form-control" 
-                                       id="location" 
-                                       name="location" 
-                                       value="@Model.Location" 
-                                       maxlength="250"
-                                       placeholder="Ex: Terasa Central" />
-                            </div>
+                                      required
+                                      maxlength="500"
+                                      placeholder="Descrie grupul t?u...">@Model.Description</textarea>
+                            <small class="text-muted">Maxim 500 caractere</small>
                         </div>
 
                         <div class="alert alert-info">
@@ -113,10 +84,3 @@
         </div>
     </div>
 </div>
-
-@section Scripts {
-    <script>
-        // Set minimum date to now
-        document.getElementById('eventDate').min = new Date().toISOString().slice(0, 16);
-    </script>
-}

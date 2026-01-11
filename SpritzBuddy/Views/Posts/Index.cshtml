@@ -32,104 +32,49 @@
     }
 </div>
 
+<!-- Search Form (Added per Course 10 techniques) -->
+<form method="GET" action="@(showingAllPosts ? "/Posts/Index" : "/Posts/MyPosts")">
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Search in titles, content or comments..." name="search" value="@ViewBag.SearchString">
+        <button class="btn btn-outline-primary" type="submit">Search</button>
+        @if (!string.IsNullOrEmpty(ViewBag.SearchString as string))
+        {
+            <a href="@(showingAllPosts ? "/Posts/Index" : "/Posts/MyPosts")" class="btn btn-outline-danger">Clear</a>
+        }
+    </div>
+</form>
+
 <div class="row">
     @foreach (var post in Model)
     {
-        <div class="col-md-6 col-lg-4 mb-4">
-            <div class="card h-100">
-                <!-- Post Images (if any) -->
-                @if (post.PostMedias != null && post.PostMedias.Any())
-                {
-                    var firstImage = post.PostMedias.OrderBy(pm => pm.OrderIndex).FirstOrDefault();
-                    if (firstImage != null)
-                    {
-                        <div class="position-relative" style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", "Posts", new { id = post.Id })'">
-                            @if (firstImage.MediaType == SpritzBuddy.Models.PostMediaType.Video)
-                            {
-                                <video class="card-img-top" style="height: 200px; object-fit: cover; background-color: #000;">
-                                    <source src="@firstImage.FilePath" type="video/mp4">
-                                </video>
-                                <div class="position-absolute top-50 start-50 translate-middle text-white opacity-75">
-                                    <i class="bi bi-play-circle-fill" style="font-size: 3rem;"></i>
-                                </div>
-                            }
-                            else
-                            {
-                                <img src="@firstImage.FilePath" 
-                                     class="card-img-top" 
-                                     alt="Post image"
-                                     style="height: 200px; object-fit: cover;" />
-                            }
-                            
-                            @if (post.PostMedias.Count > 1)
-                            {
-                                <div class="position-absolute top-0 end-0 m-2">
-                                    <span class="badge bg-dark bg-opacity-75">
-                                        <i class="bi bi-collection-play"></i> @post.PostMedias.Count
-                                    </span>
-                                </div>
-                            }
-                        </div>
-                    }
-                }
-                
-                <div class="card-body">
-                    <h5 class="card-title">@post.Title</h5>
-                    <p class="card-text">@(post.Content.Length > 100 ? post.Content.Substring(0, 100) + "..." : post.Content)
-                    </p>
-                    <small class="text-muted">
-                        By @post.User.FirstName @post.User.LastName on
-                        @post.CreateDate.ToString("MMM dd, yyyy")
-                    </small>
-                </div>
-                <div class="card-footer">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <div class="btn-group">
-                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-info btn-sm">Details</a>
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                                if (userId != null && int.TryParse(userId, out int userIdInt) && post.UserId == userIdInt)
-                                {
-                                    <a asp-action="Edit" asp-route-id="@post.Id" class="btn btn-warning btn-sm">Edit</a>
-                                    <a asp-action="Delete" asp-route-id="@post.Id" class="btn btn-danger btn-sm">Delete</a>
-                                }
-                            }
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center">
-                        <!-- Like Section -->
-                        <div class="like-section" data-post-id="@post.Id">
-                            @if (User.Identity?.IsAuthenticated == true)
-                            {
-                                <button type="button" class="btn btn-outline-danger btn-sm like-btn" data-post-id="@post.Id">
-                                    <i class="bi bi-heart like-icon"></i>
-                                    <span class="like-count">0</span>
-                                </button>
-                            }
-                            else
-                            {
-                                <a href="/Account/Login" class="btn btn-outline-secondary btn-sm">
-                                    <i class="bi bi-heart"></i>
-                                    <span class="like-count">0</span>
-                                </a>
-                            }
-                        </div>
-
-                        <!-- Comment Section -->
-                        <div class="comment-section" data-post-id="@post.Id">
-                            <a asp-action="Details" asp-route-id="@post.Id" class="btn btn-outline-secondary btn-sm">
-                                <i class="bi bi-chat-fill"></i>
-                                <span class="comment-count">0</span>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <partial name="_PostCard" model="post" />
     }
 </div>
+
+<!-- Pagination Controls (Added per Course 10 techniques) -->
+@if (ViewBag.LastPage > 1)
+{
+    <nav aria-label="Page navigation" class="mt-4">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                <a class="page-link" href="@(ViewBag.PaginationBaseUrl)@(ViewBag.CurrentPage - 1)" aria-label="Previous">
+                    <span aria-hidden="true">&laquo;</span>
+                </a>
+            </li>
+            @for (int i = 1; i <= ViewBag.LastPage; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@(ViewBag.PaginationBaseUrl)@i">@i</a>
+                </li>
+            }
+            <li class="page-item @(ViewBag.CurrentPage == ViewBag.LastPage ? "disabled" : "")">
+                <a class="page-link" href="@(ViewBag.PaginationBaseUrl)@(ViewBag.CurrentPage + 1)" aria-label="Next">
+                    <span aria-hidden="true">&raquo;</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+}
 
 @if (!Model.Any())
 {

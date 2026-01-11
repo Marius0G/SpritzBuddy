@@ -82,6 +82,20 @@ namespace SpritzBuddy.Services
             await _context.SaveChangesAsync();
             return group.Id;
         }
+        
+        public async Task UpdateGroupAsync(int groupId, string name, string description)
+        {
+            var group = await _context.Groups.FindAsync(groupId);
+            if (group == null)
+                throw new InvalidOperationException("Group not found");
+
+            group.Name = name;
+            group.Description = description;
+            
+            _context.Groups.Update(group);
+            await _context.SaveChangesAsync();
+        }
+        
         public async Task<bool> JoinGroupAsync(int userId, int groupId)
         {
             var group = await _context.Groups.FindAsync(groupId);

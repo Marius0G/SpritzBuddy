@@ -91,13 +91,6 @@
                                 </div>
                             </div>
 
-                            @if (!string.IsNullOrEmpty(user.Description))
-                            {
-                                <p class="card-text text-muted small">
-                                    @(user.Description.Length > 100 ? user.Description.Substring(0, 100) + "..." : user.Description)
-                                </p>
-                            }
-
                             <!-- Stats -->
                             <div class="d-flex justify-content-around mb-3 text-center">
                                 <div>

@@ -30,6 +30,9 @@ namespace SpritzBuddy.Controllers
             {
                 // Show all users if no search query
                 users = await _context.ApplicationUsers
+                    .Include(u => u.Posts)
+                    .Include(u => u.Followers)
+                    .Include(u => u.Following)
                     .Where(u => u.Id != currentUserId) // Exclude current user
                     .OrderBy(u => u.FirstName)
                     .ThenBy(u => u.LastName)
@@ -44,6 +47,9 @@ namespace SpritzBuddy.Controllers
 
                 // Search users by first name, last name, username, or email
                 users = await _context.ApplicationUsers
+                    .Include(u => u.Posts)
+                    .Include(u => u.Followers)
+                    .Include(u => u.Following)
                     .Where(u => 
                         u.FirstName.ToLower().Contains(searchTerm) ||
                         u.LastName.ToLower().Contains(searchTerm) ||

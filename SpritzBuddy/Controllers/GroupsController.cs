@@ -97,10 +97,12 @@ namespace SpritzBuddy.Controllers
                 !await _moderationService.IsContentSafeAsync(model.Description))
             {
                 ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
                 return View(model);
             }
 
             var groupId = await _groupService.CreateGroupAsync(user.Id, model);
+            TempData["SuccessMessage"] = "Grupul a fost creat cu succes!";
             return RedirectToAction("Details", new { id = groupId });
         }
 
@@ -238,6 +240,7 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(content))
             {
                 TempData["ErrorMessage"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                TempData["DraftMessage"] = content; // Preserve content
                 return RedirectToAction("Details", new { id = groupId });
             }
             
@@ -484,6 +487,69 @@ namespace SpritzBuddy.Controllers
                 .ToListAsync();
 
             return Json(users);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var group = await _groupService.GetGroupWithMembersAndMessagesAsync(id);
+            if (group == null)
+                return NotFound();
+
+            // Only moderator or admin can edit
+            if (group.ModeratorId != user.Id && !User.IsInRole("Administrator"))
+                return Forbid();
+
+            return View(group);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, string name, string description)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+                return Unauthorized();
+
+            var group = await _groupService.GetGroupWithMembersAndMessagesAsync(id);
+            if (group == null)
+                return NotFound();
+
+            // Only moderator or admin can edit
+            if (group.ModeratorId != user.Id && !User.IsInRole("Administrator"))
+                return Forbid();
+
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(name) || 
+                !await _moderationService.IsContentSafeAsync(description))
+            {
+                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                
+                // Preserve user input
+                group.Name = name;
+                group.Description = description;
+                return View(group);
+            }
+
+            try
+            {
+                await _groupService.UpdateGroupAsync(id, name, description);
+                TempData["SuccessMessage"] = "Grupul a fost actualizat cu succes!";
+                return RedirectToAction("Details", new { id });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                
+                // Preserve user input
+                group.Name = name;
+                group.Description = description;
+                return View(group);
+            }
         }
     }
 }

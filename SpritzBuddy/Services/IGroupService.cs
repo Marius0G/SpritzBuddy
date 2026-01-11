@@ -7,6 +7,7 @@ namespace SpritzBuddy.Services
     public interface IGroupService
     {
         Task<int> CreateGroupAsync(int userId, CreateGroupViewModel model);
+        Task UpdateGroupAsync(int groupId, string name, string description);
         Task<List<Group>> GetAllGroupsAsync();
         Task<List<Group>> GetUserGroupsAsync(int userId);
         Task<bool> JoinGroupAsync(int userId, int groupId);

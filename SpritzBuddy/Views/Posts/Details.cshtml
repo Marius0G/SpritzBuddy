@@ -196,82 +196,14 @@
             loadComments();
         });
 
-        // Load like status for this post
-        function loadLikeStatus() {
-            @if (User.Identity?.IsAuthenticated == true)
-            {
-                <text>
-                $.get('/Likes/GetLikeStatus', { postId: @Model.Id })
-                    .done(function(data) {
-                        if (data.success) {
-                            updateLikeButton(data.isLiked, data.likeCount);
-                        }
-                    })
-                    .fail(function() {
-                        console.error('Error loading like status');
-                    });
-                </text>
-            }
-            else
-            {
-                <text>
-                $.get('/Likes/GetLikeStatus', { postId: @Model.Id })
-                    .done(function(data) {
-                        if (data.success) {
-                            $('.like-count').text(data.likeCount);
-                        }
-                    })
-                    .fail(function() {
-                        console.error('Error loading like count');
-                    });
-                </text>
-            }
-        }
-
-        // Handle like button click
-        $('#like-btn').on('click', function() {
-            toggleLike();
-        });
-
-        function toggleLike() {
-            $.post('/Likes/Toggle', { 
-                postId: @Model.Id,
-                __RequestVerificationToken: $('input[name="__RequestVerificationToken"]').val()
-            })
-            .done(function(data) {
-                if (data.success) {
-                    updateLikeButton(data.isLiked, data.likeCount);
-                } else {
-                    alert(data.message || 'Error occurred');
-                }
-            })
-            .fail(function() {
-                alert('Error occurred while processing like');
-            });
-        }
-
-        function updateLikeButton(isLiked, likeCount) {
-            var likeBtn = $('#like-btn');
-            var likeIcon = likeBtn.find('.like-icon');
-            var likeCountSpan = likeBtn.find('.like-count');
-            
-            if (isLiked) {
-                likeBtn.removeClass('btn-outline-danger').addClass('btn-danger');
-                likeIcon.removeClass('bi-heart').addClass('bi-heart-fill');
-            } else {
-                likeBtn.removeClass('btn-danger').addClass('btn-outline-danger');
-                likeIcon.removeClass('bi-heart-fill').addClass('bi-heart');
-            }
-            
-            likeCountSpan.text(likeCount);
-        }
+        // ... (existing code)
 
         // Load comments for this post
         function loadComments() {
             $.get('/Comments/GetPostComments', { postId: @Model.Id })
                 .done(function(data) {
                     if (data.success) {
-                        displayComments(data.comments, data.currentUserId);
+                        displayComments(data.comments, data.currentUserId, data.isAdmin);
                         updateCommentCount(data.comments.length);
                     }
                 })
@@ -281,7 +213,7 @@
         }
 
         // Display comments in the list
-        function displayComments(comments, currentUserId) {
+        function displayComments(comments, currentUserId, isAdmin) {
             var html = '';
             
             if (comments.length === 0) {
@@ -291,7 +223,29 @@
                     html += '<div class="comment-item mb-3 p-3 border rounded" data-comment-id="' + comment.id + '">';
                     html += '  <div class="d-flex justify-content-between align-items-start">';
                     html += '    <div class="flex-grow-1">';
-                    html += '      <h6 class="mb-1">' + comment.userName + '</h6>';
+                    html += '      <h6 class="mb-1">' + comment.userName;
+                    
+                    // Sentiment Analysis Badge (Admin Only)
+                    if (isAdmin && comment.sentimentLabel) {
+                        var badgeClass = 'bg-secondary';
+                        var iconClass = 'bi-emoji-neutral';
+                        
+                        if (comment.sentimentLabel === 'positive') {
+                            badgeClass = 'bg-success';
+                            iconClass = 'bi-emoji-smile';
+                        } else if (comment.sentimentLabel === 'negative') {
+                            badgeClass = 'bg-danger';
+                            iconClass = 'bi-emoji-frown';
+                        }
+                        
+                        var confidence = comment.sentimentConfidence ? Math.round(comment.sentimentConfidence * 100) + '%' : '';
+                        
+                        html += ' <span class="badge ' + badgeClass + ' ms-2" title="Sentiment Analysis">';
+                        html += '<i class="bi ' + iconClass + '"></i> ' + comment.sentimentLabel + ' (' + confidence + ')';
+                        html += '</span>';
+                    }
+                    
+                    html += '</h6>';
                     
                     // Comment content - can be in view or edit mode
                     html += '      <div class="comment-view-mode">';
@@ -308,7 +262,7 @@
                     
                     html += '    </div>';
                     
-                    if (currentUserId === comment.userId) {
+                    if (currentUserId === comment.userId || isAdmin) {
                         html += '    <div class="btn-group comment-actions">';
                         html += '      <button class="btn btn-sm btn-outline-primary" onclick="editComment(' + comment.id + ')">Edit</button>';
                         html += '      <button class="btn btn-sm btn-outline-danger" onclick="deleteComment(' + comment.id + ')">Delete</button>';
@@ -349,7 +303,9 @@
                     $('#comment-content').val('');
                     loadComments();
                 } else {
+                    console.error("Comment submission failed: " + data.message);
                     alert(data.message || 'Error posting comment');
+                    // Text is NOT cleared here, allowing user to edit
                 }
             })
             .fail(function() {

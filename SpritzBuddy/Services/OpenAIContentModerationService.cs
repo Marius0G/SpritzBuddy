@@ -11,14 +11,15 @@ namespace SpritzBuddy.Services
         private readonly HttpClient _httpClient;
         private readonly string _apiKey;
         private readonly ILogger<OpenAIContentModerationService> _logger;
+        private readonly ISentimentAnalysisService _sentimentService;
         
-        // Lista extins? de cuvinte profane române?ti
+        // Lista extins? de cuvinte profane romï¿½ne?ti
         private readonly HashSet<string> _romanianProfanity = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             // Injurii directe
             "prost", "proasta", "prosti", "proaste", "prostule", "prostilor",
             "idiot", "idioata", "idioti", "idioate", "idiotule", "idiotilor",
-            "tampit", "tampita", "tampiti", "tampite", "tâmpit", "tâmpit?",
+            "tampit", "tampita", "tampiti", "tampite", "tï¿½mpit", "tï¿½mpit?",
             "cretin", "cretina", "cretini", "cretine", "cretinule",
             "pula", "pulii", "pulei", "puli", "pul?",
             "pizda", "pizdei", "pizde", "pizd?",
@@ -29,7 +30,7 @@ namespace SpritzBuddy.Services
             "cacat", "c?cat", "cacatu", "c?catu", "cacat de", "rahat",
             "dracu", "dracului", "naiba", "naibii",
             "curve", "curva", "curv?", "curvelor", "curvo",
-            "tarfa", "tarfe", "târf?", "târfe",
+            "tarfa", "tarfe", "tï¿½rf?", "tï¿½rfe",
             "puta", "pute", "pu?oi", "putoare",
             "jeg", "jegos", "jegoasa",
             "nenorocit", "nenoroci?i", "nenorocita", "nenorocitule",
@@ -37,7 +38,7 @@ namespace SpritzBuddy.Services
             "mortii tai", "mor?ii t?i", "mor?ii ma-tii",
             
             // Variante scrise gre?it
-            "pla", "plm", "plua", "pulã",
+            "pla", "plm", "plua", "pulï¿½",
             "pzda", "pzd", "pzd?",
             "fmm", "fmm-", "fututi mortii",
             "mumu", "mumuie", "m00ie",
@@ -59,13 +60,18 @@ namespace SpritzBuddy.Services
             "mu*e", "m*ie", "m**e"
         };
 
-        public OpenAIContentModerationService(HttpClient httpClient, IConfiguration configuration, ILogger<OpenAIContentModerationService> logger)
+        public OpenAIContentModerationService(
+            HttpClient httpClient, 
+            IConfiguration configuration, 
+            ILogger<OpenAIContentModerationService> logger,
+            ISentimentAnalysisService sentimentService)
         {
             _httpClient = httpClient;
             _apiKey = configuration["OpenAI:ApiKey"] ?? string.Empty;
             _logger = logger;
+            _sentimentService = sentimentService;
             
-            _logger.LogInformation($"OpenAI Content Moderation initialized with {_romanianProfanity.Count} Romanian profanity terms. API Key configured: {!string.IsNullOrEmpty(_apiKey)}");
+            _logger.LogInformation($"OpenAI Content Moderation initialized with {_romanianProfanity.Count} Romanian profanity terms.");
         }
 
         public async Task<bool> IsContentSafeAsync(string text)
@@ -75,7 +81,41 @@ namespace SpritzBuddy.Services
                 return true;
             }
             
-            // FIRST: Check Romanian profanity locally (fast)
+            // STEP 1: Analyze sentiment first (for Romanian and all languages)
+            try
+            {
+                _logger.LogInformation("Step 1: Analyzing sentiment...");
+                var sentimentResult = await _sentimentService.AnalyzeSentimentAsync(text);
+                
+                if (sentimentResult.Success && sentimentResult.Label == "negative")
+                {
+                    var negativityScore = sentimentResult.Confidence * 100;
+                    _logger.LogWarning($"Negative sentiment detected: {negativityScore:F2}% confidence");
+                    
+                    // Over 80% negative ? Block automatically
+                    if (negativityScore >= 95)
+                    {
+                        _logger.LogWarning($"=== AUTO BLOCK: Negativity score {negativityScore:F2}% >= 80% ===");
+                        _logger.LogWarning($"Text: '{text.Substring(0, Math.Min(100, text.Length))}'");
+                        return false;
+                    }
+                    
+                    // Between 50-80% ? Needs admin approval (for now, we'll block with message)
+                    if (negativityScore >= 75)
+                    {
+                        _logger.LogWarning($"=== ADMIN REVIEW NEEDED: Negativity score {negativityScore:F2}% (50-80%) ===");
+                        _logger.LogWarning($"Text: '{text.Substring(0, Math.Min(100, text.Length))}'");
+                        // TODO: Implement admin approval queue
+                        return false; // For now, block and require manual review
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error analyzing sentiment, continuing with other checks...");
+            }
+            
+            // STEP 2: Check Romanian profanity locally
             var normalizedText = text.ToLowerInvariant();
             normalizedText = RemoveDiacritics(normalizedText);
             
@@ -92,16 +132,16 @@ namespace SpritzBuddy.Services
                 }
             }
             
-            // SECOND: Check with OpenAI (for English and other languages)
+            // STEP 3: Check with OpenAI Moderation API (for English and other languages)
             if (string.IsNullOrEmpty(_apiKey))
             {
-                _logger.LogWarning("OpenAI API Key missing - using only local Romanian filter");
+                _logger.LogWarning("OpenAI API Key missing - using only local filters");
                 return true;
             }
 
             try 
             {
-                _logger.LogDebug($"Checking content with OpenAI: {text.Substring(0, Math.Min(50, text.Length))}...");
+                _logger.LogDebug($"Step 3: Checking with OpenAI Moderation API...");
                 
                 var requestBody = new
                 {
@@ -168,10 +208,10 @@ namespace SpritzBuddy.Services
         private static string RemoveDiacritics(string text)
         {
             return text
-                .Replace("?", "a").Replace("â", "a")
-                .Replace("î", "i").Replace("?", "s")
+                .Replace("?", "a").Replace("ï¿½", "a")
+                .Replace("ï¿½", "i").Replace("?", "s")
                 .Replace("?", "t").Replace("?", "A")
-                .Replace("Â", "A").Replace("Î", "I")
+                .Replace("ï¿½", "A").Replace("ï¿½", "I")
                 .Replace("?", "S").Replace("?", "T");
         }
     }

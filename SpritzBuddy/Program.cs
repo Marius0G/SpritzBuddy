@@ -34,7 +34,9 @@ builder.Services.AddScoped<IPostMediaService, PostMediaService>();
 builder.Services.AddScoped<IFileUploadService, FileUploadService>();
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
-// Configure HttpClient for OpenAI Content Moderation
+
+// Register AI services with HttpClient
+builder.Services.AddHttpClient<ISentimentAnalysisService, OpenAISentimentAnalysisService>();
 builder.Services.AddHttpClient<IContentModerationService, OpenAIContentModerationService>(client =>
 {
     client.BaseAddress = new Uri("https://api.openai.com/v1/");

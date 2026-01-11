@@ -33,14 +33,8 @@ namespace SpritzBuddy.Controllers
         }
 
         // GET: Posts - Shows posts based on privacy and following relationships
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string search, int page = 1)
         {
-            var query = _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.PostMedias)
-                .Include(p => p.PostDrinks)
-                    .ThenInclude(pd => pd.Drink)
-                .AsQueryable();
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             int? currentUserId = null;
 
@@ -49,51 +43,62 @@ namespace SpritzBuddy.Controllers
                 currentUserId = userIdInt;
             }
 
-            if (currentUserId.HasValue)
-            {
-                // User is logged in - show posts from public accounts + accounts they follow + their own posts
-                var followingIds = await _context.Follows
-                    .Where(f => f.FollowerId == currentUserId.Value && f.Status == FollowStatus.Accepted)
-                    .Select(f => f.FollowingId)
-                    .ToListAsync();
+            int pageSize = 3; // Conform Curs 10 "Alegem sa afisam 3 articole pe pagina"
+            
+            var result = await _postService.GetPostsPaginatedAsync(
+                currentUserId, 
+                search, 
+                page, 
+                pageSize, 
+                showOnlyFollowing: false, // Default logic handles mixed feed
+                showOnlyMyPosts: false
+            );
 
-                query = query.Where(p =>
-                    !p.User.IsPrivate ||                           // Public posts
-                    p.UserId == currentUserId.Value ||             // Own posts
-                    followingIds.Contains(p.UserId)                // Posts from followed users
-                );
-            }
-            else
-            {
-                // User not logged in - show only public posts
-                query = query.Where(p => !p.User.IsPrivate);
-            }
+            ViewBag.CurrentPage = page;
+            ViewBag.LastPage = result.TotalPages;
+            ViewBag.SearchString = search;
+            ViewBag.ShowingAllPosts = true;
+            
+            // Base URL for pagination helper in View
+            // If search exists: /Posts/Index?search=xyz&page=
+            // If not: /Posts/Index?page=
+            ViewBag.PaginationBaseUrl = string.IsNullOrEmpty(search) 
+                ? "/Posts/Index?page=" 
+                : $"/Posts/Index?search={search}&page=";
 
-            var allPosts = await query
-                .OrderByDescending(p => p.Likes.Count)
-                .ThenByDescending(p => p.CreateDate)
-                .ToListAsync();
-
-            ViewData["ShowingAllPosts"] = true;
-            return View(allPosts);
+            return View(result.Posts);
         }
 
         [Authorize]
-        public async Task<IActionResult> MyPosts()
+        public async Task<IActionResult> MyPosts(string search, int page = 1)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
                 return RedirectToAction("Login", "Account");
             }
-            var userPosts = _context.Posts
-                .Include(p => p.User)
-                .Include(p => p.PostMedias)
-                .Where(p => p.UserId == userIdInt)
-                .OrderByDescending(p => p.CreateDate);
+            
+            int pageSize = 3; 
 
-            ViewData["ShowingAllPosts"] = false;
-            return View("Index", await userPosts.ToListAsync());
+            var result = await _postService.GetPostsPaginatedAsync(
+                userIdInt, 
+                search, 
+                page, 
+                pageSize, 
+                showOnlyFollowing: false,
+                showOnlyMyPosts: true
+            );
+
+            ViewBag.CurrentPage = page;
+            ViewBag.LastPage = result.TotalPages;
+            ViewBag.SearchString = search;
+            ViewBag.ShowingAllPosts = false;
+            
+            ViewBag.PaginationBaseUrl = string.IsNullOrEmpty(search) 
+                ? "/Posts/MyPosts?page=" 
+                : $"/Posts/MyPosts?search={search}&page=";
+
+            return View("Index", result.Posts);
         }
 
         // GET: Posts/Details/5
@@ -172,6 +177,7 @@ namespace SpritzBuddy.Controllers
                 if (!await _moderationService.IsContentSafeAsync(model.Title) || !await _moderationService.IsContentSafeAsync(model.Content))
                 {
                     ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                    TempData["Error"] = "Postarea nu a putut fi creată din cauza conținutului nepotrivit.";
                     // Repopulate drinks dropdown
                     var drinksList = await _context.Drinks.OrderBy(d => d.Name).ToListAsync();
                     model.AvailableDrinks = drinksList.Select(d => new SelectListItem
@@ -240,7 +246,7 @@ namespace SpritzBuddy.Controllers
                     }
 
                     TempData["SuccessMessage"] = "Post created successfully!";
-                    return RedirectToAction(nameof(Index));
+                    return RedirectToAction("PostComments", "Comments", new { id = post.Id });
                 }
                 catch (Exception ex)
                 {
@@ -283,11 +289,11 @@ namespace SpritzBuddy.Controllers
                 return NotFound();
             }
 
-            // CHECK IF CURRENT USER OWNS THIS POST
+            // CHECK IF CURRENT USER OWNS THIS POST OR IS ADMIN
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt)
+            if (!User.IsInRole("Administrator") && (userId == null || !int.TryParse(userId, out int userIdInt) || post.UserId != userIdInt))
             {
-                return Forbid(); // User doesn't own this post
+                return Forbid(); // User doesn't own this post and is not admin
             }
 
             return View(post);
@@ -304,7 +310,7 @@ namespace SpritzBuddy.Controllers
                 return NotFound();
             }
 
-            // CHECK IF CURRENT USER OWNS THIS POST
+            // CHECK IF CURRENT USER OWNS THIS POST OR IS ADMIN
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (userId == null || !int.TryParse(userId, out int userIdInt))
             {
@@ -313,13 +319,13 @@ namespace SpritzBuddy.Controllers
 
             // Verify ownership by checking the original post in database
             var originalPost = await _context.Posts.FindAsync(id);
-            if (originalPost == null || originalPost.UserId != userIdInt)
+            if (originalPost == null || (!User.IsInRole("Administrator") && originalPost.UserId != userIdInt))
             {
-                return Forbid(); // User doesn't own this post
+                return Forbid(); // User doesn't own this post and is not admin
             }
 
-            // Ensure UserId remains the same
-            post.UserId = userIdInt;
+            // Ensure UserId remains the same (preserve original author)
+            post.UserId = originalPost.UserId;
 
             if (ModelState.IsValid)
             {
@@ -327,6 +333,7 @@ namespace SpritzBuddy.Controllers
                 if (!await _moderationService.IsContentSafeAsync(post.Title) || !await _moderationService.IsContentSafeAsync(post.Content))
                 {
                     ModelState.AddModelError("", "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.");
+                    TempData["Error"] = "Postarea nu a putut fi actualizată din cauza conținutului nepotrivit.";
                     return View(post);
                 }
 

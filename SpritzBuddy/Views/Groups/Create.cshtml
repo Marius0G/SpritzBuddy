@@ -10,20 +10,55 @@
                     <h3 class="fw-bold">Înființează un Grup Nou 🥂</h3>
                 </div>
                 <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            <strong>localhost says:</strong> You need to be nice! 🤬<br/>
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
+                    @if (!string.IsNullOrEmpty(ViewBag.ErrorMessage as string))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            @ViewBag.ErrorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
                     <form asp-action="Create" method="post">
+                        @Html.AntiForgeryToken()
                         <div class="mb-3">
-                            <label asp-for="Name" class="form-label">Nume Grup</label>
-                            <input asp-for="Name" class="form-control" placeholder="Ex: Ieșiri Vineri Seara" />
+                            <label asp-for="Name" class="form-label">
+                                <i class="bi bi-people"></i> Nume Grup *
+                            </label>
+                            <input asp-for="Name" class="form-control" placeholder="Ex: Ieșiri Vineri Seara" required maxlength="100" />
                             <span asp-validation-for="Name" class="text-danger"></span>
+                            <small class="text-muted">Maxim 100 caractere</small>
                         </div>
                         <div class="mb-3">
-                            <label asp-for="Description" class="form-label">Descriere</label>
-                            <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+                            <label asp-for="Description" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Descriere *
+                            </label>
+                            <textarea asp-for="Description" class="form-control" rows="4" required maxlength="500" placeholder="Descrie grupul tău..."></textarea>
                             <span asp-validation-for="Description" class="text-danger"></span>
+                            <small class="text-muted">Maxim 500 caractere</small>
                         </div>
-                        <div class="d-flex justify-content-between align-items-center">
-                            <button type="submit" class="btn btn-primary">Creează Grup</button>
-                            <a href="@Url.Action("Index", "Group")" class="btn btn-link">Renunță</a>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            Toate câmpurile marcate cu * sunt obligatorii.
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center gap-2">
+                            <a asp-action="Index" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Înapoi
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Creează Grup
+                            </button>
                         </div>
                     </form>
                 </div>

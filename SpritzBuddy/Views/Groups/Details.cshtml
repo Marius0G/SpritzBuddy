@@ -36,10 +36,17 @@
                         }
                         @if (Model.IsModerator)
                         {
-                            <form asp-action="Delete" method="post" class="mt-2">
-                                <input type="hidden" name="groupId" value="@group.Id" />
-                                <button type="submit" class="btn btn-danger w-100">Delete Group</button>
-                            </form>
+                            <div class="mt-2 d-flex gap-2">
+                                <a asp-action="Edit" asp-route-id="@group.Id" class="btn btn-warning w-100">
+                                    <i class="bi bi-pencil"></i> Edit Group
+                                </a>
+                                <form asp-action="Delete" method="post" class="w-100">
+                                    <input type="hidden" name="groupId" value="@group.Id" />
+                                    <button type="submit" class="btn btn-danger w-100" onclick="return confirm('Sigur vrei să ștergi acest grup?');">
+                                        <i class="bi bi-trash"></i> Delete Group
+                                    </button>
+                                </form>
+                            </div>
                         }
                     </div>
                     <h5 class="fw-bold mt-4">Members (@(group.Members?.Count ?? 0))</h5>
@@ -117,6 +124,16 @@
                         <div class="card shadow-sm mb-4" style="height: 500px; overflow-y: auto;">
                             <div class="card-header bg-white fw-bold">Group Chat</div>
                             <div class="card-body p-3" style="height: 370px; overflow-y: auto;">
+                                @if (TempData["ErrorMessage"] != null)
+                                {
+                                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> 
+                                        <strong>localhost says:</strong> You need to be nice! 🤬<br/>
+                                        @TempData["ErrorMessage"]
+                                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                    </div>
+                                }
+                                
                                 @foreach (var msg in group.Messages ?? Enumerable.Empty<GroupMessage>())
                                 {
                                     var isMine = msg.UserId.ToString() == currentUserId;

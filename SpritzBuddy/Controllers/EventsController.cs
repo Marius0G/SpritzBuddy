@@ -55,20 +55,41 @@ namespace SpritzBuddy.Controllers
             var user = await _userManager.GetUserAsync(User);
             if (user == null) return Unauthorized();
 
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(title) || string.IsNullOrWhiteSpace(description))
+            {
+                ViewBag.ErrorMessage = "Titlul și descrierea sunt obligatorii.";
+                ViewBag.GroupId = groupId;
+                var groupForError = await _groupService.GetGroupWithMembersAndMessagesAsync(groupId);
+                ViewBag.GroupName = groupForError?.Name;
+                ViewBag.TitleValue = title;
+                ViewBag.DescriptionValue = description;
+                ViewBag.EventDateValue = eventDate;
+                ViewBag.LocationValue = location;
+                return View();
+            }
+
             // Content Moderation Check
             if (!await _moderationService.IsContentSafeAsync(title) || 
                 !await _moderationService.IsContentSafeAsync(description))
             {
-                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
                 ViewBag.GroupId = groupId;
                 var group = await _groupService.GetGroupWithMembersAndMessagesAsync(groupId);
                 ViewBag.GroupName = group?.Name;
+                
+                ViewBag.TitleValue = title;
+                ViewBag.DescriptionValue = description;
+                ViewBag.EventDateValue = eventDate;
+                ViewBag.LocationValue = location;
+                
                 return View();
             }
 
             try
             {
                 var eventId = await _groupService.CreateEventAsync(groupId, user.Id, title, description, eventDate, location);
+                
                 TempData["Success"] = "Eveniment creat cu succes!";
                 return RedirectToAction("Details", new { id = eventId });
             }
@@ -271,7 +292,7 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(title) || 
                 !await _moderationService.IsContentSafeAsync(description))
             {
-                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                ViewBag.ErrorMessage = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
                 
                 // Preserve user input
                 evt.Title = title;

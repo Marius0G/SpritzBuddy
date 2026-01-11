@@ -14,11 +14,13 @@ namespace SpritzBuddy.Controllers
     {
         private readonly ApplicationDbContext _context;
         private readonly IContentModerationService _moderationService;
+        private readonly ISentimentAnalysisService _sentimentService;
 
-        public CommentsController(ApplicationDbContext context, IContentModerationService moderationService)
+        public CommentsController(ApplicationDbContext context, IContentModerationService moderationService, ISentimentAnalysisService sentimentService)
         {
             _context = context;
             _moderationService = moderationService;
+            _sentimentService = sentimentService;
         }
 
         // POST: Comments/Create - Add a comment to a post
@@ -52,6 +54,26 @@ namespace SpritzBuddy.Controllers
                 return RedirectToAction("PostComments", new { id = postId });
             }
 
+            // AI Sentiment Analysis
+            string? sentimentLabel = null;
+            double? sentimentConfidence = null;
+            DateTime? sentimentAnalyzedAt = null;
+
+            try 
+            {
+                var sentimentResult = await _sentimentService.AnalyzeSentimentAsync(content);
+                if (sentimentResult.Success)
+                {
+                    sentimentLabel = sentimentResult.Label;
+                    sentimentConfidence = sentimentResult.Confidence;
+                    sentimentAnalyzedAt = DateTime.UtcNow;
+                }
+            }
+            catch
+            {
+                // Ignoram erorile de analiza sentiment pentru a nu bloca postarea comentariului
+            }
+
             // Check if post exists
             var post = await _context.Posts.FindAsync(postId);
             if (post == null)
@@ -67,7 +89,10 @@ namespace SpritzBuddy.Controllers
                 PostId = postId,
                 UserId = userIdInt,
                 Content = content.Trim(),
-                CreateDate = DateTime.UtcNow
+                CreateDate = DateTime.UtcNow,
+                SentimentLabel = sentimentLabel,
+                SentimentConfidence = sentimentConfidence,
+                SentimentAnalyzedAt = sentimentAnalyzedAt
             };
 
             _context.Comments.Add(comment);
@@ -121,7 +146,9 @@ namespace SpritzBuddy.Controllers
                     content = c.Content,
                     createDate = c.CreateDate.ToString("MMM dd, yyyy HH:mm"),
                     userName = $"{c.User.FirstName} {c.User.LastName}",
-                    userId = c.UserId
+                    userId = c.UserId,
+                    sentimentLabel = c.SentimentLabel,
+                    sentimentConfidence = c.SentimentConfidence
                 })
                 .ToListAsync();
 
@@ -131,12 +158,15 @@ namespace SpritzBuddy.Controllers
             {
                 currentUserId = parsedUserId;
             }
+            
+            var isAdmin = User.IsInRole("Administrator");
 
             return Json(new
             {
                 success = true,
                 comments = comments,
-                currentUserId = currentUserId
+                currentUserId = currentUserId,
+                isAdmin = isAdmin
             });
         }
 
@@ -242,7 +272,9 @@ namespace SpritzBuddy.Controllers
             var isAdmin = User.IsInRole("Administrator");
             if (!isAdmin && comment.UserId != userIdInt)
             {
-                return Json(new { success = false, message = "You can only edit your own comments" });
+                if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                    return Json(new { success = false, message = "You can only edit your own comments" });
+                return Forbid();
             }
 
             comment.Content = content.Trim();
