@@ -317,7 +317,7 @@ namespace SpritzBuddy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content,CreateDate")] Post post, List<IFormFile>? NewMediaFiles)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content")] Post post, List<IFormFile>? NewMediaFiles)
         {
             if (id != post.Id)
             {
@@ -341,9 +341,6 @@ namespace SpritzBuddy.Controllers
                 return Forbid(); // User doesn't own this post and is not admin
             }
 
-            // Ensure UserId remains the same (preserve original author)
-            post.UserId = originalPost.UserId;
-
             if (ModelState.IsValid)
             {
                 // Content Moderation Check
@@ -353,14 +350,20 @@ namespace SpritzBuddy.Controllers
                     ViewBag.ErrorMessage = "🚫 Content blocked: Your text contains inappropriate content (hate speech, harassment, or threats). Please rephrase respectfully.";
                     
                     // Reload media for view
+                    post.UserId = originalPost.UserId;
+                    post.CreateDate = originalPost.CreateDate;
                     post.PostMedias = originalPost.PostMedias;
                     return View(post);
                 }
 
                 try
                 {
-                    // Update basic post info
-                    _context.Entry(originalPost).CurrentValues.SetValues(post);
+                    // Update the post fields manually
+                    originalPost.Title = post.Title;
+                    originalPost.Content = post.Content;
+                    // Keep original UserId and CreateDate
+                    // originalPost.UserId stays the same
+                    // originalPost.CreateDate stays the same
 
                     // Handle new media uploads if any
                     if (NewMediaFiles != null && NewMediaFiles.Any())
@@ -389,9 +392,11 @@ namespace SpritzBuddy.Controllers
 
                     await _context.SaveChangesAsync();
                     TempData["SuccessMessage"] = "Postarea a fost actualizată cu succes!";
+                    return RedirectToAction("Index", "Home"); // Redirect to home instead of PostComments
                 }
-                catch (DbUpdateConcurrencyException)
+                catch (DbUpdateConcurrencyException ex)
                 {
+                    _logger.LogError(ex, "Concurrency error updating post {PostId}", id);
                     if (!PostExists(post.Id))
                     {
                         return NotFound();
@@ -401,10 +406,22 @@ namespace SpritzBuddy.Controllers
                         throw;
                     }
                 }
-                return RedirectToAction("PostComments", "Comments", new { id = post.Id });
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error updating post {PostId}", id);
+                    TempData["Error"] = "A apărut o eroare la salvarea postării.";
+                    
+                    // Reload data for view
+                    post.UserId = originalPost.UserId;
+                    post.CreateDate = originalPost.CreateDate;
+                    post.PostMedias = originalPost.PostMedias;
+                    return View(post);
+                }
             }
             
             // Reload media for view on validation error
+            post.UserId = originalPost.UserId;
+            post.CreateDate = originalPost.CreateDate;
             post.PostMedias = originalPost.PostMedias;
             return View(post);
         }

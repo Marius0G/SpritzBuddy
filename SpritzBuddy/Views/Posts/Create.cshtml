@@ -38,17 +38,18 @@
                 <span asp-validation-for="SelectedDrinkIds" class="text-danger"></span>
             </div>
 
-            <div class="form-group mb-3">
-                <label for="MediaFiles" class="control-label">Add Photos (Optional)</label>
+            <div class="mb-3">
+                <label class="form-label">
+                    <i class="bi bi-image"></i> Imagini/Video (max 5 fișiere, max 50MB per fișier)
+                </label>
                 <input type="file" 
-                       id="MediaFiles" 
                        name="MediaFiles" 
                        class="form-control" 
-                       accept="image/*" 
                        multiple 
-                       onchange="previewImages(event)" />
-                <small class="form-text text-muted">
-                    You can upload up to 5 images (max 10MB each). Supported formats: JPG, PNG, GIF, WEBP
+                       accept="image/*,video/mp4,video/quicktime,video/x-msvideo,video/webm"
+                       id="media-input" />
+                <small class="text-muted">
+                    Formate acceptate: JPG, PNG, GIF, WebP pentru imagini | MP4, MOV, AVI, WebM pentru video
                 </small>
             </div>
 

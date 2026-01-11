@@ -1,94 +1,163 @@
 @model SpritzBuddy.Models.Post
 @using System.Security.Claims
 
-<div class="col-md-6 col-lg-4 mb-4">
-    <div class="card h-100">
-        <!-- Post Images (if any) -->
-        @if (Model.PostMedias != null && Model.PostMedias.Any())
-        {
-            var firstImage = Model.PostMedias.OrderBy(pm => pm.OrderIndex).FirstOrDefault();
-            if (firstImage != null)
+<div class="card mb-4 shadow-sm">
+    <div class="row g-0">
+        <!-- Media Column: Order 2 on Mobile (Bottom), Order 1 on Desktop (Left) -->
+        <div class="col-md-7 order-2 order-md-1 bg-black d-flex align-items-center justify-content-center" style="min-height: 300px; background-color: #f8f9fa;">
+            @if (Model.PostMedias != null && Model.PostMedias.Any())
             {
-                <div class="position-relative" style="cursor: pointer;" onclick="window.location.href='@Url.Action("Details", "Posts", new { id = Model.Id })'">
-                    @if (firstImage.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                var mediaList = Model.PostMedias.OrderBy(pm => pm.OrderIndex).ToList();
+                var carouselId = $"carousel-{Model.Id}";
+
+                <div id="@carouselId" class="carousel slide w-100 h-100" data-bs-ride="false"> <!-- data-bs-ride="false" to prevent auto-scroll distracting reading -->
+                    @if (mediaList.Count > 1)
                     {
-                        <video class="card-img-top" style="height: 200px; object-fit: cover; background-color: #000;">
-                            <source src="@firstImage.FilePath" type="video/mp4">
-                        </video>
-                        <div class="position-absolute top-50 start-50 translate-middle text-white opacity-75">
-                            <i class="bi bi-play-circle-fill" style="font-size: 3rem;"></i>
+                        <div class="carousel-indicators">
+                            @for (int i = 0; i < mediaList.Count; i++)
+                            {
+                                <button type="button" 
+                                        data-bs-target="#@carouselId" 
+                                        data-bs-slide-to="@i" 
+                                        class="@(i == 0 ? "active" : "")" 
+                                        aria-current="@(i == 0 ? "true" : "false")" 
+                                        aria-label="Slide @(i + 1)"></button>
+                            }
                         </div>
                     }
-                    else
+
+                    <div class="carousel-inner h-100">
+                        @foreach (var media in mediaList)
+                        {
+                            <div class="carousel-item @(media.OrderIndex == 0 ? "active" : "") h-100" style="background-color: #000;">
+                                <!-- Wrap in link to Details -->
+                                <a href="@Url.Action("Details", "Posts", new { id = Model.Id })" class="d-block h-100 text-decoration-none">
+                                    @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                                    {
+                                        <div class="position-relative h-100 d-flex align-items-center justify-content-center">
+                                            <video class="d-block w-100" style="max-height: 500px; object-fit: contain;">
+                                                <source src="@media.FilePath" type="video/mp4">
+                                            </video>
+                                            <div class="position-absolute top-50 start-50 translate-middle text-white opacity-75">
+                                                <i class="bi bi-play-circle-fill" style="font-size: 3rem;"></i>
+                                            </div>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 500px; object-fit: contain;">
+                                    }
+                                </a>
+                            </div>
+                        }
+                    </div>
+
+                    @if (mediaList.Count > 1)
                     {
-                        <img src="@firstImage.FilePath" 
-                             class="card-img-top" 
-                             alt="Post image"
-                             style="height: 200px; object-fit: cover;" />
-                    }
-                    
-                    @if (Model.PostMedias.Count > 1)
-                    {
-                        <div class="position-absolute top-0 end-0 m-2">
-                            <span class="badge bg-dark bg-opacity-75">
-                                <i class="bi bi-collection-play"></i> @Model.PostMedias.Count
-                            </span>
-                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#@carouselId" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#@carouselId" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
                     }
                 </div>
             }
-        }
-        
-        <div class="card-body">
-            <h5 class="card-title">@Model.Title</h5>
-            <p class="card-text">@(Model.Content.Length > 100 ? Model.Content.Substring(0, 100) + "..." : Model.Content)
-            </p>
-            <small class="text-muted">
-                By @Model.User.FirstName @Model.User.LastName on
-                @Model.CreateDate.ToString("MMM dd, yyyy")
-            </small>
+            else
+            {
+                <div class="d-flex align-items-center justify-content-center h-100 text-muted p-5">
+                    <div class="text-center">
+                        <i class="bi bi-card-image display-4"></i>
+                        <p class="mt-2">No media</p>
+                    </div>
+                </div>
+            }
         </div>
-        <div class="card-footer">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-                <div class="btn-group">
-                    <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-info btn-sm">Details</a>
+
+        <!-- Content Column: Order 1 on Mobile (Top), Order 2 on Desktop (Right) -->
+        <div class="col-md-5 order-1 order-md-2 d-flex flex-column border-start">
+            <div class="card-body d-flex flex-column h-100">
+                <!-- User Header -->
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <div class="d-flex align-items-center">
+                        @if (!string.IsNullOrEmpty(Model.User.ProfilePictureUrl))
+                        {
+                            <img src="@Model.User.ProfilePictureUrl" class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;" alt="@Model.User.FirstName" />
+                        }
+                        else
+                        {
+                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 32px; height: 32px;">
+                                @((Model.User.FirstName ?? "U")[0])
+                            </div>
+                        }
+                        <div>
+                            <h6 class="mb-0 small">@Model.User.FirstName @Model.User.LastName</h6>
+                            <small class="text-muted" style="font-size: 0.75rem;">@Model.CreateDate.ToString("MMM dd")</small>
+                        </div>
+                    </div>
+                    
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
                         if (userId != null && int.TryParse(userId, out int userIdInt) && Model.UserId == userIdInt)
                         {
-                            <a asp-controller="Posts" asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">Edit</a>
-                            <a asp-controller="Posts" asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-sm">Delete</a>
+                            <div class="dropdown">
+                                <button class="btn btn-link btn-sm text-muted p-0" type="button" data-bs-toggle="dropdown">
+                                    <i class="bi bi-three-dots"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li><a class="dropdown-item" asp-controller="Posts" asp-action="Edit" asp-route-id="@Model.Id">Edit</a></li>
+                                    <li><a class="dropdown-item text-danger" asp-controller="Posts" asp-action="Delete" asp-route-id="@Model.Id">Delete</a></li>
+                                </ul>
+                            </div>
                         }
                     }
                 </div>
-            </div>
-            
-            <div class="d-flex justify-content-between align-items-center">
-                <!-- Like Section -->
-                <div class="like-section" data-post-id="@Model.Id">
-                    @if (User.Identity?.IsAuthenticated == true)
-                    {
-                        <button type="button" class="btn btn-outline-danger btn-sm like-btn" data-post-id="@Model.Id">
-                            <i class="bi bi-heart like-icon"></i>
-                            <span class="like-count">0</span>
-                        </button>
-                    }
-                    else
-                    {
-                        <a asp-controller="Account" asp-action="Login" class="btn btn-outline-secondary btn-sm">
-                            <i class="bi bi-heart"></i>
-                            <span class="like-count">0</span>
-                        </a>
-                    }
-                </div>
 
-                <!-- Comment Section -->
-                <div class="comment-section" data-post-id="@Model.Id">
-                    <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm">
-                        <i class="bi bi-chat-fill"></i>
-                        <span class="comment-count">0</span>
+                <!-- Post Text -->
+                <h5 class="card-title">
+                    <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="text-decoration-none text-dark">
+                        @Model.Title
                     </a>
+                </h5>
+                <p class="card-text flex-grow-1">
+                    @(Model.Content.Length > 150 ? Model.Content.Substring(0, 150) + "..." : Model.Content)
+                </p>
+
+                <!-- Actions Footer (Pinned to bottom of text column) -->
+                <div class="mt-auto pt-3 border-top">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="like-section" data-post-id="@Model.Id">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                                <button type="button" class="btn btn-outline-danger btn-sm like-btn border-0" data-post-id="@Model.Id">
+                                    <i class="bi bi-heart like-icon" style="font-size: 1.2rem;"></i>
+                                </button>
+                            }
+                            else
+                            {
+                                <a asp-controller="Account" asp-action="Login" class="btn btn-outline-danger btn-sm border-0">
+                                    <i class="bi bi-heart" style="font-size: 1.2rem;"></i>
+                                </a>
+                            }
+                            <span class="small fw-bold like-count">0</span> <small class="text-muted">likes</small>
+                        </div>
+
+                        <div class="comment-section" data-post-id="@Model.Id">
+                            <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm border-0">
+                                <i class="bi bi-chat-bubble" style="font-size: 1.2rem;"></i>
+                            </a>
+                            <span class="small fw-bold comment-count">0</span> <small class="text-muted">comments</small>
+                        </div>
+                        
+                        <div>
+                             <a asp-controller="Posts" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                                Read
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

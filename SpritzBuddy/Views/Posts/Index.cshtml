@@ -44,11 +44,13 @@
     </div>
 </form>
 
-<div class="row">
-    @foreach (var post in Model)
-    {
-        <partial name="_PostCard" model="post" />
-    }
+<div class="row justify-content-center">
+    <div class="col-md-10 col-lg-8">
+        @foreach (var post in Model)
+        {
+            <partial name="_PostCard" model="post" />
+        }
+    </div>
 </div>
 
 <!-- Pagination Controls (Added per Course 10 techniques) -->

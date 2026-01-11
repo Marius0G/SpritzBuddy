@@ -30,7 +30,7 @@
                 <div></div>
             }
             
-            <span class="text-muted">Post @(currentIndex + 1) of @userPosts.Count by @Model.User.UserName</span>
+            <span class="text-muted">Post @(currentIndex + 1) of @userPosts.Count by @@(@Model.User.UserName)</span>
             
             @if (currentIndex < userPosts.Count - 1)
             {
@@ -45,9 +45,42 @@
         </div>
     }
 
-    <!-- Post Details Card -->
+    <!-- Post Details Card - RESTRUCTURED -->
     <div class="card mb-4">
-        <!-- Post Images Carousel (if any) -->
+        <!-- Post Header -->
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="d-flex align-items-center">
+                @if (!string.IsNullOrEmpty(Model.User.ProfilePictureUrl))
+                {
+                    <img src="@Model.User.ProfilePictureUrl" class="rounded-circle me-2" style="width: 40px; height: 40px; object-fit: cover;" alt="@Model.User.FirstName" />
+                }
+                else
+                {
+                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-2" style="width: 40px; height: 40px;">
+                        @((Model.User.FirstName ?? "U")[0])
+                    </div>
+                }
+                <div>
+                    <strong>@Model.User.FirstName @Model.User.LastName</strong>
+                    <br />
+                    <small class="text-muted">@@(@Model.User.UserName) • @Model.CreateDate.ToString("MMM dd, yyyy")</small>
+                </div>
+            </div>
+            @if (currentUserId.HasValue && Model.UserId == currentUserId.Value)
+            {
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-link text-dark" type="button" data-bs-toggle="dropdown">
+                        <i class="bi bi-three-dots-vertical"></i>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" asp-action="Edit" asp-route-id="@Model.Id"><i class="bi bi-pencil"></i> Edit</a></li>
+                        <li><a class="dropdown-item text-danger" asp-action="Delete" asp-route-id="@Model.Id"><i class="bi bi-trash"></i> Delete</a></li>
+                    </ul>
+                </div>
+            }
+        </div>
+
+        <!-- Post Media Carousel (if any) -->
         @if (Model.PostMedias != null && Model.PostMedias.Any())
         {
             var mediaList = Model.PostMedias.OrderBy(pm => pm.OrderIndex).ToList();
@@ -69,21 +102,21 @@
                     </div>
                 }
 
-                <!-- Images -->
+                <!-- Media Items -->
                 <div class="carousel-inner">
-                    @foreach (var media in Model.PostMedias.OrderBy(m => m.OrderIndex))
+                    @foreach (var media in mediaList)
                     {
                         <div class="carousel-item @(media.OrderIndex == 0 ? "active" : "")">
                             @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
                             {
-                                <video class="d-block w-100" controls style="max-height: 500px; object-fit: contain; background-color: #000;">
+                                <video class="d-block w-100" controls style="max-height: 600px; object-fit: contain; background-color: #000;">
                                     <source src="@media.FilePath" type="video/mp4">
                                     Your browser does not support the video tag.
                                 </video>
                             }
                             else
                             {
-                                <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 500px; object-fit: contain; background-color: #f8f9fa;" />
+                                <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 600px; object-fit: contain; background-color: #f8f9fa;" />
                             }
                         </div>
                     }
@@ -104,24 +137,16 @@
             </div>
         }
 
+        <!-- Post Content - NOW BELOW MEDIA -->
         <div class="card-body">
-            <h2 class="card-title">@Model.Title</h2>
-            <p class="text-muted">
-                By <strong>@Model.User.FirstName @Model.User.LastName</strong> on @Model.CreateDate.ToString("MMM dd, yyyy HH:mm")
-            </p>
-            <hr />
-            <div class="card-text" style="white-space: pre-wrap;">@Model.Content</div>
+            <h3 class="card-title mb-3">@Model.Title</h3>
+            <p class="card-text" style="white-space: pre-wrap;">@Model.Content</p>
         </div>
+
+        <!-- Post Actions Footer -->
         <div class="card-footer">
             <div class="d-flex justify-content-between align-items-center">
-                <div>
-                    @if (currentUserId.HasValue && Model.UserId == currentUserId.Value)
-                    {
-                        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">Edit</a>
-                        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-sm">Delete</a>
-                    }
-                </div>
-                <div>
+                <div class="d-flex gap-2">
                     <!-- Like Button -->
                     @if (User.Identity?.IsAuthenticated == true)
                     {
@@ -138,7 +163,7 @@
                         </a>
                     }
 
-                    <a asp-controller="Comments" asp-action="PostComments" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm ms-2">
+                    <a asp-controller="Comments" asp-action="PostComments" asp-route-id="@Model.Id" class="btn btn-outline-secondary btn-sm">
                         <i class="bi bi-chat-fill"></i> <span id="comment-count">0</span> Comments
                     </a>
                 </div>
@@ -184,7 +209,7 @@
 
     <!-- Navigation -->
     <div class="mt-3">
-        <a asp-action="Index" class="btn btn-secondary">Back to All Posts</a>
+        <a asp-action="Index" asp-controller="Home" class="btn btn-secondary">Back to Home</a>
     </div>
 </div>
 

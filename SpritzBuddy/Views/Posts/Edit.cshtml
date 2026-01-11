@@ -9,10 +9,11 @@
     <div class="row justify-content-center">
         <div class="col-md-10">
             <div class="card shadow-sm">
-                <div class="card-header bg-warning text-dark">
+                <div class="card-header bg-warning text-dark d-flex justify-content-between align-items-center">
                     <h3 class="mb-0">
                         <i class="bi bi-pencil-square"></i> Editare Postare
                     </h3>
+                    <span class="badge bg-dark">ID: @Model.Id</span>
                 </div>
                 <div class="card-body">
                     @if (TempData["Error"] != null)
@@ -40,92 +41,106 @@
                         <input type="hidden" asp-for="CreateDate" />
                         
                         <div class="mb-3">
-                            <label asp-for="Title" class="form-label">
+                            <label asp-for="Title" class="form-label fw-bold">
                                 <i class="bi bi-card-heading"></i> Titlu *
                             </label>
-                            <input asp-for="Title" class="form-control" required maxlength="200" />
+                            <input asp-for="Title" class="form-control form-control-lg" required maxlength="150" />
                             <span asp-validation-for="Title" class="text-danger"></span>
                         </div>
                         
                         <div class="mb-3">
-                            <label asp-for="Content" class="form-label">
+                            <label asp-for="Content" class="form-label fw-bold">
                                 <i class="bi bi-text-paragraph"></i> Conținut *
                             </label>
-                            <textarea asp-for="Content" class="form-control" rows="6" required maxlength="2000"></textarea>
+                            <textarea asp-for="Content" class="form-control" rows="8" required maxlength="4000"></textarea>
                             <span asp-validation-for="Content" class="text-danger"></span>
                         </div>
 
                         <!-- Current Media Section -->
-                        @if (currentMedia.Any())
-                        {
-                            <div class="mb-4">
-                                <h5>
-                                    <i class="bi bi-images"></i> Media Curentă
+                        <div class="card bg-light mb-4">
+                            <div class="card-header">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-images"></i> Media Existentă (@currentMedia.Count)
                                 </h5>
-                                <div class="row g-3">
-                                    @foreach (var media in currentMedia)
-                                    {
-                                        <div class="col-md-4" id="media-@media.Id">
-                                            <div class="card">
-                                                @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Image)
-                                                {
-                                                    <img src="@media.FilePath" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Media" />
-                                                }
-                                                else if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
-                                                {
-                                                    <video class="card-img-top" style="height: 200px; object-fit: cover;">
-                                                        <source src="@media.FilePath" type="video/mp4">
-                                                    </video>
-                                                }
-                                                <div class="card-body p-2">
-                                                    <button type="button" 
-                                                            class="btn btn-danger btn-sm w-100" 
-                                                            onclick="deleteMedia(@media.Id)">
-                                                        <i class="bi bi-trash"></i> Șterge
-                                                    </button>
+                            </div>
+                            <div class="card-body">
+                                @if (currentMedia.Any())
+                                {
+                                    <div class="row g-3">
+                                        @foreach (var media in currentMedia)
+                                        {
+                                            <div class="col-md-4 col-sm-6" id="media-@media.Id">
+                                                <div class="card h-100 shadow-sm">
+                                                    <div class="position-relative">
+                                                        @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Image)
+                                                        {
+                                                            <img src="@media.FilePath" class="card-img-top" style="height: 200px; object-fit: cover;" alt="Media" />
+                                                        }
+                                                        else if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                                                        {
+                                                            <video class="card-img-top" style="height: 200px; object-fit: cover;" controls>
+                                                                <source src="@media.FilePath" type="video/mp4">
+                                                            </video>
+                                                        }
+                                                        <span class="position-absolute top-0 start-0 badge bg-secondary m-2">#@(media.OrderIndex + 1)</span>
+                                                    </div>
+                                                    <div class="card-body p-2 text-center bg-white">
+                                                        <button type="button" 
+                                                                class="btn btn-outline-danger btn-sm w-100 delete-media-btn" 
+                                                                data-media-id="@media.Id">
+                                                            <i class="bi bi-trash"></i> Șterge Definitiv
+                                                        </button>
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    }
-                                </div>
+                                        }
+                                    </div>
+                                    <div class="alert alert-warning mt-3 mb-0 small">
+                                        <i class="bi bi-exclamation-circle"></i> Atenție: Ștergerea unei imagini este permanentă și imediată.
+                                    </div>
+                                }
+                                else
+                                {
+                                    <p class="text-muted text-center my-3">Nu există imagini atașate.</p>
+                                }
                             </div>
-                        }
+                        </div>
 
                         <!-- Add New Media Section -->
-                        <div class="mb-4">
-                            <h5>
-                                <i class="bi bi-plus-circle"></i> Adaugă Media Nouă
-                            </h5>
-                            <div class="mb-3">
-                                <label class="form-label">Imagini/Video noi (max 5 fișiere, max 50MB per fișier)</label>
-                                <input type="file" 
-                                       name="NewMediaFiles" 
-                                       class="form-control" 
-                                       multiple 
-                                       accept="image/*,video/*"
-                                       id="new-media-input" />
-                                <small class="text-muted">
-                                    Formate acceptate: JPG, PNG, GIF, WebP, MP4, MOV, AVI, WebM
-                                </small>
+                        <div class="card border-primary mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="mb-0">
+                                    <i class="bi bi-plus-circle"></i> Adaugă Mai Multe Poze/Video
+                                </h5>
                             </div>
-                            
-                            <!-- Preview for new files -->
-                            <div id="new-media-preview" class="row g-3 mb-3" style="display: none;">
+                            <div class="card-body">
+                                <div class="mb-3">
+                                    <label class="form-label">Selectează fișiere noi (se vor adăuga la final):</label>
+                                    <input type="file" 
+                                           name="NewMediaFiles" 
+                                           class="form-control" 
+                                           multiple 
+                                           accept="image/*,video/mp4,video/quicktime,video/x-msvideo,video/webm"
+                                           id="new-media-input" />
+                                    <div class="form-text">
+                                        Poți selecta mai multe fișiere deodată. Formate: JPG, PNG, GIF, MP4.
+                                    </div>
+                                </div>
+                                
+                                <!-- Preview for new files -->
+                                <div id="new-media-preview" class="row g-3" style="display: none;">
+                                    <div class="col-12"><h6 class="border-bottom pb-2">Previzualizare Fișiere Noi:</h6></div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> 
-                            Câmpurile marcate cu * sunt obligatorii.
-                        </div>
-
-                        <div class="d-flex justify-content-between gap-3">
-                            <a asp-action="Index" class="btn btn-secondary">
+                        <div class="d-flex justify-content-between gap-3 align-items-center">
+                            <a asp-action="Index" class="btn btn-outline-secondary px-4">
                                 <i class="bi bi-arrow-left"></i> Anulează
                             </a>
                             <button type="submit" 
                                     id="submit-edit-btn"
-                                    class="btn btn-success btn-lg">
+                                    class="btn btn-success btn-lg px-5 shadow">
                                 <span class="submit-text">
                                     <i class="bi bi-check-circle"></i> Salvează Modificările
                                 </span>
@@ -146,37 +161,38 @@
         // Preview new media files
         document.getElementById('new-media-input').addEventListener('change', function(e) {
             const preview = document.getElementById('new-media-preview');
-            preview.innerHTML = '';
+            // Keep the header
+            preview.innerHTML = '<div class="col-12"><h6 class="border-bottom pb-2">Previzualizare Fișiere Noi:</h6></div>';
             
             if (this.files.length > 0) {
                 preview.style.display = 'flex';
                 
                 Array.from(this.files).forEach((file, index) => {
                     const col = document.createElement('div');
-                    col.className = 'col-md-4';
+                    col.className = 'col-md-3 col-6';
                     
                     const card = document.createElement('div');
-                    card.className = 'card';
+                    card.className = 'card h-100 border-success';
                     
+                    let mediaElement;
                     if (file.type.startsWith('image/')) {
-                        const img = document.createElement('img');
-                        img.className = 'card-img-top';
-                        img.style.height = '200px';
-                        img.style.objectFit = 'cover';
-                        img.src = URL.createObjectURL(file);
-                        card.appendChild(img);
+                        mediaElement = document.createElement('img');
+                        mediaElement.src = URL.createObjectURL(file);
                     } else if (file.type.startsWith('video/')) {
-                        const video = document.createElement('video');
-                        video.className = 'card-img-top';
-                        video.style.height = '200px';
-                        video.style.objectFit = 'cover';
-                        video.src = URL.createObjectURL(file);
-                        card.appendChild(video);
+                        mediaElement = document.createElement('video');
+                        mediaElement.src = URL.createObjectURL(file);
+                    }
+                    
+                    if (mediaElement) {
+                        mediaElement.className = 'card-img-top';
+                        mediaElement.style.height = '120px';
+                        mediaElement.style.objectFit = 'cover';
+                        card.appendChild(mediaElement);
                     }
                     
                     const cardBody = document.createElement('div');
-                    cardBody.className = 'card-body p-2';
-                    cardBody.innerHTML = `<small class="text-muted">${file.name}</small>`;
+                    cardBody.className = 'card-body p-1 bg-success text-white text-center';
+                    cardBody.innerHTML = `<small style="font-size: 0.7rem;">${file.name}</small>`;
                     card.appendChild(cardBody);
                     
                     col.appendChild(card);
@@ -188,37 +204,60 @@
         });
 
         // Delete media with AJAX
-        async function deleteMedia(mediaId) {
-            if (!confirm('Sigur vrei să ștergi această imagine/video?')) {
-                return;
-            }
-
-            try {
-                const response = await fetch('/Posts/DeleteMedia', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
-                    },
-                    body: JSON.stringify({ mediaId: mediaId })
-                });
-
-                const result = await response.json();
-
-                if (result.success) {
-                    // Remove from DOM
-                    document.getElementById('media-' + mediaId).remove();
-                    
-                    // Show success message
-                    alert('Media ștearsă cu succes!');
-                } else {
-                    alert(result.message || 'Eroare la ștergerea media');
+        document.querySelectorAll('.delete-media-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const mediaId = this.dataset.mediaId;
+                
+                if (!confirm('ATENȚIE: Această imagine/video va fi ștearsă PERMANENT imediat ce confirmi.\n\nEști sigur?')) {
+                    return;
                 }
-            } catch (error) {
-                console.error('Error deleting media:', error);
-                alert('Eroare la ștergerea media');
-            }
-        }
+
+                const btn = this;
+                const originalHtml = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+
+                try {
+                    const response = await fetch('/Posts/DeleteMedia', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                        },
+                        body: JSON.stringify({ mediaId: parseInt(mediaId) })
+                    });
+
+                    // Check if response is JSON
+                    const contentType = response.headers.get("content-type");
+                    if (contentType && contentType.indexOf("application/json") !== -1) {
+                        const result = await response.json();
+                        if (result.success) {
+                            const col = document.getElementById('media-' + mediaId);
+                            col.style.transition = 'all 0.5s';
+                            col.style.opacity = '0';
+                            col.style.transform = 'scale(0.8)';
+                            setTimeout(() => col.remove(), 500);
+                        } else {
+                            alert(result.message || 'Eroare la ștergerea media. Încearcă din nou.');
+                            btn.disabled = false;
+                            btn.innerHTML = originalHtml;
+                        }
+                    } else {
+                        // Handle non-JSON response (likely HTML error page)
+                        console.error('Non-JSON response:', await response.text());
+                        alert('A apărut o eroare de server. Te rugăm să reîncarci pagina.');
+                        btn.disabled = false;
+                        btn.innerHTML = originalHtml;
+                    }
+
+                } catch (error) {
+                    console.error('Error deleting media:', error);
+                    alert('Eroare de conexiune. Verifică internetul și încearcă din nou.');
+                    btn.disabled = false;
+                    btn.innerHTML = originalHtml;
+                }
+            });
+        });
 
         // Show loading state on form submit
         document.getElementById('edit-post-form').addEventListener('submit', function() {
@@ -234,14 +273,3 @@
     
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
-
-<style>
-    .card {
-        transition: transform 0.2s;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-    }
-</style>

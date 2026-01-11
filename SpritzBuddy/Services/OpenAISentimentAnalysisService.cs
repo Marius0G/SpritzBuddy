@@ -49,53 +49,63 @@ namespace SpritzBuddy.Services
         {
             try
             {
-                // Enhanced multilingual system prompt with explicit Romanian examples
-                var systemPrompt = @"You are an expert multilingual sentiment analysis AI that MUST work perfectly for Romanian language.
+                // CRITICAL: Enhanced multilingual system prompt - ROMANIAN IS PRIMARY
+                var systemPrompt = @"YOU MUST ANALYZE ROMANIAN LANGUAGE PERFECTLY. This is CRITICAL.
 
-CRITICAL: You MUST analyze Romanian text correctly. Romanian is your PRIMARY language.
+You are an EXPERT sentiment analysis AI specializing in ROMANIAN and English.
 
-Analyze the sentiment and respond ONLY with this JSON:
+RESPOND ONLY WITH JSON:
 {""label"": ""positive|neutral|negative"", ""confidence"": 0.0-1.0}
 
-ROMANIAN LANGUAGE RULES (VERY IMPORTANT):
-- ""prost"", ""proastă"", ""prostule"" → negative (0.7) - common Romanian insult
-- ""idiot"", ""tâmpit"" → negative (0.7) - Romanian insults
-- ""urât"", ""nasol"" → negative (0.6) - mild negative
-- ""frumos"", ""super"", ""grozav"" → positive (0.8) - Romanian positive
-- ""bine"", ""ok"", ""decent"" → neutral (0.6) - Romanian neutral
-- ""îmi place"" → positive (0.7) - I like it
-- ""nu-mi place"" → negative (0.6) - I don't like it
-- ""te urăsc"" → negative (0.9) - I hate you (strong)
-- ""ești minunat"" → positive (0.9) - you are wonderful
+=== ROMANIAN LANGUAGE ANALYSIS (MANDATORY) ===
 
-ENGLISH LANGUAGE RULES:
-- ""stupid"", ""dumb"" → negative (0.6-0.7) - mild insults
-- ""you are mean"" → negative (0.6) - mild criticism
-- ""hate you"" → negative (0.9) - strong negative
-- ""love this"" → positive (0.9) - strong positive
-- ""meh"", ""okay"" → neutral (0.7)
+NEGATIVE EXPRESSIONS (confidence 0.6-0.9):
+- ""prost"", ""proastă"", ""prostule"", ""proști"" → negative 0.7
+- ""idiot"", ""idioată"", ""tâmpit"", ""tâmpită"" → negative 0.7  
+- ""ești prost"", ""ești idiot"" → negative 0.75
+- ""te urăsc"", ""urât"", ""nasol"" → negative 0.8-0.9
+- ""nu-mi place"", ""nu îmi place"" → negative 0.6
+- ""rău"", ""groaznic"", ""oribil"" → negative 0.7
+- ""te-ai săturat"", ""plictisitor"" → negative 0.6
 
-CONFIDENCE SCORING:
-- 0.9-1.0: Very certain (extreme language)
-- 0.7-0.9: Quite certain (clear sentiment)
-- 0.5-0.7: Moderate (mixed or mild)
-- 0.3-0.5: Uncertain (ambiguous)
+POSITIVE EXPRESSIONS (confidence 0.7-0.9):
+- ""frumos"", ""superb"", ""minunat"" → positive 0.8
+- ""îmi place"", ""iubesc"", ""adorabil"" → positive 0.85
+- ""grozav"", ""fantastic"", ""perfect"" → positive 0.9
+- ""bun"", ""ok"", ""decent"" → positive/neutral 0.6
 
-IMPORTANT: 
-- Context matters
-- Cultural expressions are understood
-- Mild criticism is negative but low confidence
-- Only extreme/aggressive language gets high confidence negative
+NEUTRAL EXPRESSIONS (confidence 0.5-0.7):
+- ""bine"", ""ok"", ""mă rog"" → neutral 0.6
+- ""așa și așa"", ""normal"" → neutral 0.7
+- ""poate"", ""nu știu"" → neutral 0.6
 
-Romanian Examples:
-{""label"": ""negative"", ""confidence"": 0.7} for ""ești prost""
-{""label"": ""positive"", ""confidence"": 0.8} for ""super frumos""
-{""label"": ""neutral"", ""confidence"": 0.6} for ""e ok""
-{""label"": ""negative"", ""confidence"": 0.9} for ""te urăsc enorm""
+=== ENGLISH LANGUAGE ANALYSIS ===
+- ""stupid"", ""dumb"" → negative 0.65
+- ""you are mean"" → negative 0.6
+- ""hate"", ""terrible"" → negative 0.85
+- ""love"", ""great"", ""amazing"" → positive 0.85
+- ""ok"", ""fine"", ""meh"" → neutral 0.7
 
-Respond ONLY with JSON. No explanations.";
+=== SCORING RULES ===
+HIGH CONFIDENCE (0.8-1.0): Clear extreme emotion
+MEDIUM CONFIDENCE (0.6-0.8): Clear but moderate
+LOW CONFIDENCE (0.4-0.6): Ambiguous or mild
 
-                var userPrompt = $"Analyze: \"{text}\"";
+=== EXAMPLES ===
+Romanian:
+""ești prost"" → {""label"": ""negative"", ""confidence"": 0.75}
+""super frumos"" → {""label"": ""positive"", ""confidence"": 0.85}
+""e ok"" → {""label"": ""neutral"", ""confidence"": 0.6}
+""te urăsc"" → {""label"": ""negative"", ""confidence"": 0.9}
+""îmi place mult"" → {""label"": ""positive"", ""confidence"": 0.8}
+
+English:
+""you are stupid"" → {""label"": ""negative"", ""confidence"": 0.65}
+""I love this"" → {""label"": ""positive"", ""confidence"": 0.85}
+
+RESPOND ONLY WITH JSON. NO EXPLANATIONS.";
+
+                var userPrompt = $"Analyze sentiment: \"{text}\"";
 
                 var requestBody = new
                 {
@@ -105,22 +115,22 @@ Respond ONLY with JSON. No explanations.";
                         new { role = "system", content = systemPrompt },
                         new { role = "user", content = userPrompt }
                     },
-                    temperature = 0.2, // Lower for more consistent Romanian handling
-                    max_tokens = 100,
+                    temperature = 0.1, // Lower for more consistent results
+                    max_tokens = 50,
                     response_format = new { type = "json_object" }
                 };
 
                 var jsonContent = JsonSerializer.Serialize(requestBody);
                 var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                _logger.LogInformation("[SENTIMENT] Analyzing text: {Text}", text.Substring(0, Math.Min(50, text.Length)));
+                _logger.LogInformation("[SENTIMENT] Analyzing: {Text}", text);
 
                 var response = await _httpClient.PostAsync("chat/completions", content);
                 var responseContent = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    _logger.LogError("[SENTIMENT] OpenAI API error: {StatusCode} - {Content}", response.StatusCode, responseContent);
+                    _logger.LogError("[SENTIMENT] API error: {StatusCode} - {Content}", response.StatusCode, responseContent);
                     return new SentimentResult
                     {
                         Success = false,
@@ -134,10 +144,11 @@ Respond ONLY with JSON. No explanations.";
 
                 if (string.IsNullOrEmpty(assistantMessage))
                 {
+                    _logger.LogError("[SENTIMENT] Empty response from API");
                     return new SentimentResult
                     {
                         Success = false,
-                        ErrorMessage = "Empty response from API"
+                        ErrorMessage = "Empty response"
                     };
                 }
 
@@ -147,10 +158,11 @@ Respond ONLY with JSON. No explanations.";
 
                 if (sentimentData == null)
                 {
+                    _logger.LogError("[SENTIMENT] Failed to parse response: {Response}", assistantMessage);
                     return new SentimentResult
                     {
                         Success = false,
-                        ErrorMessage = "Failed to parse sentiment response"
+                        ErrorMessage = "Failed to parse"
                     };
                 }
 
@@ -163,7 +175,7 @@ Respond ONLY with JSON. No explanations.";
 
                 var confidence = Math.Clamp(sentimentData.Confidence, 0.0, 1.0);
 
-                _logger.LogInformation("[SENTIMENT] Result: {Label} ({Confidence:P0}) for text: {Text}", label, confidence, text);
+                _logger.LogInformation("[SENTIMENT] ✓ Result: {Label} ({Confidence:P0}) for: {Text}", label, confidence, text);
 
                 return new SentimentResult
                 {
@@ -174,7 +186,7 @@ Respond ONLY with JSON. No explanations.";
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "[SENTIMENT] Error analyzing sentiment for text: {Text}", text);
+                _logger.LogError(ex, "[SENTIMENT] Exception analyzing: {Text}", text);
                 return new SentimentResult
                 {
                     Success = false,
