@@ -61,3 +61,5 @@ $RECYCLE.BIN/
 # Dar pentru acest proiect e ok sa lasati appsettings.json daca folositi LocalDB
 # appsettings.Development.json
 secrets.json
+SpritzBuddy/appsettings.json
+appsettings.json

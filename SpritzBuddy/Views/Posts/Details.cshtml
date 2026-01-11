@@ -84,29 +84,16 @@
         @if (Model.PostMedias != null && Model.PostMedias.Any())
         {
             var mediaList = Model.PostMedias.OrderBy(pm => pm.OrderIndex).ToList();
+            var carouselId = "instagram-carousel-details";
             
-            <div id="postImagesCarousel" class="carousel slide" data-bs-ride="carousel">
-                <!-- Indicators -->
-                @if (mediaList.Count > 1)
-                {
-                    <div class="carousel-indicators">
-                        @for (int i = 0; i < mediaList.Count; i++)
-                        {
-                            <button type="button" 
-                                    data-bs-target="#postImagesCarousel" 
-                                    data-bs-slide-to="@i" 
-                                    class="@(i == 0 ? "active" : "")" 
-                                    aria-current="@(i == 0 ? "true" : "false")" 
-                                    aria-label="Slide @(i + 1)"></button>
-                        }
-                    </div>
-                }
-
-                <!-- Media Items -->
-                <div class="carousel-inner">
-                    @foreach (var media in mediaList)
+            <div class="instagram-carousel" id="@carouselId" style="width: 100%; position: relative; background-color: #000; min-height: 400px;">
+                <!-- Images Container -->
+                <div class="instagram-carousel-images" style="width: 100%; position: relative; overflow: hidden;">
+                    @for (int i = 0; i < mediaList.Count; i++)
                     {
-                        <div class="carousel-item @(media.OrderIndex == 0 ? "active" : "")">
+                        var media = mediaList[i];
+                        <div class="instagram-carousel-item @(i == 0 ? "active" : "")" 
+                             style="display: @(i == 0 ? "flex" : "none"); width: 100%; align-items: center; justify-content: center;">
                             @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
                             {
                                 <video class="d-block w-100" controls style="max-height: 600px; object-fit: contain; background-color: #000;">
@@ -116,23 +103,39 @@
                             }
                             else
                             {
-                                <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 600px; object-fit: contain; background-color: #f8f9fa;" />
+                                <img src="@media.FilePath" class="d-block w-100" alt="Post Image" style="max-height: 600px; object-fit: contain; background-color: #000;" />
                             }
                         </div>
                     }
                 </div>
 
-                <!-- Controls -->
                 @if (mediaList.Count > 1)
                 {
-                    <button class="carousel-control-prev" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Previous</span>
+                    <!-- Previous Arrow -->
+                    <button class="instagram-arrow instagram-arrow-prev" onclick="instagramCarousel('@carouselId', 'prev'); return false;" 
+                            style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(255, 255, 255, 0.9); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="15 18 9 12 15 6"></polyline>
+                        </svg>
                     </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#postImagesCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                        <span class="visually-hidden">Next</span>
+
+                    <!-- Next Arrow -->
+                    <button class="instagram-arrow instagram-arrow-next" onclick="instagramCarousel('@carouselId', 'next'); return false;"
+                            style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10; background: rgba(255, 255, 255, 0.9); border: none; border-radius: 50%; width: 40px; height: 40px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 8px rgba(0,0,0,0.3); transition: all 0.2s;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
                     </button>
+
+                    <!-- Indicators -->
+                    <div class="instagram-indicators" style="position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); z-index: 10; display: flex; gap: 6px;">
+                        @for (int i = 0; i < mediaList.Count; i++)
+                        {
+                            <div class="instagram-indicator @(i == 0 ? "active" : "")" 
+                                 style="width: 8px; height: 8px; border-radius: 50%; background: @(i == 0 ? "white" : "rgba(255,255,255,0.5)"); transition: all 0.3s; cursor: pointer;"
+                                 onclick="instagramCarousel('@carouselId', @i); return false;"></div>
+                        }
+                    </div>
                 }
             </div>
         }
@@ -420,4 +423,62 @@
 
     <!-- Add Bootstrap Icons if not already included -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .instagram-arrow:hover {
+            background: white !important;
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .instagram-indicator {
+            transition: all 0.3s ease;
+        }
+        
+        .instagram-indicator:hover {
+            transform: scale(1.2);
+        }
+    </style>
+    
+    <script>
+    function instagramCarousel(carouselId, action) {
+        const carousel = document.getElementById(carouselId);
+        if (!carousel) return;
+        
+        const items = carousel.querySelectorAll('.instagram-carousel-item');
+        const indicators = carousel.querySelectorAll('.instagram-indicator');
+        
+        let currentIndex = -1;
+        items.forEach((item, index) => {
+            if (item.classList.contains('active')) {
+                currentIndex = index;
+            }
+        });
+        
+        let newIndex = currentIndex;
+        
+        if (action === 'prev') {
+            newIndex = currentIndex - 1;
+            if (newIndex < 0) newIndex = items.length - 1;
+        } else if (action === 'next') {
+            newIndex = currentIndex + 1;
+            if (newIndex >= items.length) newIndex = 0;
+        } else if (typeof action === 'number') {
+            newIndex = action;
+        }
+        
+        if (newIndex === currentIndex) return;
+        
+        // Hide current
+        items[currentIndex].classList.remove('active');
+        items[currentIndex].style.display = 'none';
+        indicators[currentIndex].classList.remove('active');
+        indicators[currentIndex].style.background = 'rgba(255,255,255,0.5)';
+        
+        // Show new
+        items[newIndex].classList.add('active');
+        items[newIndex].style.display = 'flex';
+        indicators[newIndex].classList.add('active');
+        indicators[newIndex].style.background = 'white';
+    }
+    </script>
 }

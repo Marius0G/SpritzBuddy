@@ -317,8 +317,10 @@ namespace SpritzBuddy.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content")] Post post, List<IFormFile>? NewMediaFiles)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Content")] Post post, [FromForm] List<IFormFile>? NewMediaFiles)
         {
+            _logger.LogInformation($"=== EDIT POST REQUEST RECEIVED === ID: {id}, NewMediaFiles: {NewMediaFiles?.Count ?? 0} files");
+            
             if (id != post.Id)
             {
                 return NotFound();
@@ -338,7 +340,24 @@ namespace SpritzBuddy.Controllers
                 
             if (originalPost == null || (!User.IsInRole("Administrator") && originalPost.UserId != userIdInt))
             {
+                _logger.LogWarning($"Access denied for post {id}");
                 return Forbid(); // User doesn't own this post and is not admin
+            }
+
+            // Remove validation errors for navigation properties that aren't part of the form
+            ModelState.Remove("User");
+            ModelState.Remove("PostMedias");
+            ModelState.Remove("PostDrinks");
+            ModelState.Remove("Likes");
+            ModelState.Remove("Comments");
+            
+            _logger.LogInformation($"ModelState.IsValid: {ModelState.IsValid}");
+            if (!ModelState.IsValid)
+            {
+                foreach (var error in ModelState.Values.SelectMany(v => v.Errors))
+                {
+                    _logger.LogWarning($"ModelState Error: {error.ErrorMessage}");
+                }
             }
 
             if (ModelState.IsValid)
@@ -366,10 +385,15 @@ namespace SpritzBuddy.Controllers
                     // originalPost.CreateDate stays the same
 
                     // Handle new media uploads if any
+                    _logger.LogInformation($"NewMediaFiles is null: {NewMediaFiles == null}, Count: {NewMediaFiles?.Count ?? 0}");
                     if (NewMediaFiles != null && NewMediaFiles.Any())
                     {
-                        var currentMaxOrder = originalPost.PostMedias?.Max(m => m.OrderIndex) ?? -1;
-                        var uploadedPaths = await _postMediaService.UploadPostMediaAsync(NewMediaFiles, post.Id);
+                        _logger.LogInformation($"Processing {NewMediaFiles.Count} new media files for post {originalPost.Id}");
+                        var currentMaxOrder = (originalPost.PostMedias != null && originalPost.PostMedias.Any()) 
+                            ? originalPost.PostMedias.Max(m => m.OrderIndex) 
+                            : -1;
+                        var uploadedPaths = await _postMediaService.UploadPostMediaAsync(NewMediaFiles, originalPost.Id);
+                        _logger.LogInformation($"Uploaded {uploadedPaths.Count} files successfully");
 
                         int orderIndex = currentMaxOrder + 1;
                         foreach (var path in uploadedPaths)
@@ -381,7 +405,7 @@ namespace SpritzBuddy.Controllers
 
                             var postMedia = new PostMedia
                             {
-                                PostId = post.Id,
+                                PostId = originalPost.Id,
                                 FilePath = path,
                                 MediaType = mediaType,
                                 OrderIndex = orderIndex++

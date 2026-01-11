@@ -53,21 +53,62 @@
                     <!-- Post Media (if exists) -->
                     @if (post.PostMedias != null && post.PostMedias.Any())
                     {
-                        <div class="position-relative" style="background: #fff; line-height: 0;">
-                            @{
-                                var firstMedia = post.PostMedias.First();
-                            }
-                            @if (firstMedia.MediaType == SpritzBuddy.Models.PostMediaType.Image)
-                            {
-                                <img src="@firstMedia.FilePath" class="w-100" style="display: block; height: auto;" alt="Post image" />
-                            }
-                            else if (firstMedia.MediaType == SpritzBuddy.Models.PostMediaType.Video)
-                            {
-                                <video controls class="w-100" style="display: block; height: auto;">
-                                    <source src="@firstMedia.FilePath" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-                            }
+                        var mediaList = post.PostMedias.OrderBy(pm => pm.OrderIndex).ToList();
+                        var carouselId = $"instagram-carousel-home-{post.Id}";
+                        
+                        <div class="position-relative" style="background: #000; line-height: 0;">
+                            <div class="instagram-carousel" id="@carouselId" style="width: 100%; position: relative;">
+                                <!-- Images Container -->
+                                <div class="instagram-carousel-images" style="width: 100%; position: relative; overflow: hidden;">
+                                    @for (int i = 0; i < mediaList.Count; i++)
+                                    {
+                                        var media = mediaList[i];
+                                        <div class="instagram-carousel-item @(i == 0 ? "active" : "")" 
+                                             style="display: @(i == 0 ? "flex" : "none"); width: 100%; align-items: center; justify-content: center;">
+                                            @if (media.MediaType == SpritzBuddy.Models.PostMediaType.Video)
+                                            {
+                                                <video controls class="w-100" style="display: block; height: auto; max-height: 600px; object-fit: contain;">
+                                                    <source src="@media.FilePath" type="video/mp4">
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            }
+                                            else
+                                            {
+                                                <img src="@media.FilePath" class="w-100" style="display: block; height: auto; object-fit: contain;" alt="Post image" />
+                                            }
+                                        </div>
+                                    }
+                                </div>
+                                
+                                @if (mediaList.Count > 1)
+                                {
+                                    <!-- Previous Arrow -->
+                                    <button class="instagram-arrow instagram-arrow-prev" onclick="instagramCarousel('@carouselId', 'prev'); return false;" 
+                                            style="position: absolute; left: 8px; top: 50%; transform: translateY(-50%); z-index: 100; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.3); transition: all 0.2s; opacity: 0.6;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="15 18 9 12 15 6"></polyline>
+                                        </svg>
+                                    </button>
+
+                                    <!-- Next Arrow -->
+                                    <button class="instagram-arrow instagram-arrow-next" onclick="instagramCarousel('@carouselId', 'next'); return false;"
+                                            style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); z-index: 100; background: rgba(255, 255, 255, 0.7); border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.3); transition: all 0.2s; opacity: 0.6;">
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                            <polyline points="9 18 15 12 9 6"></polyline>
+                                        </svg>
+                                    </button>
+
+                                    <!-- Indicators -->
+                                    <div class="instagram-indicators" style="position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 100; display: flex; gap: 5px;">
+                                        @for (int i = 0; i < mediaList.Count; i++)
+                                        {
+                                            <div class="instagram-indicator @(i == 0 ? "active" : "")" 
+                                                 style="width: 6px; height: 6px; border-radius: 50%; background: @(i == 0 ? "rgba(255,255,255,0.9)" : "rgba(255,255,255,0.4)"); transition: all 0.3s; cursor: pointer;"
+                                                 onclick="instagramCarousel('@carouselId', @i); return false;"></div>
+                                        }
+                                    </div>
+                                }
+                            </div>
                         </div>
                     }
                     else
@@ -363,5 +404,63 @@
                 });
             });
         });
+        
+        // Instagram Carousel Function
+        function instagramCarousel(carouselId, action) {
+            const carousel = document.getElementById(carouselId);
+            if (!carousel) return;
+            
+            const items = carousel.querySelectorAll('.instagram-carousel-item');
+            const indicators = carousel.querySelectorAll('.instagram-indicator');
+            
+            let currentIndex = -1;
+            items.forEach((item, index) => {
+                if (item.classList.contains('active')) {
+                    currentIndex = index;
+                }
+            });
+            
+            let newIndex = currentIndex;
+            
+            if (action === 'prev') {
+                newIndex = currentIndex - 1;
+                if (newIndex < 0) newIndex = items.length - 1;
+            } else if (action === 'next') {
+                newIndex = currentIndex + 1;
+                if (newIndex >= items.length) newIndex = 0;
+            } else if (typeof action === 'number') {
+                newIndex = action;
+            }
+            
+            if (newIndex === currentIndex) return;
+            
+            // Hide current
+            items[currentIndex].classList.remove('active');
+            items[currentIndex].style.display = 'none';
+            if (indicators[currentIndex]) {
+                indicators[currentIndex].classList.remove('active');
+                indicators[currentIndex].style.background = 'rgba(255,255,255,0.4)';
+            }
+            
+            // Show new
+            items[newIndex].classList.add('active');
+            items[newIndex].style.display = 'flex';
+            if (indicators[newIndex]) {
+                indicators[newIndex].classList.add('active');
+                indicators[newIndex].style.background = 'rgba(255,255,255,0.9)';
+            }
+        }
     </script>
+    
+    <style>
+        .instagram-arrow:hover {
+            background: rgba(255, 255, 255, 0.95) !important;
+            opacity: 1 !important;
+        }
+        
+        .instagram-indicator:hover {
+            background: rgba(255, 255, 255, 0.9) !important;
+            transform: scale(1.15);
+        }
+    </style>
 }
