@@ -46,9 +46,9 @@ namespace SpritzBuddy.Controllers
             if (!await _moderationService.IsContentSafeAsync(content))
             {
                 if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
-                    return Json(new { success = false, message = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
+                    return Json(new { success = false, message = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
                 
-                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                TempData["Error"] = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
                 return RedirectToAction("PostComments", new { id = postId });
             }
 
@@ -229,7 +229,7 @@ namespace SpritzBuddy.Controllers
             // AI Content Moderation
             if (!await _moderationService.IsContentSafeAsync(content))
             {
-                return Json(new { success = false, message = "Continutul tau contine termeni nepotriviti. Te rugam sa reformulezi." });
+                return Json(new { success = false, message = "🚫 localhost says: You need to be nice! 🤬\nConținutul tău conține termeni nepotriviți. Te rugăm să reformulezi." });
             }
 
             var comment = await _context.Comments.FindAsync(id);

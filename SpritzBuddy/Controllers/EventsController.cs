@@ -220,5 +220,97 @@ namespace SpritzBuddy.Controllers
                 return Json(new { error = ex.Message });
             }
         }
+
+        // GET: Events/Edit/5
+        [HttpGet]
+        public async Task<IActionResult> Edit(int id)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var evt = await _groupService.GetEventDetailsAsync(id);
+            if (evt == null) return NotFound();
+
+            // Check permissions: organizer, group moderator, or admin
+            var isAdmin = User.IsInRole("Administrator");
+            var isOrganizer = evt.OrganizerId == user.Id;
+            var isModerator = evt.Group?.ModeratorId == user.Id;
+
+            if (!isAdmin && !isOrganizer && !isModerator)
+            {
+                return Forbid();
+            }
+
+            ViewBag.GroupId = evt.GroupId;
+            ViewBag.GroupName = evt.Group?.Name;
+            return View(evt);
+        }
+
+        // POST: Events/Edit/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Edit(int id, string title, string description, DateTime eventDate, string? location)
+        {
+            var user = await _userManager.GetUserAsync(User);
+            if (user == null) return Unauthorized();
+
+            var evt = await _groupService.GetEventDetailsAsync(id);
+            if (evt == null) return NotFound();
+
+            // Check permissions
+            var isAdmin = User.IsInRole("Administrator");
+            var isOrganizer = evt.OrganizerId == user.Id;
+            var isModerator = evt.Group?.ModeratorId == user.Id;
+
+            if (!isAdmin && !isOrganizer && !isModerator)
+            {
+                return Forbid();
+            }
+
+            // Content Moderation Check
+            if (!await _moderationService.IsContentSafeAsync(title) || 
+                !await _moderationService.IsContentSafeAsync(description))
+            {
+                TempData["Error"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
+                
+                // Preserve user input
+                evt.Title = title;
+                evt.Description = description;
+                evt.EventDate = eventDate;
+                evt.Location = location;
+                
+                ViewBag.GroupId = evt.GroupId;
+                ViewBag.GroupName = evt.Group?.Name;
+                return View(evt);
+            }
+
+            try
+            {
+                // Update event
+                evt.Title = title;
+                evt.Description = description;
+                evt.EventDate = eventDate;
+                evt.Location = location;
+
+                await _groupService.UpdateEventAsync(evt);
+                
+                TempData["Success"] = "Eveniment actualizat cu succes!";
+                return RedirectToAction("Details", new { id = evt.Id });
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                
+                // Preserve user input on error
+                evt.Title = title;
+                evt.Description = description;
+                evt.EventDate = eventDate;
+                evt.Location = location;
+                
+                ViewBag.GroupId = evt.GroupId;
+                ViewBag.GroupName = evt.Group?.Name;
+                return View(evt);
+            }
+        }
     }
 }

@@ -436,6 +436,12 @@ namespace SpritzBuddy.Services
             return true;
         }
 
+        public async Task UpdateEventAsync(Event evt)
+        {
+            _context.Events.Update(evt);
+            await _context.SaveChangesAsync();
+        }
+
         public async Task DeleteEventAsync(int eventId, int userId, bool isAdmin = false)
         {
             var evt = await _context.Events

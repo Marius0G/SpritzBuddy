@@ -38,17 +38,17 @@
                 
                 @if (canEdit || canDelete)
                 {
-                    <div class="btn-group">
+                    <div class="d-flex gap-2">
                         @if (canEdit)
                         {
-                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning btn-sm">
+                            <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-warning">
                                 <i class="bi bi-pencil"></i> Edit
                             </a>
                         }
                         @if (canDelete)
                         {
                             <form asp-action="Delete" asp-route-id="@Model.Id" method="post" onsubmit="return confirm('Sigur vrei sa stergi acest eveniment?');" class="d-inline">
-                                <button type="submit" class="btn btn-danger btn-sm">
+                                <button type="submit" class="btn btn-danger">
                                     <i class="bi bi-trash"></i> Sterge
                                 </button>
                             </form>

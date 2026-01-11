@@ -282,17 +282,27 @@ namespace SpritzBuddy.Controllers
             if (user == null)
                 return Unauthorized();
             
+            // Get the message first to preserve it if moderation fails
+            var message = await _groupService.GetMessageForEditAsync(id, user.Id);
+            var isAdmin = User.IsInRole("Administrator");
+            
+            if (message == null && isAdmin)
+            {
+                message = await _groupService.GetMessageByIdAsync(id);
+            }
+            
+            if (message == null)
+                return Forbid();
+            
             // Content Moderation Check
             if (!await _moderationService.IsContentSafeAsync(newContent))
             {
                 TempData["ErrorMessage"] = "Conținutul tău conține termeni nepotriviți. Te rugăm să reformulezi.";
-                var groupId = await _groupService.GetGroupIdForMessageAsync(id);
-                if (groupId.HasValue)
-                    return RedirectToAction("Details", new { id = groupId.Value });
-                return RedirectToAction("Index");
+                
+                // Preserve user input
+                message.Content = newContent;
+                return View(message);
             }
-            
-            var isAdmin = User.IsInRole("Administrator");
             
             try
             {

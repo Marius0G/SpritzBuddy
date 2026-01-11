@@ -39,6 +39,7 @@ namespace SpritzBuddy.Services
         Task<List<Event>> GetGroupEventsAsync(int groupId);
         Task<Event?> GetEventDetailsAsync(int eventId);
         Task<bool> RespondToEventAsync(int eventId, int userId, EventParticipantStatus status);
+        Task UpdateEventAsync(Event evt);
         Task DeleteEventAsync(int eventId, int userId, bool isAdmin = false);
         Task<List<Event>> GetEventsByOrganizerAsync(int organizerId);
         Task<List<Event>> GetEventsUserIsAttendingAsync(int userId);

@@ -8,21 +8,44 @@
     <div class="row justify-content-center">
         <div class="col-md-6">
             <div class="card shadow-sm">
-                <div class="card-header bg-white">
-                    <h4>Edit Message</h4>
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0"><i class="bi bi-chat-dots"></i> Edit Message</h4>
                 </div>
                 <div class="card-body">
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            <strong>localhost says:</strong> You need to be nice! ??<br/>
+                            @TempData["ErrorMessage"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+                    
                     <form asp-action="EditMessage" method="post">
+                        @Html.AntiForgeryToken()
                         <input type="hidden" name="id" value="@Model.Id" />
                         
                         <div class="mb-3">
-                            <label class="form-label">Message Content</label>
-                            <textarea name="newContent" class="form-control" rows="4" required>@Model.Content</textarea>
+                            <label class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Message Content *
+                            </label>
+                            <textarea name="newContent" 
+                                      class="form-control" 
+                                      rows="4" 
+                                      required 
+                                      maxlength="1000"
+                                      placeholder="Edit your message...">@Model.Content</textarea>
+                            <small class="text-muted">Maxim 1000 caractere</small>
                         </div>
                         
-                        <div class="d-flex justify-content-between">
-                            <a asp-action="Details" asp-route-id="@Model.GroupId" class="btn btn-secondary">Cancel</a>
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        <div class="d-flex justify-content-between gap-2">
+                            <a asp-action="Details" asp-route-id="@Model.GroupId" class="btn btn-secondary">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Save Changes
+                            </button>
                         </div>
                     </form>
                 </div>

@@ -1,0 +1,114 @@
+@model SpritzBuddy.Models.Event
+
+@{
+    ViewData["Title"] = "Editeaz? Eveniment";
+    var groupId = ViewBag.GroupId;
+    var groupName = ViewBag.GroupName;
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-calendar-event"></i> Editeaz? Eveniment
+                    </h3>
+                    <small>Grup: @groupName</small>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Error"] != null)
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill"></i> 
+                            <strong>localhost says:</strong> You need to be nice! ??<br/>
+                            @TempData["Error"]
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    }
+
+                    <form asp-action="Edit" method="post">
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" name="id" value="@Model.Id" />
+
+                        <div class="mb-3">
+                            <label for="title" class="form-label">
+                                <i class="bi bi-card-heading"></i> Titlu Eveniment *
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="title" 
+                                   name="title" 
+                                   value="@Model.Title" 
+                                   required 
+                                   maxlength="150"
+                                   placeholder="Ex: Ie?ire la terasa" />
+                            <small class="text-muted">Maxim 150 caractere</small>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="description" class="form-label">
+                                <i class="bi bi-text-paragraph"></i> Descriere
+                            </label>
+                            <textarea class="form-control" 
+                                      id="description" 
+                                      name="description" 
+                                      rows="4" 
+                                      maxlength="1000"
+                                      placeholder="Detalii despre eveniment...">@Model.Description</textarea>
+                            <small class="text-muted">Maxim 1000 caractere</small>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="eventDate" class="form-label">
+                                    <i class="bi bi-calendar3"></i> Data ?i Ora *
+                                </label>
+                                <input type="datetime-local" 
+                                       class="form-control" 
+                                       id="eventDate" 
+                                       name="eventDate" 
+                                       value="@Model.EventDate.ToString("yyyy-MM-ddTHH:mm")" 
+                                       required />
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label for="location" class="form-label">
+                                    <i class="bi bi-geo-alt"></i> Loca?ie
+                                </label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="location" 
+                                       name="location" 
+                                       value="@Model.Location" 
+                                       maxlength="250"
+                                       placeholder="Ex: Terasa Central" />
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> 
+                            Toate câmpurile marcate cu * sunt obligatorii.
+                        </div>
+
+                        <div class="d-flex justify-content-between gap-3">
+                            <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-secondary">
+                                <i class="bi bi-arrow-left"></i> Anuleaz?
+                            </a>
+                            <button type="submit" class="btn btn-success btn-lg">
+                                <i class="bi bi-check-circle"></i> Salveaz? Modific?rile
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Set minimum date to now
+        document.getElementById('eventDate').min = new Date().toISOString().slice(0, 16);
+    </script>
+}
